@@ -36,6 +36,7 @@ import com.glowup.app.ui.theme.*
 private data class QuickAccess(val label: String, val icon: Int, val bg: Color, val route: String? = null)
 
 private val quickAccessItems = listOf(
+    QuickAccess("Looks", R.drawable.ic_looks, CoralTint, "looks"),
     QuickAccess("Sleep", R.drawable.ic_moon, BlueTint, "sleep"),
     QuickAccess("Confidence", R.drawable.ic_heart, GreenTint, "confidence"),
     QuickAccess("Talk", R.drawable.ic_speech, CoralTint, "communication"),
@@ -72,11 +73,11 @@ fun HomeScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(18.dp),
             ) {
-                quickAccessItems.forEach { item ->
+                items(quickAccessItems) { item ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier

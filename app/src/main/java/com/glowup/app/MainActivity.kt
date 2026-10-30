@@ -16,6 +16,8 @@ import com.glowup.app.ui.screens.communication.CommunicationScreen
 import com.glowup.app.ui.screens.confidence.ConfidenceScreen
 import com.glowup.app.ui.screens.home.HomeScreen
 import com.glowup.app.ui.screens.lesson.LessonDetailScreen
+import com.glowup.app.ui.screens.looks.GroomingDetailScreen
+import com.glowup.app.ui.screens.looks.LooksScreen
 import com.glowup.app.ui.screens.mood.MoodCheckinScreen
 import com.glowup.app.ui.screens.morning.MorningScreen
 import com.glowup.app.ui.screens.notes.QuotesNotesScreen
@@ -75,6 +77,13 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("id") { type = NavType.IntType }),
                     ) { backStackEntry ->
                         LessonDetailScreen(navController, backStackEntry.arguments?.getInt("id") ?: 0)
+                    }
+                    composable("looks") { LooksScreen(navController) }
+                    composable(
+                        "grooming_detail/{id}",
+                        arguments = listOf(navArgument("id") { type = NavType.IntType }),
+                    ) { backStackEntry ->
+                        GroomingDetailScreen(navController, backStackEntry.arguments?.getInt("id") ?: 0)
                     }
                     composable(
                         "style_guide_detail/{title}",

@@ -39,6 +39,7 @@ object RoutineStore {
 
     private fun styleFor(category: String): Triple<Color, Color, Int> = when (category) {
         "Looks" -> Triple(CoralTint, Coral, R.drawable.ic_looks)
+        "Fitness" -> Triple(GreenTint, Green, R.drawable.ic_determined)
         "Mind" -> Triple(PurpleTint, Purple, R.drawable.ic_reflective)
         "Social" -> Triple(GreenTint, Green, R.drawable.ic_social)
         "Style" -> Triple(BlueTint, Navy, R.drawable.ic_style)

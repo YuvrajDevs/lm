@@ -44,6 +44,11 @@ private val initialItems = listOf(
     WardrobeItem("Shoes", "White sneakers", "White · Daily, College", GreenTint, Green),
     WardrobeItem("Top", "Black tee", "Black · Daily, Casual", PurpleTint, Purple),
     WardrobeItem("Accessory", "Leather watch", "Brown · Office, Date", MaroonTint, Maroon),
+    WardrobeItem("Bottom", "Dark denim", "Indigo · Casual, Date", BlueTint, Navy),
+    WardrobeItem("Outerwear", "Navy bomber jacket", "Navy · Casual, Travel", NavyTint, Navy),
+    WardrobeItem("Shoes", "Black derbies", "Black · Office, Formal", GreenTint, Green),
+    WardrobeItem("Accessory", "Minimal chain necklace", "Silver · Date, Casual", MaroonTint, Maroon),
+    WardrobeItem("Top", "Grey hoodie", "Grey · Gym, Casual", PurpleTint, Purple),
 )
 
 private val tints = listOf(BlueTint to Navy, CoralTint to Coral, GreenTint to Green, PurpleTint to Purple, MaroonTint to Maroon)
@@ -64,6 +69,7 @@ fun WardrobeScreen(navController: NavHostController) {
         "Bottoms" -> item.category == "Bottom"
         "Shoes" -> item.category == "Shoes"
         "Accessories" -> item.category == "Accessory"
+        "Outerwear" -> item.category == "Outerwear"
         else -> true
     }
 
@@ -77,7 +83,7 @@ fun WardrobeScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(24.dp, 16.dp, 24.dp, 0.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                items(listOf("All", "Tops", "Bottoms", "Shoes", "Accessories")) { filter ->
+                items(listOf("All", "Tops", "Bottoms", "Shoes", "Outerwear", "Accessories")) { filter ->
                     val selected = filter == selectedFilter
                     Box(
                         modifier = Modifier
@@ -194,7 +200,7 @@ fun WardrobeScreen(navController: NavHostController) {
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                         )
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("Top", "Bottom", "Shoes", "Accessory").forEach { cat ->
+                            listOf("Top", "Bottom", "Shoes", "Outerwear", "Accessory").forEach { cat ->
                                 val sel = newCategory.ifBlank { "Top" } == cat
                                 Box(
                                     modifier = Modifier

@@ -70,6 +70,16 @@ private val outfitIdeasByOccasion = mapOf(
         "Bandhgala with light embroidery" to "Traditional and sharp for the main ceremony.",
         "Kurta + churidar in muted tones" to "Classic, comfortable, and easy to move in.",
     ),
+    "Interview" to listOf(
+        "Light blue shirt + navy trousers" to "Professional without being a full suit.",
+        "Half-sleeve sweater over a collared shirt" to "Polished and approachable.",
+        "Charcoal blazer + plain tee" to "Sharp for a startup or creative interview.",
+    ),
+    "Gym" to listOf(
+        "Moisture-wicking tee + shorts" to "Breathable for a heavy session.",
+        "Compression tee + joggers" to "Good for lifting days.",
+        "Tank top + track pants" to "Keeps you cool for cardio.",
+    ),
 )
 
 @Composable

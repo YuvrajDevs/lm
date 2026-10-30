@@ -43,7 +43,14 @@ private val sounds = listOf(
     SoundTile("Forest", GreenTint, R.drawable.ic_tree),
     SoundTile("White Noise", PurpleTint, R.drawable.ic_ocean),
     SoundTile("Ocean Waves", CoralTint, R.drawable.ic_ocean),
+    SoundTile("Crackling Fire", MaroonTint, R.drawable.ic_sun),
+    SoundTile("Deep Space", NavyTint, R.drawable.ic_moon),
+    SoundTile("Soft Wind", GreenTint, R.drawable.ic_tree),
+    SoundTile("Brown Noise", PurpleTint, R.drawable.ic_ocean),
 )
+
+private val bedtimeOptions = listOf("9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM", "12:00 AM")
+private val wakeOptions = listOf("5:30 AM", "6:00 AM", "6:30 AM", "7:00 AM", "7:30 AM", "8:00 AM")
 
 @Composable
 fun SleepScreen(navController: NavHostController) {
@@ -51,6 +58,10 @@ fun SleepScreen(navController: NavHostController) {
     var timerMinutes by remember { mutableStateOf(30) }
     var showTimerDialog by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(false) }
+    var bedtime by remember { mutableStateOf("11:00 PM") }
+    var wakeTime by remember { mutableStateOf("7:00 AM") }
+    var showBedtimeDialog by remember { mutableStateOf(false) }
+    var showWakeDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -71,9 +82,9 @@ fun SleepScreen(navController: NavHostController) {
                         Column(modifier = Modifier.fillMaxWidth(0.72f)) {
                             Text("YOU USUALLY SLEEP BY", color = Color(0xFF6B4FD1), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(2.dp))
-                            Text("11:00 PM", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                            Text(bedtime, fontSize = 26.sp, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(2.dp))
-                            Text("About 8 hours before your alarm.", color = Color(0xFF5A4A8C), fontSize = 12.5.sp)
+                            Text("Wakes you by $wakeTime.", color = Color(0xFF5A4A8C), fontSize = 12.5.sp)
                         }
                         Image(painterResource(R.drawable.ic_sleep), contentDescription = null, modifier = Modifier.align(Alignment.BottomEnd).size(78.dp))
                     }
@@ -82,12 +93,16 @@ fun SleepScreen(navController: NavHostController) {
 
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        listOf("Bedtime alarm" to "11:00 PM", "Wake-up alarm" to "7:00 AM").forEach { (label, time) ->
+                        listOf(
+                            Triple("Bedtime alarm", bedtime) { showBedtimeDialog = true },
+                            Triple("Wake-up alarm", wakeTime) { showWakeDialog = true },
+                        ).forEach { (label, time, onClick) ->
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(22.dp))
                                     .background(CardNeutral)
+                                    .clickable { onClick() }
                                     .padding(16.dp, 14.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
@@ -197,8 +212,40 @@ fun SleepScreen(navController: NavHostController) {
                 secondaryText = null,
                 content = {
                     Column {
-                        listOf(15, 30, 45, 60, 90).forEach { minutes ->
+                        listOf(10, 15, 30, 45, 60, 90, 120).forEach { minutes ->
                             GlowUpOptionRow("$minutes minutes", selected = minutes == timerMinutes) { timerMinutes = minutes }
+                        }
+                    }
+                },
+            )
+        }
+
+        if (showBedtimeDialog) {
+            GlowUpDialog(
+                onDismissRequest = { showBedtimeDialog = false },
+                title = "Bedtime alarm",
+                primaryText = "Close",
+                secondaryText = null,
+                content = {
+                    Column {
+                        bedtimeOptions.forEach { time ->
+                            GlowUpOptionRow(time, selected = time == bedtime) { bedtime = time }
+                        }
+                    }
+                },
+            )
+        }
+
+        if (showWakeDialog) {
+            GlowUpDialog(
+                onDismissRequest = { showWakeDialog = false },
+                title = "Wake-up alarm",
+                primaryText = "Close",
+                secondaryText = null,
+                content = {
+                    Column {
+                        wakeOptions.forEach { time ->
+                            GlowUpOptionRow(time, selected = time == wakeTime) { wakeTime = time }
                         }
                     }
                 },

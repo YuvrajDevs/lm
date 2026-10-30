@@ -45,7 +45,18 @@ private data class TemplateGroup(val label: String, val icon: Int, val tint: Col
 private val templateGroups = listOf(
     TemplateGroup(
         "Looks", R.drawable.ic_looks, CoralTint,
-        listOf("Skincare — AM & PM", "Posture check", "Drink 2L of water", "Cold shower", "Stretch your neck & shoulders"),
+        listOf(
+            "Skincare — AM & PM", "Posture check", "Drink 2L of water", "Cold shower",
+            "Stretch your neck & shoulders", "Eyebrow check", "Beard trim & shape",
+            "Apply SPF before leaving", "Change your pillowcase",
+        ),
+    ),
+    TemplateGroup(
+        "Fitness", R.drawable.ic_determined, GreenTint,
+        listOf(
+            "10-minute morning walk", "20 push-ups", "Stretch before bed",
+            "Posture-fix exercises", "Jaw & neck mobility", "Take the stairs today",
+        ),
     ),
     TemplateGroup(
         "Mind", R.drawable.ic_reflective, PurpleTint,
@@ -61,7 +72,7 @@ private val templateGroups = listOf(
     ),
     TemplateGroup(
         "Sleep", R.drawable.ic_sleep, BlueTint,
-        listOf("Screens off 30 min before bed", "Same bedtime every night", "No caffeine after 4 PM"),
+        listOf("Screens off 30 min before bed", "Same bedtime every night", "No caffeine after 4 PM", "Wind-down stretch routine"),
     ),
     TemplateGroup(
         "Life admin", R.drawable.ic_lifeadmin, NavyTint,
@@ -213,7 +224,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                     Text("Area", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(10.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(listOf("Looks", "Sleep", "Mind", "Social", "Style")) { area ->
+                        items(listOf("Looks", "Fitness", "Sleep", "Mind", "Social", "Style", "Life admin")) { area ->
                             val selected = area == selectedArea
                             Box(
                                 modifier = Modifier

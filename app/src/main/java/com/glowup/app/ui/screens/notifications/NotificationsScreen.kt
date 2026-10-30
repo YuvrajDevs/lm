@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.GlowUpOptionRow
 import com.glowup.app.ui.theme.*
 
 private data class ReminderItem(val title: String, val meta: String, val defaultOn: Boolean)
@@ -46,12 +47,31 @@ private val builtInReminders = listOf(
     ReminderItem("Eating nudge", "A gentle nudge, not a fixed schedule", false),
 )
 
+private data class SuggestedReminder(val title: String, val defaultTime: String)
+
+private val suggestedReminders = listOf(
+    SuggestedReminder("Posture check", "Every 2 hours"),
+    SuggestedReminder("Stand up & stretch", "Every hour"),
+    SuggestedReminder("Skincare — PM routine", "9:30 PM · Daily"),
+    SuggestedReminder("Floss before bed", "10:00 PM · Daily"),
+    SuggestedReminder("Drink water", "Every 2 hours"),
+    SuggestedReminder("Lay out tomorrow's outfit", "8:00 PM · Daily"),
+    SuggestedReminder("Wind down — screens off", "10:30 PM · Daily"),
+    SuggestedReminder("Weekly wardrobe refresh", "Sun · Weekly"),
+)
+
+private val timeChipOptions = listOf(
+    "Every hour", "Every 2 hours", "8:00 AM · Daily", "7:00 PM · Daily",
+    "9:00 PM · Daily", "10:00 PM · Daily", "Sun · Weekly", "Notification only",
+)
+
 @Composable
 fun NotificationsScreen(navController: NavHostController) {
     val customReminders = remember { yourReminders.toMutableStateList() }
     var showAddDialog by remember { mutableStateOf(false) }
     var newTitle by remember { mutableStateOf("") }
-    var newTime by remember { mutableStateOf("") }
+    var newTime by remember { mutableStateOf(timeChipOptions.first()) }
+    var showTimePicker by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -72,6 +92,35 @@ fun NotificationsScreen(navController: NavHostController) {
                     Spacer(Modifier.height(10.dp))
                 }
                 items(builtInReminders) { ReminderRow(it); Spacer(Modifier.height(10.dp)) }
+                item { Spacer(Modifier.height(10.dp)) }
+                item {
+                    Text("SUGGESTED FOR YOU", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                    Spacer(Modifier.height(10.dp))
+                }
+                items(suggestedReminders.filter { s -> customReminders.none { it.title == s.title } }) { suggestion ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 10.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(ChipNeutral)
+                            .clickable { customReminders.add(0, ReminderItem(suggestion.title, suggestion.defaultTime, true)) }
+                            .padding(16.dp, 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(suggestion.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text(suggestion.defaultTime, color = TextSecondary, fontSize = 12.sp)
+                        }
+                        Box(
+                            modifier = Modifier.size(28.dp).clip(CircleShape).background(Ink),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
+                        }
+                    }
+                }
                 item { Spacer(Modifier.height(70.dp)) }
             }
         }
@@ -91,16 +140,16 @@ fun NotificationsScreen(navController: NavHostController) {
 
         if (showAddDialog) {
             GlowUpDialog(
-                onDismissRequest = { showAddDialog = false; newTitle = ""; newTime = "" },
+                onDismissRequest = { showAddDialog = false; newTitle = ""; newTime = timeChipOptions.first() },
                 title = "Add a reminder",
                 secondaryText = "Cancel",
                 primaryText = "Add",
                 primaryEnabled = newTitle.isNotBlank(),
                 onPrimary = {
-                    customReminders.add(0, ReminderItem(newTitle.trim(), newTime.ifBlank { "Notification only" }, true))
+                    customReminders.add(0, ReminderItem(newTitle.trim(), newTime, true))
                     showAddDialog = false
                     newTitle = ""
-                    newTime = ""
+                    newTime = timeChipOptions.first()
                 },
                 content = {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -111,13 +160,34 @@ fun NotificationsScreen(navController: NavHostController) {
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                         )
-                        OutlinedTextField(
-                            value = newTime,
-                            onValueChange = { newTime = it },
-                            placeholder = { Text("e.g. 8:00 PM · Daily") },
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(CardNeutral)
+                                .clickable { showTimePicker = true }
+                                .padding(16.dp, 14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(newTime, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            Text("Change", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                },
+            )
+        }
+
+        if (showTimePicker) {
+            GlowUpDialog(
+                onDismissRequest = { showTimePicker = false },
+                title = "When?",
+                primaryText = "Close",
+                secondaryText = null,
+                content = {
+                    Column {
+                        timeChipOptions.forEach { time ->
+                            GlowUpOptionRow(time, selected = time == newTime) { newTime = time }
+                        }
                     }
                 },
             )

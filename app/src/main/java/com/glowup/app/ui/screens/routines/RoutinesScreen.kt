@@ -56,7 +56,7 @@ fun RoutinesScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(listOf("All", "Looks", "Mind", "Social", "Style", "Sleep", "Life admin")) { filter ->
+                items(listOf("All", "Looks", "Fitness", "Mind", "Social", "Style", "Sleep", "Life admin")) { filter ->
                     val count = if (filter == "All") allCards.size else allCards.count { it.area.startsWith(filter.uppercase()) }
                     val selected = filter == selectedFilter
                     Box(
