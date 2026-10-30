@@ -56,6 +56,18 @@ fun WardrobeScreen(navController: NavHostController) {
     var newTitle by remember { mutableStateOf("") }
     var newCategory by remember { mutableStateOf("") }
     var newMeta by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf("All") }
+
+    fun matchesFilter(item: WardrobeItem) = when (selectedFilter) {
+        "All" -> true
+        "Tops" -> item.category == "Top"
+        "Bottoms" -> item.category == "Bottom"
+        "Shoes" -> item.category == "Shoes"
+        "Accessories" -> item.category == "Accessory"
+        else -> true
+    }
+
+    val filteredItems = items.filter(::matchesFilter)
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -65,15 +77,16 @@ fun WardrobeScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(24.dp, 16.dp, 24.dp, 0.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                items(listOf("All · ${items.size}", "Tops", "Bottoms", "Shoes", "Accessories")) { chip ->
-                    val selected = chip.startsWith("All")
+                items(listOf("All", "Tops", "Bottoms", "Shoes", "Accessories")) { filter ->
+                    val selected = filter == selectedFilter
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(999.dp))
                             .background(if (selected) Ink else ChipNeutral)
+                            .clickable { selectedFilter = filter }
                             .padding(18.dp, 10.dp),
                     ) {
-                        Text(chip, color = if (selected) Color.White else Ink, fontSize = 13.5.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                        Text(filter, color = if (selected) Color.White else Ink, fontSize = 13.5.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
                     }
                 }
             }
@@ -85,7 +98,7 @@ fun WardrobeScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(items) { item ->
+                items(filteredItems) { item ->
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -159,7 +172,7 @@ fun WardrobeScreen(navController: NavHostController) {
                     val (tint, accent) = tints[items.size % tints.size]
                     items.add(
                         WardrobeItem(
-                            newCategory.ifBlank { "Item" },
+                            newCategory.ifBlank { "Top" },
                             newTitle.trim(),
                             newMeta.ifBlank { "Added just now" },
                             tint,
@@ -180,13 +193,20 @@ fun WardrobeScreen(navController: NavHostController) {
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                         )
-                        OutlinedTextField(
-                            value = newCategory,
-                            onValueChange = { newCategory = it },
-                            placeholder = { Text("Category, e.g. Top") },
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
-                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            listOf("Top", "Bottom", "Shoes", "Accessory").forEach { cat ->
+                                val sel = newCategory.ifBlank { "Top" } == cat
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(999.dp))
+                                        .background(if (sel) Ink else ChipNeutral)
+                                        .clickable { newCategory = cat }
+                                        .padding(12.dp, 8.dp),
+                                ) {
+                                    Text(cat, color = if (sel) Color.White else Ink, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                        }
                         OutlinedTextField(
                             value = newMeta,
                             onValueChange = { newMeta = it },

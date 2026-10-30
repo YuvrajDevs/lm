@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,9 +31,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.theme.Coral
 import com.glowup.app.ui.theme.Ink
+import kotlin.random.Random
+
+private val randomTopics = listOf(
+    "Weekend", "A food you love", "Your favourite season", "A skill you want to learn",
+    "The last trip you took", "A movie that stuck with you", "Your morning routine",
+)
 
 @Composable
-fun SpeakingPracticeScreen(navController: NavHostController) {
+fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = null) {
+    val displayTopic = remember { topic ?: randomTopics[Random.nextInt(randomTopics.size)] }
     val transition = rememberInfiniteTransition(label = "pulse")
     val scale by transition.animateFloat(
         initialValue = 1f,
@@ -82,7 +90,13 @@ fun SpeakingPracticeScreen(navController: NavHostController) {
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(8.dp))
-                Text("\"Weekend\"", color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "\"$displayTopic\"",
+                    color = Color.White,
+                    fontSize = if (displayTopic.length > 16) 24.sp else 34.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                )
 
                 Spacer(Modifier.height(28.dp))
 

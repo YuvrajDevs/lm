@@ -15,6 +15,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +37,9 @@ import com.glowup.app.ui.theme.*
 
 @Composable
 fun RoutinesScreen(navController: NavHostController) {
-    val routineCards = RoutineStore.items
+    var selectedFilter by remember { mutableStateOf("All") }
+    val allCards = RoutineStore.items
+    val routineCards = if (selectedFilter == "All") allCards else allCards.filter { it.area.startsWith(selectedFilter.uppercase()) }
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -50,15 +56,17 @@ fun RoutinesScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(listOf("All · ${routineCards.size}", "Looks", "Mind", "Social", "Style")) { chip ->
-                    val selected = chip.startsWith("All")
+                items(listOf("All", "Looks", "Mind", "Social", "Style", "Sleep", "Life admin")) { filter ->
+                    val count = if (filter == "All") allCards.size else allCards.count { it.area.startsWith(filter.uppercase()) }
+                    val selected = filter == selectedFilter
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(999.dp))
                             .background(if (selected) Ink else ChipNeutral)
+                            .clickable { selectedFilter = filter }
                             .padding(16.dp, 9.dp),
                     ) {
-                        Text(chip, color = if (selected) Color.White else Ink, fontSize = 13.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                        Text("$filter · $count", color = if (selected) Color.White else Ink, fontSize = 13.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
                     }
                 }
             }

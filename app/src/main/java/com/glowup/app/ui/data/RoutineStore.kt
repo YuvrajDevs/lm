@@ -37,6 +37,22 @@ object RoutineStore {
 
     fun find(id: Int) = items.firstOrNull { it.id == id }
 
+    private fun styleFor(category: String): Triple<Color, Color, Int> = when (category) {
+        "Looks" -> Triple(CoralTint, Coral, R.drawable.ic_looks)
+        "Mind" -> Triple(PurpleTint, Purple, R.drawable.ic_reflective)
+        "Social" -> Triple(GreenTint, Green, R.drawable.ic_social)
+        "Style" -> Triple(BlueTint, Navy, R.drawable.ic_style)
+        "Sleep" -> Triple(BlueTint, Navy, R.drawable.ic_sleep)
+        else -> Triple(NavyTint, Navy, R.drawable.ic_lifeadmin)
+    }
+
+    fun add(category: String, title: String, frequency: String = "DAILY") {
+        if (items.any { it.title == title }) return
+        val nextId = (items.maxOfOrNull { it.id } ?: 0) + 1
+        val (tint, accent, icon) = styleFor(category)
+        items.add(RoutineEntry(nextId, "${category.uppercase()} · $frequency", title, 0, List(7) { false }, tint, accent, icon))
+    }
+
     fun toggleToday(id: Int) {
         val index = items.indexOfFirst { it.id == id }
         if (index < 0) return

@@ -44,20 +44,41 @@ private val styleGuides = listOf(
     StyleGuide("Old Money", CoralTint, Coral),
     StyleGuide("Streetwear", GreenTint, Green),
     StyleGuide("Minimal", PurpleTint, Purple),
+    StyleGuide("Athleisure", GreenTint, Green),
+    StyleGuide("Formal", NavyTint, Navy),
     StyleGuide("Jewellery", MaroonTint, Maroon, pro = true),
 )
 
-private val outfitIdeas = listOf(
-    "Light linen shirt + chinos" to "Breathable for the humidity — from your wardrobe.",
-    "Navy polo + tailored shorts" to "Smart-casual and cool for the Mumbai afternoon.",
-    "Black tee + light trousers" to "Simple, clean, and easy to layer with your watch.",
+private val outfitIdeasByOccasion = mapOf(
+    "Office" to listOf(
+        "Light linen shirt + chinos" to "Breathable for the humidity — from your wardrobe.",
+        "Navy polo + tailored shorts" to "Smart-casual and cool for the Mumbai afternoon.",
+        "Black tee + light trousers" to "Simple, clean, and easy to layer with your watch.",
+    ),
+    "College" to listOf(
+        "Graphic tee + relaxed denim" to "Easy and comfortable between classes.",
+        "Oversized hoodie + joggers" to "Low effort, still put together.",
+        "Plain tee + cargo pants" to "Casual with a bit of edge.",
+    ),
+    "Date" to listOf(
+        "Navy shirt + beige chinos" to "Smart but relaxed — works for most first dates.",
+        "Black button-up + dark denim" to "A little sharper without overdressing.",
+        "Knit polo + tailored trousers" to "Understated and confident.",
+    ),
+    "Wedding" to listOf(
+        "Pastel linen shirt + beige trousers" to "Festive but comfortable for a day event.",
+        "Bandhgala with light embroidery" to "Traditional and sharp for the main ceremony.",
+        "Kurta + churidar in muted tones" to "Classic, comfortable, and easy to move in.",
+    ),
 )
 
 @Composable
 fun StylingScreen(navController: NavHostController) {
+    var selectedOccasion by remember { mutableStateOf("Office") }
     var ideaIndex by remember { mutableStateOf(0) }
     var ideasLeft by remember { mutableStateOf(3) }
     var showPaywall by remember { mutableStateOf(false) }
+    val outfitIdeas = outfitIdeasByOccasion.getValue(selectedOccasion)
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -82,12 +103,13 @@ fun StylingScreen(navController: NavHostController) {
 
                 item {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        items(listOf("Office", "College", "Date", "Wedding")) { chip ->
-                            val selected = chip == "Office"
+                        items(outfitIdeasByOccasion.keys.toList()) { chip ->
+                            val selected = chip == selectedOccasion
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(999.dp))
                                     .background(if (selected) Ink else ChipNeutral)
+                                    .clickable { selectedOccasion = chip; ideaIndex = 0 }
                                     .padding(18.dp, 10.dp),
                             ) {
                                 Text(chip, color = if (selected) Color.White else Ink, fontSize = 13.5.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
@@ -106,7 +128,7 @@ fun StylingScreen(navController: NavHostController) {
                             .padding(20.dp, 18.dp, 92.dp, 18.dp),
                     ) {
                         Column(modifier = Modifier.fillMaxWidth(0.68f)) {
-                            Text("TODAY'S PICK FOR OFFICE", color = Navy, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text("TODAY'S PICK FOR ${selectedOccasion.uppercase()}", color = Navy, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(4.dp))
                             Text(outfitIdeas[ideaIndex].first, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(4.dp))

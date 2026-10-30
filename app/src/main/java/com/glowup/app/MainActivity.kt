@@ -15,6 +15,7 @@ import com.glowup.app.ui.screens.addroutine.AddRoutineScreen
 import com.glowup.app.ui.screens.communication.CommunicationScreen
 import com.glowup.app.ui.screens.confidence.ConfidenceScreen
 import com.glowup.app.ui.screens.home.HomeScreen
+import com.glowup.app.ui.screens.lesson.LessonDetailScreen
 import com.glowup.app.ui.screens.mood.MoodCheckinScreen
 import com.glowup.app.ui.screens.morning.MorningScreen
 import com.glowup.app.ui.screens.notes.QuotesNotesScreen
@@ -61,6 +62,20 @@ class MainActivity : ComponentActivity() {
                     composable("ai_stylist") { AiStylistScreen(navController) }
                     composable("morning") { MorningScreen(navController) }
                     composable("speaking_practice") { SpeakingPracticeScreen(navController) }
+                    composable(
+                        "speaking_practice/{topic}",
+                        arguments = listOf(navArgument("topic") { type = NavType.StringType }),
+                    ) { backStackEntry ->
+                        val encoded = backStackEntry.arguments?.getString("topic")
+                        val decoded = encoded?.let { java.net.URLDecoder.decode(it, "UTF-8") }
+                        SpeakingPracticeScreen(navController, decoded)
+                    }
+                    composable(
+                        "lesson_detail/{id}",
+                        arguments = listOf(navArgument("id") { type = NavType.IntType }),
+                    ) { backStackEntry ->
+                        LessonDetailScreen(navController, backStackEntry.arguments?.getInt("id") ?: 0)
+                    }
                     composable(
                         "style_guide_detail/{title}",
                         arguments = listOf(navArgument("title") { type = NavType.StringType }),

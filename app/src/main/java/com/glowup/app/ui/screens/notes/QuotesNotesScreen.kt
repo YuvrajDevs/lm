@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +46,12 @@ private val quotes = listOf(
     Quote("\"Confidence is a skill you practise, not a trait you're born with.\"", "Confidence", CardNeutral),
     Quote("\"Dress for the day you want, not just the one you're having.\"", "Style", BlueTint),
     Quote("\"Sleep is the easiest glow-up most people skip.\"", "Sleep", GreenTint),
+    Quote("\"Nobody is thinking about you nearly as much as you think they are.\"", "Confidence", PurpleTint),
+    Quote("\"The person you'll be in a year is built by what you repeat this week.\"", "Habits", CardNeutral),
+    Quote("\"Say less, listen more — people remember how you made them feel.\"", "Communication", GreenTint),
+    Quote("\"Posture is a sentence you say before you've said a word.\"", "Style", CoralTint),
+    Quote("\"Discipline is just choosing between what you want now and what you want most.\"", "Habits", BlueTint),
+    Quote("\"A good night's sleep solves more problems than a strong cup of coffee.\"", "Sleep", CardNeutral),
 )
 
 private data class Note(val label: String, val body: String, val tint: Color, val labelColor: Color, val italic: Boolean = false)
@@ -58,7 +65,10 @@ private val notes = listOf(
 @Composable
 fun QuotesNotesScreen(navController: NavHostController) {
     var showQuotes by remember { mutableStateOf(true) }
+    var selectedTag by remember { mutableStateOf("All") }
     var likedQuotes by remember { mutableStateOf(quotes.filter { it.hasHeartIcon }.map { it.text }.toSet()) }
+    val quoteTags = listOf("All") + quotes.map { it.tag }.distinct()
+    val filteredQuotes = if (selectedTag == "All") quotes else quotes.filter { it.tag == selectedTag }
     val noteItems = remember { notes.toMutableStateList() }
     var showAddNote by remember { mutableStateOf(false) }
     var newNoteText by remember { mutableStateOf("") }
@@ -88,12 +98,29 @@ fun QuotesNotesScreen(navController: NavHostController) {
             }
 
             if (showQuotes) {
+                LazyRow(
+                    contentPadding = PaddingValues(24.dp, 12.dp, 24.dp, 0.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(quoteTags) { tag ->
+                        val selected = tag == selectedTag
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(if (selected) Ink else ChipNeutral)
+                                .clickable { selectedTag = tag }
+                                .padding(16.dp, 9.dp),
+                        ) {
+                            Text(tag, color = if (selected) Color.White else Ink, fontSize = 12.5.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                        }
+                    }
+                }
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(24.dp, 14.dp, 24.dp, 24.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    items(quotes) { quote ->
+                    items(filteredQuotes) { quote ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()

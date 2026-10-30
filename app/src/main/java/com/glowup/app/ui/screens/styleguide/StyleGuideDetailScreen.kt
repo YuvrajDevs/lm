@@ -58,6 +58,20 @@ private val styleGuideContents = mapOf(
         listOf("Solid-colour tee or shirt", "Straight-leg trousers", "Clean white or black sneakers", "One quiet accessory, max"),
         listOf("Avoid busy prints and logos", "Don't mix more than two neutral tones"),
     ),
+    "Athleisure" to StyleGuideContent(
+        "Athleisure",
+        "Sport-inspired comfort that still looks put together.",
+        GreenTint, Color(0xFF2B6B4C), Green,
+        listOf("Fitted joggers or track pants", "A clean crewneck or zip hoodie", "Quality trainers, kept clean", "A cap or a minimal crossbody bag"),
+        listOf("Don't mix more than two bold logos", "Keep the fit tailored — baggy everywhere reads sloppy, not sporty"),
+    ),
+    "Formal" to StyleGuideContent(
+        "Formal",
+        "Sharp, deliberate, built for the room that matters.",
+        NavyTint, Color(0xFF2C4E8E), Navy,
+        listOf("A well-fitted suit in navy or charcoal", "Crisp dress shirt, pressed", "Leather Oxfords or derbies", "A tie or pocket square that matches, not clashes"),
+        listOf("Get the fit tailored — off-the-rack rarely sits right", "Don't mix more than two patterns at once"),
+    ),
     "Jewellery" to StyleGuideContent(
         "Jewellery",
         "Small details, big difference. Wear metal with intention.",

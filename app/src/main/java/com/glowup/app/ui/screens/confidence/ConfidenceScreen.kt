@@ -36,6 +36,13 @@ private val cards = listOf(
     ConfidenceCard("Compliment someone genuinely", "+8 points", true),
     ConfidenceCard("Start one new conversation", "+9 points", false, CoralTint, R.drawable.ic_talking),
     ConfidenceCard("Speak out loud for 2 minutes", "+9 points", false, BlueTint, R.drawable.ic_talking),
+    ConfidenceCard("Ask a question in a group setting", "+9 points", false, GreenTint, R.drawable.ic_social),
+    ConfidenceCard("Say no to something you don't want to do", "+10 points", false, PurpleTint, R.drawable.ic_mind),
+    ConfidenceCard("Sit or stand with open, relaxed posture today", "+8 points", false),
+    ConfidenceCard("Share an opinion before someone asks for it", "+10 points", false, CoralTint, R.drawable.ic_talking),
+    ConfidenceCard("Introduce yourself to someone new", "+9 points", false, BlueTint, R.drawable.ic_talking),
+    ConfidenceCard("Accept a compliment without deflecting it", "+8 points", false),
+    ConfidenceCard("Ask for help with something small", "+8 points", false, GreenTint, R.drawable.ic_social),
 )
 
 @Composable

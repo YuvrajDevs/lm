@@ -37,15 +37,36 @@ import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
 import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.theme.*
 
 private data class TemplateGroup(val label: String, val icon: Int, val tint: Color, val items: List<String>)
 
 private val templateGroups = listOf(
-    TemplateGroup("Looks", R.drawable.ic_looks, CoralTint, listOf("Skincare — AM & PM", "Posture check")),
-    TemplateGroup("Mind", R.drawable.ic_reflective, PurpleTint, listOf("Journaling or gratitude", "Phone-free first 30 min")),
-    TemplateGroup("Life admin", R.drawable.ic_lifeadmin, BlueTint, listOf("Tidy your desk", "Plan tomorrow's top 3")),
-    TemplateGroup("Style", R.drawable.ic_style, BlueTint, listOf("Lay out tomorrow's outfit")),
+    TemplateGroup(
+        "Looks", R.drawable.ic_looks, CoralTint,
+        listOf("Skincare — AM & PM", "Posture check", "Drink 2L of water", "Cold shower", "Stretch your neck & shoulders"),
+    ),
+    TemplateGroup(
+        "Mind", R.drawable.ic_reflective, PurpleTint,
+        listOf("Journaling or gratitude", "Phone-free first 30 min", "5-minute meditation", "Read 10 pages", "No social media before noon"),
+    ),
+    TemplateGroup(
+        "Social", R.drawable.ic_social, GreenTint,
+        listOf("2-minute eye contact practice", "Message a friend first", "Compliment someone genuinely", "Start one new conversation"),
+    ),
+    TemplateGroup(
+        "Style", R.drawable.ic_style, BlueTint,
+        listOf("Lay out tomorrow's outfit", "Polish your shoes", "Iron a shirt for the week", "Declutter one wardrobe shelf"),
+    ),
+    TemplateGroup(
+        "Sleep", R.drawable.ic_sleep, BlueTint,
+        listOf("Screens off 30 min before bed", "Same bedtime every night", "No caffeine after 4 PM"),
+    ),
+    TemplateGroup(
+        "Life admin", R.drawable.ic_lifeadmin, NavyTint,
+        listOf("Tidy your desk", "Plan tomorrow's top 3", "Inbox zero for 10 minutes", "Review your budget"),
+    ),
 )
 
 @Composable
@@ -54,6 +75,11 @@ fun AddRoutineScreen(navController: NavHostController) {
     var addedItems by remember { mutableStateOf(setOf<String>()) }
     var showTimeDialog by remember { mutableStateOf(false) }
     var selectedTime by remember { mutableStateOf("9:00 PM") }
+    var customText by remember { mutableStateOf("") }
+    var selectedArea by remember { mutableStateOf("Looks") }
+    var showSaved by remember { mutableStateOf(false) }
+
+    fun groupFor(item: String) = templateGroups.firstOrNull { item in it.items }?.label ?: "Looks"
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -120,9 +146,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                         Spacer(Modifier.height(20.dp))
                     }
                 } else {
-                    var customText by remember { mutableStateOf("") }
                     val selectedDays = remember { mutableStateListOf(true, true, true, true, true, false, false) }
-                    var selectedArea by remember { mutableStateOf("Looks") }
 
                     Text("What do you want to do?", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(8.dp))
@@ -206,18 +230,37 @@ fun AddRoutineScreen(navController: NavHostController) {
             }
 
             Box(modifier = Modifier.padding(24.dp, 14.dp, 24.dp, 28.dp)) {
+                val canSave = if (showTemplates) addedItems.isNotEmpty() else customText.isNotBlank()
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
                         .clip(RoundedCornerShape(999.dp))
-                        .background(Ink)
-                        .clickable { navController.popBackStack() },
+                        .background(if (canSave) Ink else Color(0xFFD8D5CE))
+                        .clickable(enabled = canSave) {
+                            if (showTemplates) {
+                                addedItems.forEach { item -> RoutineStore.add(groupFor(item), item) }
+                            } else {
+                                RoutineStore.add(selectedArea, customText.trim())
+                            }
+                            showSaved = true
+                        },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text("Save routine", color = Color.White, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
+        }
+
+        if (showSaved) {
+            GlowUpDialog(
+                onDismissRequest = { navController.popBackStack() },
+                title = "Routine saved",
+                message = "It's been added to your routines list.",
+                primaryText = "Done",
+                secondaryText = null,
+                onPrimary = { navController.popBackStack() },
+            )
         }
 
         if (showTimeDialog) {
