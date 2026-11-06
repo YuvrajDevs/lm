@@ -2,6 +2,7 @@ package com.glowup.app.ui.data
 
 object Stores {
     fun loadAll() {
+        ProStore.load()
         ProfileStore.load()
         ProgressStore.load()
         RoutineStore.load()

@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import com.glowup.app.notify.Notifications
+import com.glowup.app.ui.components.ProPaywall
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.screens.focus.FocusScreen
 import com.glowup.app.ui.screens.learn.LearnScreen
@@ -144,8 +145,14 @@ class MainActivity : ComponentActivity() {
                         RoutineDetailScreen(navController, backStackEntry.arguments?.getInt("id") ?: 0)
                     }
                 }
+                ProPaywall()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        com.glowup.app.billing.Billing.refreshPurchases()
     }
 
     override fun onNewIntent(intent: Intent) {

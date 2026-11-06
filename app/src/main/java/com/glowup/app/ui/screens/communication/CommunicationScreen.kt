@@ -1,5 +1,8 @@
 package com.glowup.app.ui.screens.communication
 
+import com.glowup.app.ui.components.ProBadge
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.ProGate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -98,7 +101,10 @@ fun CommunicationScreen(navController: NavHostController) {
                                 .padding(bottom = 10.dp)
                                 .clip(RoundedCornerShape(20.dp))
                                 .background(lesson.tint)
-                                .clickable { navController.navigate("lesson_detail/${lesson.id}") }
+                                .clickable {
+                                    if (ProGate.talkLessonLocked(lesson.id)) ProStore.showPaywall("${lesson.title} is a Pro lesson")
+                                    else navController.navigate("lesson_detail/${lesson.id}")
+                                }
                                 .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -118,7 +124,9 @@ fun CommunicationScreen(navController: NavHostController) {
                                     fontWeight = FontWeight.SemiBold,
                                 )
                             }
-                            if (done) {
+                            if (ProGate.talkLessonLocked(lesson.id)) {
+                                ProBadge()
+                            } else if (done) {
                                 Text("✓", color = Green, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             }
                         }

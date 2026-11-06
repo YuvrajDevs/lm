@@ -1,5 +1,8 @@
 package com.glowup.app.ui.screens.sleep
 
+import com.glowup.app.ui.components.ProBadge
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.ProGate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -81,7 +84,7 @@ private val wakeOptions = listOf(LocalTime.of(5, 0), LocalTime.of(5, 30), LocalT
 @Composable
 fun SleepScreen(navController: NavHostController) {
     val context = LocalContext.current
-    val selectedSound = SleepStore.sound
+    val selectedSound = if (ProGate.soundLocked(SleepStore.sound)) "Night Rain" else SleepStore.sound
     val timerMinutes = SleepStore.timerMinutes
     val playingSound by SleepSoundService.playing
     val endsAt by SleepSoundService.endsAtElapsed
@@ -191,13 +194,20 @@ fun SleepScreen(navController: NavHostController) {
                                     .background(sound.tint)
                                     .border(2.dp, if (isSelected) Ink else Color.Transparent, RoundedCornerShape(22.dp))
                                     .clickable {
-                                        SleepStore.selectSound(sound.label)
-                                        if (playingSound != null) SleepSoundService.play(context, sound.label, timerMinutes)
+                                        if (ProGate.soundLocked(sound.label)) {
+                                            ProStore.showPaywall("${sound.label} is a Pro sleep sound")
+                                        } else {
+                                            SleepStore.selectSound(sound.label)
+                                            if (playingSound != null) SleepSoundService.play(context, sound.label, timerMinutes)
+                                        }
                                     }
                                     .padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                             ) {
-                                Icon(sound.icon, contentDescription = null, tint = sound.accent, modifier = Modifier.size(28.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Icon(sound.icon, contentDescription = null, tint = sound.accent, modifier = Modifier.size(28.dp))
+                                    if (ProGate.soundLocked(sound.label)) ProBadge()
+                                }
                                 Text(sound.label, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }

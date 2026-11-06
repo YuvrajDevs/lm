@@ -37,6 +37,10 @@ import com.glowup.app.ui.theme.*
 @Composable
 fun StyleGuideDetailScreen(navController: NavHostController, key: String) {
     val guide = StyleLibrary.guide(key) ?: StyleLibrary.guides.first()
+    if (com.glowup.app.ui.data.ProGate.guideLocked(guide.key)) {
+        com.glowup.app.ui.components.ProLockedScreen(navController, guide.title, "The ${guide.title} guide and its ${guide.outfits.size} looks are part of Pro")
+        return
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         DetailHeader("Style guide") { navController.goBack() }
@@ -125,6 +129,15 @@ private fun Hero(guide: StyleGuide) {
             .background(guide.tint)
             .padding(22.dp),
     ) {
+        com.glowup.app.ui.components.artworkOrNull(com.glowup.app.ui.components.guideArtworkName(guide.key))?.let { cover ->
+            Image(
+                painterResource(cover),
+                contentDescription = guide.title,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(20.dp)),
+            )
+            Spacer(Modifier.height(18.dp))
+        }
         Text("STYLE GUIDE · ${guide.outfits.size} LOOKS", color = guide.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
         Spacer(Modifier.height(6.dp))
         Text(guide.title, fontSize = 30.sp, fontWeight = FontWeight.Bold, lineHeight = 34.sp)

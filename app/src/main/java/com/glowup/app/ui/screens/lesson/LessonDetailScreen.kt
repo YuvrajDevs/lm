@@ -34,6 +34,10 @@ import java.net.URLEncoder
 @Composable
 fun LessonDetailScreen(navController: NavHostController, id: Int) {
     val lesson = LessonStore.find(id) ?: return
+    if (com.glowup.app.ui.data.ProGate.talkLessonLocked(id)) {
+        com.glowup.app.ui.components.ProLockedScreen(navController, lesson.title, "${lesson.title} is a Pro lesson")
+        return
+    }
     var showDone by remember { mutableStateOf(false) }
     val done = LessonStore.isDone(lesson.id)
 

@@ -1,5 +1,8 @@
 package com.glowup.app.ui.screens.styling
 
+import com.glowup.app.ui.components.ProBadge
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.ProGate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,7 +46,13 @@ import com.glowup.app.ui.theme.*
 fun StylingScreen(navController: NavHostController) {
     var occasion by rememberSaveable { mutableStateOf("Office") }
     var offset by remember(occasion) { mutableStateOf(0) }
-    val options = StyleLibrary.forOccasion(occasion)
+    val all = StyleLibrary.forOccasion(occasion)
+    val options = all.filterNot { ProGate.outfitLocked(it) }.ifEmpty { all }
+    val proOnlyCount = all.count { ProGate.outfitLocked(it) }
+    fun openOutfit(outfit: com.glowup.app.ui.data.style.Outfit) {
+        if (ProGate.outfitLocked(outfit)) ProStore.showPaywall("${outfit.name} is part of the ${StyleLibrary.guide(outfit.styleKey)?.title} Pro guide")
+        else navController.navigate("outfit/${outfit.id}")
+    }
     val pick = options[(StyleLibrary.pickOfTheDay(occasion) + offset) % options.size]
     val pickGuide = StyleLibrary.guide(pick.styleKey)!!
     val saved = SavedLooksStore.ids.mapNotNull { StyleLibrary.outfit(it) }
@@ -56,7 +65,7 @@ fun StylingScreen(navController: NavHostController) {
             item {
                 Text("Styling", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(24.dp, 32.dp, 24.dp, 0.dp))
                 Text(
-                    "${StyleLibrary.outfits.size} looks across ${StyleLibrary.guides.size} styles",
+                    if (ProStore.isPro) "${StyleLibrary.outfits.size} looks across ${StyleLibrary.guides.size} styles" else "${StyleLibrary.guides.count { !ProGate.guideLocked(it.key) }} free styles · ${StyleLibrary.guides.size} with Pro",
                     color = TextSecondary,
                     fontSize = 13.sp,
                     modifier = Modifier.padding(horizontal = 24.dp),
@@ -88,7 +97,7 @@ fun StylingScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(28.dp))
                         .background(CardNeutral)
-                        .clickable { navController.navigate("outfit/${pick.id}") }
+                        .clickable { openOutfit(pick) }
                         .padding(12.dp),
                 ) {
                     OutfitBoard(pick, height = 250.dp)
@@ -101,7 +110,13 @@ fun StylingScreen(navController: NavHostController) {
                             letterSpacing = 0.4.sp,
                         )
                         Spacer(Modifier.height(4.dp))
-                        Text(pick.name, fontSize = 21.sp, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(pick.name, fontSize = 21.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f, fill = false))
+                            if (ProGate.outfitLocked(pick)) {
+                                Spacer(Modifier.width(8.dp))
+                                ProBadge()
+                            }
+                        }
                         Spacer(Modifier.height(4.dp))
                         Text(pick.pieces.joinToString(" · ") { it.name }, color = TextSecondary, fontSize = 12.5.sp, lineHeight = 18.sp, maxLines = 2)
                         Spacer(Modifier.height(14.dp))
@@ -112,10 +127,10 @@ fun StylingScreen(navController: NavHostController) {
                                     .height(46.dp)
                                     .clip(RoundedCornerShape(999.dp))
                                     .background(Ink)
-                                    .clickable { navController.navigate("outfit/${pick.id}") },
+                                    .clickable { openOutfit(pick) },
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text("See the breakdown", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text(if (ProGate.outfitLocked(pick)) "Unlock with Pro" else "See the breakdown", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
                             }
                             Row(
                                 modifier = Modifier
@@ -131,6 +146,15 @@ fun StylingScreen(navController: NavHostController) {
                                 Text("Another", fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
+                        if (proOnlyCount > 0 && options.size < all.size) {
+                            Text(
+                                "+$proOnlyCount more ${occasion.lowercase()} looks with Pro",
+                                color = Color(0xFF8A6A00),
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(top = 12.dp).clickable { ProStore.showPaywall("Unlock every ${occasion.lowercase()} look") },
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.height(14.dp))
@@ -143,7 +167,9 @@ fun StylingScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(22.dp))
                         .background(Ink)
-                        .clickable { navController.navigate("ai_stylist") }
+                        .clickable {
+                            if (ProGate.stylistLocked) ProStore.showPaywall("The AI stylist is part of Pro") else navController.navigate("ai_stylist")
+                        }
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -164,7 +190,7 @@ fun StylingScreen(navController: NavHostController) {
                     SectionTitle("Saved looks", "${saved.size} saved")
                     LazyRow(contentPadding = PaddingValues(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                         items(saved, key = { it.id }) { outfit ->
-                            OutfitCard(outfit, Modifier.width(200.dp), showStyle = true) { navController.navigate("outfit/${outfit.id}") }
+                            OutfitCard(outfit, Modifier.width(200.dp), showStyle = true) { openOutfit(outfit) }
                         }
                     }
                 }
@@ -184,11 +210,17 @@ fun StylingScreen(navController: NavHostController) {
                                 .fillMaxHeight()
                                 .clip(RoundedCornerShape(22.dp))
                                 .background(guide.tint)
-                                .clickable { navController.navigate("style_guide_detail/${guide.key}") }
+                                .clickable {
+                                    if (ProGate.guideLocked(guide.key)) ProStore.showPaywall("The ${guide.title} guide is part of Pro")
+                                    else navController.navigate("style_guide_detail/${guide.key}")
+                                }
                                 .padding(16.dp),
                         ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
-                                guide.palette.forEach { SwatchDot(it.color, 22.dp) }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(horizontalArrangement = Arrangement.spacedBy((-6).dp), modifier = Modifier.weight(1f)) {
+                                    guide.palette.forEach { SwatchDot(it.color, 22.dp) }
+                                }
+                                if (ProGate.guideLocked(guide.key)) ProBadge()
                             }
                             Spacer(Modifier.height(14.dp))
                             Text(guide.title, fontSize = 16.sp, fontWeight = FontWeight.Bold)

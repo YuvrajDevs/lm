@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Artwork is looked up by name at runtime, so resource shrinking must not strip it. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/outfit_*,@drawable/guide_*" />

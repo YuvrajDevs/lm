@@ -17,3 +17,4 @@ app/release/
 # Keystores
 *.jks
 *.keystore
+keystore.properties

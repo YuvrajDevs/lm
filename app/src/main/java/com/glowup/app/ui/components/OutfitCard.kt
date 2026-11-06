@@ -36,7 +36,17 @@ fun OutfitBoard(outfit: Outfit, modifier: Modifier = Modifier, height: Dp = 210.
             .clip(RoundedCornerShape(22.dp))
             .background(guide?.tint ?: CardNeutral),
     ) {
-        OutfitArt(outfit, Modifier.fillMaxSize().padding(14.dp))
+        val artwork = artworkOrNull(outfitArtworkName(outfit.id))
+        if (artwork != null) {
+            androidx.compose.foundation.Image(
+                androidx.compose.ui.res.painterResource(artwork),
+                contentDescription = outfit.name,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            OutfitArt(outfit, Modifier.fillMaxSize().padding(14.dp))
+        }
         if (SavedLooksStore.isSaved(outfit.id)) {
             Box(
                 modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).size(28.dp).clip(CircleShape).background(Color.White),

@@ -1,5 +1,7 @@
 package com.glowup.app.ui.screens.learn
 
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.ProGate
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -67,6 +69,10 @@ private sealed interface Step {
 fun SessionScreen(navController: NavHostController, index: Int) {
     val session = Program.sessions.getOrNull(index) ?: return
     val initialState = remember { ProgramStore.state(index) }
+    if (ProGate.sessionLocked(index)) {
+        com.glowup.app.ui.components.ProLockedScreen(navController, "Day ${session.day}: ${session.title}", "Weeks 3–12 of the programme are part of Pro")
+        return
+    }
     if (initialState == SessionState.LOCKED) {
         LockedSession(navController, session)
         return
@@ -405,9 +411,15 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
 
         Spacer(Modifier.height(26.dp))
         if (!reviewing && next != null) {
-            BottomButton("Next session · Day ${next.day}", Ink, padding = false) {
-                navController.navigate("session/${next.index}") {
-                    popUpTo("session/{index}") { inclusive = true }
+            if (ProGate.sessionLocked(next.index)) {
+                BottomButton("Unlock weeks 3–12 with Pro", Ink, padding = false) {
+                    ProStore.showPaywall("You've finished the free weeks — keep going with the full programme")
+                }
+            } else {
+                BottomButton("Next session · Day ${next.day}", Ink, padding = false) {
+                    navController.navigate("session/${next.index}") {
+                        popUpTo("session/{index}") { inclusive = true }
+                    }
                 }
             }
             Text(

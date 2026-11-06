@@ -1,5 +1,8 @@
 package com.glowup.app.ui.screens.morning
 
+import com.glowup.app.ui.components.ProBadge
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.ProGate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -86,7 +89,10 @@ fun MorningScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(22.dp))
                             .background(activity.tint)
-                            .clickable { navController.navigate("morning_session/$index") }
+                            .clickable {
+                                if (ProGate.morningSessionLocked(index)) ProStore.showPaywall("${activity.session.title} is a Pro session")
+                                else navController.navigate("morning_session/$index")
+                            }
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -101,6 +107,7 @@ fun MorningScreen(navController: NavHostController) {
                             Text(activity.session.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                             Text(activity.session.meta, color = TextSecondary, fontSize = 12.sp)
                         }
+                        if (ProGate.morningSessionLocked(index)) ProBadge()
                         Box(
                             modifier = Modifier.size(36.dp).clip(CircleShape).background(Ink),
                             contentAlignment = Alignment.Center,

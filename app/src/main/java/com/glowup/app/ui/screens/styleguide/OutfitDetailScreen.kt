@@ -42,6 +42,10 @@ import com.glowup.app.ui.theme.*
 fun OutfitDetailScreen(navController: NavHostController, id: String) {
     val outfit = StyleLibrary.outfit(id) ?: return
     val guide = StyleLibrary.guide(outfit.styleKey) ?: return
+    if (com.glowup.app.ui.data.ProGate.outfitLocked(outfit)) {
+        com.glowup.app.ui.components.ProLockedScreen(navController, outfit.name, "This look is part of the ${guide.title} Pro guide")
+        return
+    }
     val saved = SavedLooksStore.isSaved(outfit.id)
     val todoTitle = "Wear: ${outfit.name}"
     val planned = TodoStore.items.any { it.title == todoTitle && !it.done }

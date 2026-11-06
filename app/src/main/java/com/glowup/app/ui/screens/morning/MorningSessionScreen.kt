@@ -40,6 +40,10 @@ private const val COMPLETION_POINTS = 5
 @Composable
 fun MorningSessionScreen(navController: NavHostController, index: Int) {
     val session = morningSessions.getOrNull(index) ?: return
+    if (com.glowup.app.ui.data.ProGate.morningSessionLocked(index)) {
+        com.glowup.app.ui.components.ProLockedScreen(navController, session.title, "${session.title} is a Pro session")
+        return
+    }
     var stepIndex by remember { mutableStateOf(0) }
     var remaining by remember { mutableStateOf(session.steps.first().seconds) }
     var paused by remember { mutableStateOf(false) }

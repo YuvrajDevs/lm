@@ -77,14 +77,18 @@ fun HomeScreen(navController: NavHostController) {
                     Text(DailyContent.greeting(), color = TextSecondary, fontSize = 13.sp)
                     Text("Hey, ${ProfileStore.firstName}", style = MaterialTheme.typography.headlineMedium, fontSize = 24.sp)
                 }
-                Box(
-                    modifier = Modifier
-                        .size(52.dp)
-                        .background(Ink, CircleShape)
-                        .clickable { navController.navigate("notifications") },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    com.glowup.app.ui.components.ProCrownButton { com.glowup.app.ui.data.ProStore.showPaywall() }
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(Ink)
+                            .clickable { navController.navigate("notifications") },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
+                    }
                 }
             }
 
@@ -238,13 +242,17 @@ fun HomeScreen(navController: NavHostController) {
 private fun TodaySessionCard(navController: NavHostController) {
     val next = ProgramStore.next ?: return
     val doneToday = ProgramStore.doneToday()
+    val locked = com.glowup.app.ui.data.ProGate.sessionLocked(next.index)
     val learningStreak = ProgramStore.streakDays()
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(next.area.tint)
-            .clickable { navController.navigate("session/${next.index}") }
+            .clickable {
+                if (locked) com.glowup.app.ui.data.ProStore.showPaywall("You've finished the free weeks — keep going with the full programme")
+                else navController.navigate("session/${next.index}")
+            }
             .padding(20.dp, 18.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -272,7 +280,7 @@ private fun TodaySessionCard(navController: NavHostController) {
             Box(
                 modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(18.dp, 10.dp),
             ) {
-                Text(if (doneToday) "Keep going" else "Start session", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+                Text(if (locked) "Unlock with Pro" else if (doneToday) "Keep going" else "Start session", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.width(12.dp))
             when {

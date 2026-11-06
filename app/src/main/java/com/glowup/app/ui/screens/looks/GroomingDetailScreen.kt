@@ -36,6 +36,10 @@ private const val FACE_SHAPE_LESSON_ID = 5
 @Composable
 fun GroomingDetailScreen(navController: NavHostController, id: Int) {
     val lesson = GroomingStore.find(id) ?: return
+    if (com.glowup.app.ui.data.ProGate.groomingLessonLocked(id)) {
+        com.glowup.app.ui.components.ProLockedScreen(navController, lesson.title, "${lesson.title} is a Pro guide")
+        return
+    }
     var showDone by remember { mutableStateOf(false) }
     var showAddedToRoutine by remember { mutableStateOf(false) }
     val done = GroomingStore.isDone(lesson.id)

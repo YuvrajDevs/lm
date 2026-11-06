@@ -1,5 +1,8 @@
 package com.glowup.app.ui.screens.looks
 
+import com.glowup.app.ui.components.ProBadge
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.ProGate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -73,7 +76,10 @@ fun LooksScreen(navController: NavHostController) {
                                 .padding(bottom = 10.dp)
                                 .clip(RoundedCornerShape(20.dp))
                                 .background(lesson.tint)
-                                .clickable { navController.navigate("grooming_detail/${lesson.id}") }
+                                .clickable {
+                                    if (ProGate.groomingLessonLocked(lesson.id)) ProStore.showPaywall("${lesson.title} is a Pro guide")
+                                    else navController.navigate("grooming_detail/${lesson.id}")
+                                }
                                 .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -93,7 +99,9 @@ fun LooksScreen(navController: NavHostController) {
                                     fontWeight = FontWeight.SemiBold,
                                 )
                             }
-                            if (done) {
+                            if (ProGate.groomingLessonLocked(lesson.id)) {
+                                ProBadge()
+                            } else if (done) {
                                 Text("✓", color = Green, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             }
                         }

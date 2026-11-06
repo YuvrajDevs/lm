@@ -1,5 +1,8 @@
 package com.glowup.app.ui.screens.settings
 
+import com.glowup.app.BuildConfig
+import com.glowup.app.billing.Billing
+import com.glowup.app.ui.data.ProStore
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -61,6 +64,7 @@ private val faqs = listOf(
     "How do points and streaks work?" to "You earn points for checking off routines, to-dos, lessons, mood check-ins, confidence cards and practice sessions. Any day you earn points counts towards your streak. Every 100 points is a new level.",
     "Why didn't a reminder arrive?" to "Make sure notifications are allowed for Glow-Up. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time.",
     "Do sleep sounds need the internet?" to "No. They're generated on your phone and keep playing with the screen off until the sleep timer fades them out.",
+    "What do I get with Pro?" to "The full 12-week programme, every style guide and outfit breakdown, every lesson and guide, and all sleep sounds and morning sessions. Manage or cancel any time in Google Play.",
     "Is my speaking practice recorded?" to "Only while you practise, so you can listen back. The recording is deleted as soon as you leave the screen.",
 )
 
@@ -69,6 +73,7 @@ fun SettingsScreen(navController: NavHostController) {
     val context = LocalContext.current
     var dialog by remember { mutableStateOf<String?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var restoreMessage by remember { mutableStateOf<String?>(null) }
     var nameDraft by remember { mutableStateOf(ProfileStore.name) }
     var focusDraft by remember { mutableStateOf(ProfileStore.focusAreas.toSet()) }
 
@@ -113,7 +118,7 @@ fun SettingsScreen(navController: NavHostController) {
                 Image(painterResource(R.drawable.ic_profile), contentDescription = null, modifier = Modifier.size(46.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(ProfileStore.name.ifBlank { "Your profile" }, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text("Level ${ProgressStore.level} · ${ProgressStore.points} points", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp)
+                    Text((if (ProStore.isPro) "Glow-Up Pro · " else "") + "Level ${ProgressStore.level} · ${ProgressStore.points} points", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp)
                 }
                 Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(18.dp))
             }
@@ -133,6 +138,26 @@ fun SettingsScreen(navController: NavHostController) {
                         nameDraft = ProfileStore.name
                         focusDraft = ProfileStore.focusAreas.toSet()
                         dialog = label
+                    },
+                )
+                settingsSection(
+                    "Glow-Up Pro",
+                    listOfNotNull(
+                        SettingsRow(if (ProStore.isPro) "Your Pro plan" else "Upgrade to Pro", if (ProStore.isPro) "Active" else null),
+                        SettingsRow("Restore purchases"),
+                        if (BuildConfig.DEBUG) SettingsRow("Developer: simulate Pro", if (ProStore.debugOverride) "On" else "Off") else null,
+                    ),
+                    onRowClick = { label ->
+                        when (label) {
+                            "Restore purchases" -> {
+                                restoreMessage = "Checking Google Play…"
+                                Billing.refreshPurchases { found ->
+                                    restoreMessage = if (found) "Pro restored — everything is unlocked." else "No Pro purchase found on this Google account."
+                                }
+                            }
+                            "Developer: simulate Pro" -> ProStore.updateDebugOverride(!ProStore.debugOverride)
+                            else -> ProStore.showPaywall()
+                        }
                     },
                 )
                 settingsSection(
@@ -257,6 +282,17 @@ fun SettingsScreen(navController: NavHostController) {
             )
         }
 
+        restoreMessage?.let { text ->
+            GlowUpDialog(
+                onDismissRequest = { restoreMessage = null },
+                title = "Restore purchases",
+                message = text,
+                primaryText = "OK",
+                secondaryText = null,
+                onPrimary = { restoreMessage = null },
+            )
+        }
+
         if (showDeleteConfirm) {
             GlowUpDialog(
                 onDismissRequest = { showDeleteConfirm = false },
@@ -269,6 +305,7 @@ fun SettingsScreen(navController: NavHostController) {
                     showDeleteConfirm = false
                     SleepSoundService.stop(context)
                     Stores.deleteAll()
+                    Billing.refreshPurchases()
                     navController.navigate("onboarding") { popUpTo(navController.graph.id) { inclusive = true } }
                 },
             )

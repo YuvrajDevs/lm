@@ -1,5 +1,8 @@
 package com.glowup.app.ui.screens.learn
 
+import com.glowup.app.ui.components.ProBadge
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.ProGate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,6 +58,10 @@ fun LearnScreen(navController: NavHostController) {
     val done = ProgramStore.completedCount
 
     fun open(session: ProgramSession) {
+        if (ProGate.sessionLocked(session.index)) {
+            ProStore.showPaywall("Weeks 3–12 of the programme are part of Pro")
+            return
+        }
         when (ProgramStore.state(session.index)) {
             SessionState.DONE, SessionState.AVAILABLE -> navController.navigate("session/${session.index}")
             SessionState.LOCKED -> lockedMessage = "Day ${session.day} unlocks after you finish day ${session.day - 1}."
@@ -360,7 +367,7 @@ private fun SessionRow(session: ProgramSession, state: SessionState, onClick: ()
             )
             Text(session.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = if (locked) TextSecondary else Ink)
         }
-        Text("${session.minutes}m", color = TextMuted, fontSize = 12.sp)
+        if (ProGate.sessionLocked(session.index)) ProBadge() else Text("${session.minutes}m", color = TextMuted, fontSize = 12.sp)
     }
 }
 
