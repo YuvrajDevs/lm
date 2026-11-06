@@ -36,7 +36,6 @@ private const val FACE_SHAPE_LESSON_ID = 5
 @Composable
 fun GroomingDetailScreen(navController: NavHostController, id: Int) {
     val lesson = GroomingStore.find(id) ?: return
-    var showLocked by remember { mutableStateOf(false) }
     var showDone by remember { mutableStateOf(false) }
     var showAddedToRoutine by remember { mutableStateOf(false) }
     val done = GroomingStore.isDone(lesson.id)
@@ -55,11 +54,6 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(34.dp))
-                        if (lesson.pro) {
-                            Box(modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(8.dp, 3.dp)) {
-                                Text("PRO", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
                     }
                     Spacer(Modifier.height(14.dp))
                     Text(lesson.title, fontSize = 24.sp, fontWeight = FontWeight.Bold, lineHeight = 29.sp)
@@ -94,69 +88,49 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                 Text("How to do it", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(10.dp))
 
-                if (lesson.pro) {
-                    Box(
+                lesson.steps.forEachIndexed { index, point ->
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
+                            .padding(bottom = 8.dp)
+                            .clip(RoundedCornerShape(18.dp))
                             .background(CardNeutral)
-                            .clickable { showLocked = true }
-                            .padding(18.dp, 40.dp),
-                        contentAlignment = Alignment.Center,
+                            .padding(16.dp, 14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("🔒", fontSize = 22.sp)
-                            Spacer(Modifier.height(8.dp))
-                            Text("Unlock with Glow-Up PRO", color = TextSecondary, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                } else {
-                    lesson.steps.forEachIndexed { index, point ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 8.dp)
-                                .clip(RoundedCornerShape(18.dp))
-                                .background(CardNeutral)
-                                .padding(16.dp, 14.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        Box(
+                            modifier = Modifier.size(24.dp).clip(CircleShape).background(lesson.tint),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Box(
-                                modifier = Modifier.size(24.dp).clip(CircleShape).background(lesson.tint),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text("${index + 1}", color = lesson.accent, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Text(point, fontSize = 14.sp, fontWeight = FontWeight.Medium, lineHeight = 20.sp)
+                            Text("${index + 1}", color = lesson.accent, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                         }
+                        Text(point, fontSize = 14.sp, fontWeight = FontWeight.Medium, lineHeight = 20.sp)
                     }
                 }
 
                 Spacer(Modifier.height(14.dp))
 
-                if (!lesson.pro) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Ink)
-                            .clickable {
-                                val routineCategory = if (lesson.track == "Posture & Smile") "Mind" else "Looks"
-                                RoutineStore.add(routineCategory, lesson.title)
-                                showAddedToRoutine = true
-                            }
-                            .padding(18.dp, 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Text("+", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Turn into a routine", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Track it daily from your Routines tab", color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Ink)
+                        .clickable {
+                            val routineCategory = if (lesson.track == "Posture & Smile") "Mind" else "Looks"
+                            RoutineStore.add(routineCategory, lesson.title)
+                            showAddedToRoutine = true
                         }
+                        .padding(18.dp, 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text("+", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Turn into a routine", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Track it daily from your Routines tab", color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
                     }
-                    Spacer(Modifier.height(20.dp))
                 }
+                Spacer(Modifier.height(20.dp))
 
                 Box(
                     modifier = Modifier
@@ -178,16 +152,6 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                     )
                 }
             }
-        }
-
-        if (showLocked) {
-            GlowUpDialog(
-                onDismissRequest = { showLocked = false },
-                title = lesson.title,
-                message = "This guide is part of Glow-Up PRO. Upgrade to unlock all premium guides.",
-                secondaryText = "Maybe later",
-                primaryText = "Upgrade",
-            )
         }
 
         if (showDone) {

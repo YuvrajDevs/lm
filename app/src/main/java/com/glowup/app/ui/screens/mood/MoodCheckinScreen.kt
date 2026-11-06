@@ -73,27 +73,27 @@ fun MoodCheckinScreen(navController: NavHostController) {
             }
 
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Fixed(4),
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(24.dp, 12.dp, 24.dp, 0.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(20.dp, 16.dp, 20.dp, 0.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 items(moodOptions) { mood ->
                     val isSelected = selected == mood.label
                     Column(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(24.dp))
+                            .clip(RoundedCornerShape(20.dp))
                             .background(if (isSelected) ChipNeutral else Color(0xFFFAF9F6))
-                            .border(2.dp, if (isSelected) Ink else Color.Transparent, RoundedCornerShape(24.dp))
+                            .border(2.dp, if (isSelected) Ink else Color.Transparent, RoundedCornerShape(20.dp))
                             .clickable { selected = mood.label }
-                            .padding(16.dp)
+                            .padding(6.dp, 12.dp)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Image(painterResource(mood.icon), contentDescription = null, modifier = Modifier.size(64.dp))
-                        Text(mood.label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Image(painterResource(mood.icon), contentDescription = null, modifier = Modifier.size(48.dp))
+                        Text(mood.label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                     }
                 }
             }

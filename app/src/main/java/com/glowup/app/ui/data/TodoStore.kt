@@ -47,12 +47,12 @@ object TodoStore {
     val items = mutableStateListOf<TodoEntry>()
 
     private fun seed() = listOf(
-        TodoEntry(1, "Skincare — morning", "7:30 AM · Looks", false, TodoBucket.TODAY, "Looks"),
+        TodoEntry(1, "Do the skin-type blot test", "5 min · Looks", false, TodoBucket.TODAY, "Looks"),
         TodoEntry(2, "Lay out tomorrow's outfit", "8:00 PM · Style", false, TodoBucket.TODAY, "Style"),
-        TodoEntry(3, "2-minute eye contact practice", "Anytime · Confidence", false, TodoBucket.TODAY, "Confidence"),
-        TodoEntry(4, "Make your bed", "Morning · Life admin", false, TodoBucket.TODAY, "Life admin"),
-        TodoEntry(5, "Plan tomorrow's top 3", "Evening", false, TodoBucket.TODAY),
-        TodoEntry(6, "Read one Talk lesson", "This week", false, TodoBucket.WEEK, "Mind"),
+        TodoEntry(3, "Message a friend you miss", "Anytime · Confidence", false, TodoBucket.TODAY, "Confidence"),
+        TodoEntry(4, "Plan tomorrow's top 3", "Evening · Life admin", false, TodoBucket.TODAY, "Life admin"),
+        TodoEntry(5, "Book a haircut", "This week · Looks", false, TodoBucket.WEEK, "Looks"),
+        TodoEntry(6, "Clean your everyday shoes", "This week · Style", false, TodoBucket.WEEK, "Style"),
         TodoEntry(7, "Try a look from a style guide", "This week", false, TodoBucket.WEEK, "Style"),
     )
 

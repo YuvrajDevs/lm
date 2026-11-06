@@ -54,13 +54,4 @@ class RoutineAndWeeklyTest {
         assertFalse(ConfidenceStore.doneTitles.contains("Start one new conversation"))
         assertEquals(17, ProgressStore.points)
     }
-
-    @Test
-    fun freeOutfitIdeasAreLimitedPerWeek() {
-        repeat(StylingStore.FREE_IDEAS_PER_WEEK) { assertTrue(StylingStore.useIdea(friday)) }
-        assertFalse(StylingStore.useIdea(friday))
-        assertEquals(0, StylingStore.ideasLeft(friday))
-        assertEquals(StylingStore.FREE_IDEAS_PER_WEEK, StylingStore.ideasLeft(friday.plusDays(3)))
-        assertTrue(StylingStore.useIdea(friday.plusDays(3)))
-    }
 }

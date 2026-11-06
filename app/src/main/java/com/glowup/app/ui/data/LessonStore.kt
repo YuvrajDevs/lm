@@ -22,7 +22,6 @@ data class Lesson(
     val tint: Color,
     val accent: Color,
     val icon: Int,
-    val pro: Boolean = false,
     val keyPoints: List<String>,
     val practiceWord: String,
 )
@@ -54,7 +53,7 @@ object LessonStore {
         ),
         Lesson(
             3, "Confidence", "Speak with confidence", "Own the pause instead of rushing through it.", 4, 12,
-            CoralTint, Coral, R.drawable.ic_speech, pro = true,
+            CoralTint, Coral, R.drawable.ic_speech,
             keyPoints = listOf(
                 "A pause feels like forever to you and like nothing to everyone listening — use it.",
                 "Drop the uptalk. End statements on a flat or falling tone, not a question mark.",
@@ -109,7 +108,7 @@ object LessonStore {
         ),
         Lesson(
             8, "Conflict & Work", "Disagree without a fight", "Push back on an idea without attacking the person.", 4, 12,
-            CoralTint, Coral, R.drawable.ic_determined, pro = true,
+            CoralTint, Coral, R.drawable.ic_determined,
             keyPoints = listOf(
                 "Open with the part you agree with before you introduce the disagreement.",
                 "Say \"I see it differently\" instead of \"you're wrong\" — same point, no defensiveness.",
@@ -120,7 +119,7 @@ object LessonStore {
         ),
         Lesson(
             9, "Conflict & Work", "Speak up in meetings", "Get your point in without waiting for the perfect gap.", 4, 12,
-            BlueTint, Navy, R.drawable.ic_mind, pro = true,
+            BlueTint, Navy, R.drawable.ic_mind,
             keyPoints = listOf(
                 "Prepare one sentence in advance — the hardest part is usually just starting.",
                 "Use a bridge phrase like \"Building on that...\" to enter the conversation smoothly.",

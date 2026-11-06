@@ -146,7 +146,7 @@ fun NotificationsScreen(navController: NavHostController) {
                         }
                     }
                 }
-                item { Spacer(Modifier.height(70.dp)) }
+                item { Spacer(Modifier.height(110.dp)) }
             }
         }
 

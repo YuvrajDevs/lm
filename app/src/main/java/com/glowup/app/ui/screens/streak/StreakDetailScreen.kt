@@ -106,8 +106,8 @@ fun StreakDetailScreen(navController: NavHostController) {
                                             .clip(CircleShape)
                                             .background(
                                                 when {
-                                                    isToday -> PurpleTint
                                                     active && icon == null -> GreenTint
+                                                    isToday -> PurpleTint
                                                     else -> Color.Transparent
                                                 },
                                             )

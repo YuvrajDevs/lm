@@ -40,21 +40,22 @@ fun LooksScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(24.dp, 16.dp, 24.dp, 24.dp),
             ) {
                 item {
-                    Box(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(28.dp))
                             .background(Ink)
-                            .padding(20.dp, 18.dp, 86.dp, 18.dp),
+                            .padding(20.dp, 18.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text("GLOW-UP GUIDES", color = Color.White.copy(alpha = 0.55f), fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(4.dp))
                             Text("Skincare, hair, grooming & posture", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
                             Spacer(Modifier.height(6.dp))
                             Text("$doneCount of ${lessons.size} guides read", color = Color.White.copy(alpha = 0.55f), fontSize = 12.5.sp)
                         }
-                        Image(painterResource(R.drawable.ic_determined), contentDescription = null, modifier = Modifier.align(Alignment.BottomEnd).size(70.dp))
+                        Image(painterResource(R.drawable.ic_determined), contentDescription = null, modifier = Modifier.size(64.dp))
                     }
                     Spacer(Modifier.height(22.dp))
                 }
@@ -71,32 +72,23 @@ fun LooksScreen(navController: NavHostController) {
                                 .fillMaxWidth()
                                 .padding(bottom = 10.dp)
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(if (lesson.pro) CardNeutral else lesson.tint)
+                                .background(lesson.tint)
                                 .clickable { navController.navigate("grooming_detail/${lesson.id}") }
                                 .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            if (lesson.pro) {
-                                Box(
-                                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFE6E3DC)),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text("🔒", fontSize = 14.sp)
-                                }
-                            } else {
-                                Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(40.dp))
-                            }
+                            Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(40.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    if (lesson.pro) "PREMIUM" else if (done) "READ" else "${lesson.minutes} MIN",
-                                    color = if (lesson.pro || done) TextSecondary else lesson.accent,
+                                    if (done) "READ" else "${lesson.minutes} MIN",
+                                    color = if (done) TextSecondary else lesson.accent,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
                                 )
                                 Text(
                                     lesson.title,
-                                    color = if (lesson.pro) TextSecondary else Ink,
+                                    color = Ink,
                                     fontSize = 15.5.sp,
                                     fontWeight = FontWeight.SemiBold,
                                 )

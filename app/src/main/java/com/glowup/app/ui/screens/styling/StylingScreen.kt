@@ -34,20 +34,18 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
 import com.glowup.app.ui.components.GlowUpBottomNav
-import com.glowup.app.ui.components.GlowUpDialog
 import com.glowup.app.ui.components.NavTab
-import com.glowup.app.ui.data.StylingStore
 import com.glowup.app.ui.theme.*
 
-private data class StyleGuide(val title: String, val tint: Color, val accent: Color, val pro: Boolean = false)
+private data class StyleGuide(val title: String, val blurb: String, val tint: Color, val accent: Color)
 
 private val styleGuides = listOf(
-    StyleGuide("Old Money", CoralTint, Coral),
-    StyleGuide("Streetwear", GreenTint, Green),
-    StyleGuide("Minimal", PurpleTint, Purple),
-    StyleGuide("Athleisure", GreenTint, Green),
-    StyleGuide("Formal", NavyTint, Navy),
-    StyleGuide("Jewellery", MaroonTint, Maroon, pro = true),
+    StyleGuide("Old Money", "Quiet, tailored, no logos", CoralTint, Coral),
+    StyleGuide("Streetwear", "Bold layers and sneakers", GreenTint, Green),
+    StyleGuide("Minimal", "Clean lines, neutral tones", PurpleTint, Purple),
+    StyleGuide("Athleisure", "Sporty but put together", GreenTint, Green),
+    StyleGuide("Formal", "Sharp for big occasions", NavyTint, Navy),
+    StyleGuide("Jewellery", "Small details, big impact", MaroonTint, Maroon),
 )
 
 private val outfitIdeasByOccasion = mapOf(
@@ -87,8 +85,6 @@ private val outfitIdeasByOccasion = mapOf(
 fun StylingScreen(navController: NavHostController) {
     var selectedOccasion by remember { mutableStateOf("Office") }
     var ideaIndex by remember { mutableStateOf(0) }
-    val ideasLeft = StylingStore.ideasLeft()
-    var showPaywall by remember { mutableStateOf(false) }
     val outfitIdeas = outfitIdeasByOccasion.getValue(selectedOccasion)
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
@@ -128,14 +124,15 @@ fun StylingScreen(navController: NavHostController) {
                 }
 
                 item {
-                    Box(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(28.dp))
                             .background(BlueTint)
-                            .padding(20.dp, 18.dp, 92.dp, 18.dp),
+                            .padding(20.dp, 18.dp, 14.dp, 18.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(modifier = Modifier.fillMaxWidth(0.68f)) {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text("TODAY'S PICK FOR ${selectedOccasion.uppercase()}", color = Navy, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(4.dp))
                             Text(outfitIdeas[ideaIndex].first, fontSize = 17.sp, fontWeight = FontWeight.Bold)
@@ -145,7 +142,7 @@ fun StylingScreen(navController: NavHostController) {
                         Image(
                             painterResource(R.drawable.ic_outfit),
                             contentDescription = null,
-                            modifier = Modifier.align(Alignment.BottomEnd).size(90.dp),
+                            modifier = Modifier.size(76.dp),
                         )
                     }
                     Spacer(Modifier.height(12.dp))
@@ -159,18 +156,12 @@ fun StylingScreen(navController: NavHostController) {
                                 .height(48.dp)
                                 .clip(RoundedCornerShape(999.dp))
                                 .background(Ink)
-                                .clickable {
-                                    if (StylingStore.useIdea()) {
-                                        ideaIndex = (ideaIndex + 1) % outfitIdeas.size
-                                    } else {
-                                        showPaywall = true
-                                    }
-                                },
+                                .clickable { ideaIndex = (ideaIndex + 1) % outfitIdeas.size },
                             contentAlignment = Alignment.Center,
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Icon(Icons.Filled.Checkroom, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
-                                Text("Choose a fit", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Show another fit", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                         Box(
@@ -186,7 +177,7 @@ fun StylingScreen(navController: NavHostController) {
                     }
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "$ideasLeft free outfit ideas left this week",
+                        "Idea ${ideaIndex + 1} of ${outfitIdeas.size} for ${selectedOccasion.lowercase()}",
                         color = TextMuted,
                         fontSize = 11.sp,
                         modifier = Modifier.fillMaxWidth(),
@@ -236,18 +227,10 @@ fun StylingScreen(navController: NavHostController) {
                                     .clickable { navController.navigate("style_guide_detail/${guide.title}") }
                                     .padding(14.dp),
                             ) {
-                                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                                    Box(
-                                        modifier = Modifier.size(26.dp).clip(CircleShape).background(guide.accent.copy(alpha = 0.18f)),
-                                    )
-                                    Text(guide.title, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = if (guide.pro) guide.accent else Ink)
-                                }
-                                if (guide.pro) {
-                                    Box(
-                                        modifier = Modifier.align(Alignment.TopEnd).clip(RoundedCornerShape(999.dp)).background(Ink).padding(8.dp, 3.dp),
-                                    ) {
-                                        Text("PRO", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                                    }
+                                Column {
+                                    Text(guide.title, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Ink)
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(guide.blurb, fontSize = 12.sp, color = guide.accent, fontWeight = FontWeight.Medium, minLines = 2, lineHeight = 16.sp)
                                 }
                             }
                         }
@@ -261,16 +244,6 @@ fun StylingScreen(navController: NavHostController) {
 
         Box(modifier = Modifier.align(Alignment.BottomCenter)) {
             GlowUpBottomNav(navController, NavTab.STYLING)
-        }
-
-        if (showPaywall) {
-            GlowUpDialog(
-                onDismissRequest = { showPaywall = false },
-                title = "Out of free ideas",
-                message = "You've used all your free outfit ideas this week. Upgrade to PRO for unlimited ideas.",
-                secondaryText = "Maybe later",
-                primaryText = "Upgrade",
-            )
         }
     }
 }

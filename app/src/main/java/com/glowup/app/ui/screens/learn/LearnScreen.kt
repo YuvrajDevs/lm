@@ -99,7 +99,7 @@ fun LearnScreen(navController: NavHostController) {
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 0.4.sp,
                             )
-                            Text("Day $done of ${Program.TOTAL}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Text("$done of ${Program.TOTAL} done", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -114,7 +114,7 @@ fun LearnScreen(navController: NavHostController) {
                     ProgressBar(done.toFloat() / Program.TOTAL, Color.White, Color.White.copy(alpha = 0.15f))
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Best streak ${ProgramStore.bestStreak().let { if (it == 1) "1 day" else "$it days" }} · ${Program.TOTAL - done} sessions to go",
+                        if (done == 0) "Do your first session to start your streak" else "Best streak ${ProgramStore.bestStreak().let { if (it == 1) "1 day" else "$it days" }} · ${Program.TOTAL - done} sessions to go",
                         color = Color.White.copy(alpha = 0.55f),
                         fontSize = 11.5.sp,
                     )

@@ -34,7 +34,6 @@ import java.net.URLEncoder
 @Composable
 fun LessonDetailScreen(navController: NavHostController, id: Int) {
     val lesson = LessonStore.find(id) ?: return
-    var showLocked by remember { mutableStateOf(false) }
     var showDone by remember { mutableStateOf(false) }
     val done = LessonStore.isDone(lesson.id)
 
@@ -52,11 +51,6 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(34.dp))
-                        if (lesson.pro) {
-                            Box(modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(8.dp, 3.dp)) {
-                                Text("PRO", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
                     }
                     Spacer(Modifier.height(14.dp))
                     Text(lesson.title, fontSize = 24.sp, fontWeight = FontWeight.Bold, lineHeight = 29.sp)
@@ -111,12 +105,8 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                             .clip(RoundedCornerShape(999.dp))
                             .background(Color.White)
                             .clickable {
-                                if (lesson.pro) {
-                                    showLocked = true
-                                } else {
-                                    val encoded = URLEncoder.encode(lesson.practiceWord, "UTF-8")
-                                    navController.navigate("speaking_practice/$encoded")
-                                }
+                                val encoded = URLEncoder.encode(lesson.practiceWord, "UTF-8")
+                                navController.navigate("speaking_practice/$encoded")
                             },
                         contentAlignment = Alignment.Center,
                     ) {
@@ -146,16 +136,6 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                     )
                 }
             }
-        }
-
-        if (showLocked) {
-            GlowUpDialog(
-                onDismissRequest = { showLocked = false },
-                title = lesson.title,
-                message = "This lesson is part of Glow-Up PRO. Upgrade to unlock all premium lessons.",
-                secondaryText = "Maybe later",
-                primaryText = "Upgrade",
-            )
         }
 
         if (showDone) {

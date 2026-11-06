@@ -14,7 +14,6 @@ object Stores {
         ReminderStore.load()
         SleepStore.load()
         ConfidenceStore.load()
-        StylingStore.load()
         com.glowup.app.ui.data.program.ProgramStore.load()
         FocusStore.load()
     }

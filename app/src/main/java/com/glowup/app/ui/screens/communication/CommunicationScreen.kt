@@ -67,7 +67,7 @@ fun CommunicationScreen(navController: NavHostController) {
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "Your recording is never saved or uploaded.",
+                            "Recordings stay on your phone and are deleted when you leave.",
                             color = Color.White.copy(alpha = 0.45f),
                             fontSize = 11.sp,
                             textAlign = TextAlign.Center,
@@ -97,32 +97,23 @@ fun CommunicationScreen(navController: NavHostController) {
                                 .fillMaxWidth()
                                 .padding(bottom = 10.dp)
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(if (lesson.pro) CardNeutral else lesson.tint)
+                                .background(lesson.tint)
                                 .clickable { navController.navigate("lesson_detail/${lesson.id}") }
                                 .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            if (lesson.pro) {
-                                Box(
-                                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFE6E3DC)),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text("🔒", fontSize = 14.sp)
-                                }
-                            } else {
-                                Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(40.dp))
-                            }
+                            Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(40.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    if (lesson.pro) "PREMIUM" else if (done) "DONE" else "${lesson.minutes} MIN",
-                                    color = if (lesson.pro || done) TextSecondary else lesson.accent,
+                                    if (done) "DONE" else "${lesson.minutes} MIN",
+                                    color = if (done) TextSecondary else lesson.accent,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
                                 )
                                 Text(
                                     lesson.title,
-                                    color = if (lesson.pro) TextSecondary else Ink,
+                                    color = Ink,
                                     fontSize = 15.5.sp,
                                     fontWeight = FontWeight.SemiBold,
                                 )

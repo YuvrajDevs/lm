@@ -22,7 +22,6 @@ data class GroomingLesson(
     val tint: Color,
     val accent: Color,
     val icon: Int,
-    val pro: Boolean = false,
     val steps: List<String>,
 )
 
@@ -91,7 +90,7 @@ object GroomingStore {
         ),
         GroomingLesson(
             7, "Hair", "Style it like you mean it", "Five minutes of product and direction.", 3, 10,
-            BlueTint, Navy, R.drawable.ic_mind, pro = true,
+            BlueTint, Navy, R.drawable.ic_mind,
             steps = listOf(
                 "Apply product to towel-dried, not soaking wet, hair for better hold.",
                 "Match the product to your goal — clay for matte texture, pomade for shine and hold.",
@@ -141,7 +140,7 @@ object GroomingStore {
         ),
         GroomingLesson(
             12, "Posture & Smile", "Teeth & smile care", "A confident smile starts with basics.", 3, 10,
-            PurpleTint, Purple, R.drawable.ic_reflective, pro = true,
+            PurpleTint, Purple, R.drawable.ic_reflective,
             steps = listOf(
                 "Brush twice a day for two minutes — most people underbrush on time, not effort.",
                 "Floss at night; it's the step that actually prevents long-term issues.",

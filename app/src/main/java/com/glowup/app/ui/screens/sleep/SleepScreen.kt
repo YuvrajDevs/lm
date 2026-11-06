@@ -12,7 +12,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Forest
+import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.NightsStay
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.Waves
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -53,17 +62,17 @@ import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalTime
 
-private data class SoundTile(val label: String, val tint: Color, val icon: Int)
+private data class SoundTile(val label: String, val tint: Color, val accent: Color, val icon: ImageVector)
 
 private val sounds = listOf(
-    SoundTile("Night Rain", BlueTint, R.drawable.ic_moon),
-    SoundTile("Forest", GreenTint, R.drawable.ic_tree),
-    SoundTile("White Noise", PurpleTint, R.drawable.ic_ocean),
-    SoundTile("Ocean Waves", CoralTint, R.drawable.ic_ocean),
-    SoundTile("Crackling Fire", MaroonTint, R.drawable.ic_sun),
-    SoundTile("Deep Space", NavyTint, R.drawable.ic_moon),
-    SoundTile("Soft Wind", GreenTint, R.drawable.ic_tree),
-    SoundTile("Brown Noise", PurpleTint, R.drawable.ic_ocean),
+    SoundTile("Night Rain", BlueTint, Navy, Icons.Filled.WaterDrop),
+    SoundTile("Forest", GreenTint, Green, Icons.Filled.Forest),
+    SoundTile("White Noise", PurpleTint, Purple, Icons.Filled.GraphicEq),
+    SoundTile("Ocean Waves", CoralTint, Coral, Icons.Filled.Waves),
+    SoundTile("Crackling Fire", MaroonTint, Maroon, Icons.Filled.LocalFireDepartment),
+    SoundTile("Deep Space", NavyTint, Navy, Icons.Filled.NightsStay),
+    SoundTile("Soft Wind", GreenTint, Green, Icons.Filled.Air),
+    SoundTile("Brown Noise", PurpleTint, Purple, Icons.Filled.Grain),
 )
 
 private val bedtimeOptions = listOf(LocalTime.of(21, 30), LocalTime.of(22, 0), LocalTime.of(22, 30), LocalTime.of(23, 0), LocalTime.of(23, 30), LocalTime.MIDNIGHT, LocalTime.of(0, 30))
@@ -188,7 +197,7 @@ fun SleepScreen(navController: NavHostController) {
                                     .padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                             ) {
-                                Image(painterResource(sound.icon), contentDescription = null, modifier = Modifier.size(28.dp))
+                                Icon(sound.icon, contentDescription = null, tint = sound.accent, modifier = Modifier.size(28.dp))
                                 Text(sound.label, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }

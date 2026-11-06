@@ -34,6 +34,8 @@ import com.glowup.app.ui.components.StreakChip
 import com.glowup.app.ui.components.WeekStreakDots
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.theme.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Check
 
 @Composable
 fun RoutinesScreen(navController: NavHostController) {
@@ -75,7 +77,7 @@ fun RoutinesScreen(navController: NavHostController) {
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(24.dp, 0.dp, 24.dp, 110.dp),
+                contentPadding = PaddingValues(24.dp, 0.dp, 24.dp, 190.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (routineCards.isEmpty()) {
@@ -109,6 +111,23 @@ fun RoutinesScreen(navController: NavHostController) {
                             contentDescription = null,
                             modifier = Modifier.align(Alignment.TopEnd).size(48.dp),
                         )
+                        val doneToday = card.isDoneOn(java.time.LocalDate.now())
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(if (doneToday) card.accent else Color.White)
+                                .clickable { RoutineStore.toggleToday(card.id) },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                Icons.Filled.Check,
+                                contentDescription = if (doneToday) "Mark ${card.title} not done" else "Mark ${card.title} done today",
+                                tint = if (doneToday) Color.White else card.accent,
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
                     }
                 }
             }

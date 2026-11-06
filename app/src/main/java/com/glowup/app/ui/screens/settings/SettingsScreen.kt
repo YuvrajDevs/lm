@@ -113,7 +113,7 @@ fun SettingsScreen(navController: NavHostController) {
                 Image(painterResource(R.drawable.ic_profile), contentDescription = null, modifier = Modifier.size(46.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(ProfileStore.name.ifBlank { "Your profile" }, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text("Free plan · Level ${ProgressStore.level} · ${ProgressStore.points} points", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp)
+                    Text("Level ${ProgressStore.level} · ${ProgressStore.points} points", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp)
                 }
                 Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(18.dp))
             }
