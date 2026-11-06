@@ -243,45 +243,45 @@ private fun TodaySessionCard(navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .background(if (doneToday) CardNeutral else next.area.tint)
-            .clickable { navController.navigate(if (doneToday) "learn" else "session/${next.index}") }
+            .background(next.area.tint)
+            .clickable { navController.navigate("session/${next.index}") }
             .padding(20.dp, 18.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    if (doneToday) "TODAY'S SESSION · DONE" else "TODAY · DAY ${next.day} OF ${Program.TOTAL}",
-                    color = if (doneToday) Green else next.area.accent,
+                    (if (doneToday) "UP NEXT" else "TODAY") + " · DAY ${next.day} OF ${Program.TOTAL}",
+                    color = next.area.accent,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.4.sp,
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(
-                    if (doneToday) "Nice — see you tomorrow" else next.title,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 24.sp,
-                )
+                Text(next.title, fontSize = 19.sp, fontWeight = FontWeight.Bold, lineHeight = 24.sp)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    if (doneToday) "Up next: ${next.title}" else "${next.area.label} · ${next.minutes} min · +${next.points} points",
+                    "${next.area.label} · ${next.minutes} min · +${next.points} points",
                     color = TextSecondary,
                     fontSize = 12.5.sp,
                 )
             }
-            Image(painterResource(if (doneToday) R.drawable.ic_check else next.area.icon), contentDescription = null, modifier = Modifier.size(52.dp))
+            Image(painterResource(next.area.icon), contentDescription = null, modifier = Modifier.size(52.dp))
         }
-        if (!doneToday) {
-            Spacer(Modifier.height(14.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(18.dp, 10.dp),
-                ) {
-                    Text("Start session", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(14.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(18.dp, 10.dp),
+            ) {
+                Text(if (doneToday) "Keep going" else "Start session", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Spacer(Modifier.width(12.dp))
+            when {
+                doneToday -> {
+                    Image(painterResource(R.drawable.ic_check), contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Today's streak secured", color = Green, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
                 }
-                Spacer(Modifier.width(12.dp))
-                if (learningStreak > 0) {
+                learningStreak > 0 -> {
                     Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("Keep your $learningStreak-day streak", color = Coral, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)

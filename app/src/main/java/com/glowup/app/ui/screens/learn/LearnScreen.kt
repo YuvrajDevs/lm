@@ -57,7 +57,6 @@ fun LearnScreen(navController: NavHostController) {
     fun open(session: ProgramSession) {
         when (ProgramStore.state(session.index)) {
             SessionState.DONE, SessionState.AVAILABLE -> navController.navigate("session/${session.index}")
-            SessionState.TOMORROW -> lockedMessage = "You've done today's session. Day ${session.day} unlocks tomorrow — one a day is how habits stick."
             SessionState.LOCKED -> lockedMessage = "Day ${session.day} unlocks after you finish day ${session.day - 1}."
         }
     }
@@ -209,7 +208,7 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    (if (doneToday) "UP NEXT · TOMORROW" else "TODAY · DAY ${next.day}") + " · ${next.area.label.uppercase()}",
+                    (if (doneToday) "UP NEXT · DAY ${next.day}" else "TODAY · DAY ${next.day}") + " · ${next.area.label.uppercase()}",
                     color = next.area.accent,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -218,7 +217,7 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
                 Spacer(Modifier.height(4.dp))
                 Text(next.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, lineHeight = 25.sp)
                 Spacer(Modifier.height(4.dp))
-                Text(if (doneToday) "Today's done. Come back tomorrow to keep your streak." else next.hook, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
+                Text(next.hook, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
             }
             Image(painterResource(next.area.icon), contentDescription = null, modifier = Modifier.size(56.dp))
         }
@@ -227,20 +226,20 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
-                    .background(if (doneToday) Color.White else Ink)
+                    .background(Ink)
                     .padding(18.dp, 10.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        if (doneToday) Icons.Filled.Lock else Icons.Filled.PlayArrow,
+                        Icons.Filled.PlayArrow,
                         contentDescription = null,
-                        tint = if (doneToday) TextSecondary else Color.White,
+                        tint = Color.White,
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        if (doneToday) "Unlocks tomorrow" else "Start · ${next.minutes} min",
-                        color = if (doneToday) TextSecondary else Color.White,
+                        if (doneToday) "Keep going · ${next.minutes} min" else "Start · ${next.minutes} min",
+                        color = Color.White,
                         fontSize = 13.5.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -319,7 +318,7 @@ private fun WeekHeader(week: Int, expanded: Boolean, onToggle: () -> Unit) {
 
 @Composable
 private fun SessionRow(session: ProgramSession, state: SessionState, onClick: () -> Unit) {
-    val locked = state == SessionState.LOCKED || state == SessionState.TOMORROW
+    val locked = state == SessionState.LOCKED
     Row(
         modifier = Modifier
             .padding(24.dp, 4.dp)

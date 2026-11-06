@@ -53,19 +53,20 @@ class ProgramTest {
     }
 
     @Test
-    fun oneNewSessionUnlocksPerDay() {
+    fun sessionsUnlockInOrderAtAnyPace() {
         assertEquals(SessionState.AVAILABLE, ProgramStore.state(0, monday))
         assertEquals(SessionState.LOCKED, ProgramStore.state(1, monday))
 
         assertEquals(10, ProgramStore.complete(0, monday))
         assertEquals(SessionState.DONE, ProgramStore.state(0, monday))
-        assertEquals(SessionState.TOMORROW, ProgramStore.state(1, monday))
-        assertNull(ProgramStore.complete(1, monday))
+        assertEquals(SessionState.AVAILABLE, ProgramStore.state(1, monday))
         assertNull(ProgramStore.complete(0, monday))
-        assertNull(ProgramStore.complete(5, monday.plusDays(1)))
+        assertNull(ProgramStore.complete(5, monday))
 
-        assertEquals(SessionState.AVAILABLE, ProgramStore.state(1, monday.plusDays(1)))
-        assertEquals(10, ProgressStore.points)
+        assertEquals(10, ProgramStore.complete(1, monday))
+        assertEquals(10, ProgramStore.complete(2, monday))
+        assertEquals(30, ProgressStore.points)
+        assertEquals(1, ProgramStore.streakDays(monday))
     }
 
     @Test

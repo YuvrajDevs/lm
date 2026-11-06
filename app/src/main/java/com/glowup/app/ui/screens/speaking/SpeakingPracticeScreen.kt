@@ -120,8 +120,15 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
         if (phase == Phase.RECORDING) stopRecording()
     }
 
+    val view = androidx.compose.ui.platform.LocalView.current
     DisposableEffect(Unit) {
+        val window = (view.context as? android.app.Activity)?.window
+        val bars = window?.let { androidx.core.view.WindowCompat.getInsetsController(it, view) }
+        bars?.isAppearanceLightStatusBars = false
+        bars?.isAppearanceLightNavigationBars = false
         onDispose {
+            bars?.isAppearanceLightStatusBars = true
+            bars?.isAppearanceLightNavigationBars = true
             recorder?.let { runCatching { it.stop() }; it.release() }
             player?.release()
             file.delete()

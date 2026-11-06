@@ -13,11 +13,11 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.temporal.TemporalAdjusters
 
-enum class SessionState { DONE, AVAILABLE, TOMORROW, LOCKED }
+enum class SessionState { DONE, AVAILABLE, LOCKED }
 
 /**
- * Progress through the 12-week programme. Sessions unlock in order, one new session per day,
- * so the programme builds a daily habit; finished sessions stay open for review.
+ * Progress through the 12-week programme. Sessions unlock in order and can be done at any pace;
+ * the daily streak rewards showing up every day. Finished sessions stay open for review.
  */
 object ProgramStore {
     private const val KEY = "program"
@@ -40,11 +40,11 @@ object ProgramStore {
 
     fun state(index: Int, today: LocalDate = LocalDate.now()): SessionState = when {
         index in completions -> SessionState.DONE
-        index == completedCount -> if (doneToday(today)) SessionState.TOMORROW else SessionState.AVAILABLE
+        index == completedCount -> SessionState.AVAILABLE
         else -> SessionState.LOCKED
     }
 
-    /** Returns the points earned, or null if this session isn't the one available today. */
+    /** Returns the points earned, or null if this session isn't the next one in order. */
     fun complete(index: Int, today: LocalDate = LocalDate.now()): Int? {
         if (state(index, today) != SessionState.AVAILABLE) return null
         val session = Program.sessions[index]

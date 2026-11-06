@@ -67,8 +67,8 @@ private sealed interface Step {
 fun SessionScreen(navController: NavHostController, index: Int) {
     val session = Program.sessions.getOrNull(index) ?: return
     val initialState = remember { ProgramStore.state(index) }
-    if (initialState == SessionState.LOCKED || initialState == SessionState.TOMORROW) {
-        LockedSession(navController, session, initialState)
+    if (initialState == SessionState.LOCKED) {
+        LockedSession(navController, session)
         return
     }
     val reviewing = initialState == SessionState.DONE
@@ -362,7 +362,7 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
             Column(
                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(next.area.tint).padding(18.dp),
             ) {
-                Text("TOMORROW · DAY ${next.day} · ${next.area.label.uppercase()}", color = next.area.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                Text("UP NEXT · DAY ${next.day} · ${next.area.label.uppercase()}", color = next.area.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                 Spacer(Modifier.height(4.dp))
                 Text(next.title, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 Text(next.hook, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
@@ -404,12 +404,27 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
         }
 
         Spacer(Modifier.height(26.dp))
-        BottomButton("Done", Ink, padding = false) { navController.goBack() }
+        if (!reviewing && next != null) {
+            BottomButton("Next session · Day ${next.day}", Ink, padding = false) {
+                navController.navigate("session/${next.index}") {
+                    popUpTo("session/{index}") { inclusive = true }
+                }
+            }
+            Text(
+                "Done for now",
+                color = TextSecondary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(top = 14.dp).clip(RoundedCornerShape(999.dp)).clickable { navController.goBack() }.padding(12.dp, 6.dp),
+            )
+        } else {
+            BottomButton("Done", Ink, padding = false) { navController.goBack() }
+        }
     }
 }
 
 @Composable
-private fun LockedSession(navController: NavHostController, session: ProgramSession, state: SessionState) {
+private fun LockedSession(navController: NavHostController, session: ProgramSession) {
     Column(
         modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding().padding(28.dp),
         verticalArrangement = Arrangement.Center,
@@ -420,7 +435,7 @@ private fun LockedSession(navController: NavHostController, session: ProgramSess
         Text("Day ${session.day} isn't unlocked yet", fontSize = 22.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
         Text(
-            if (state == SessionState.TOMORROW) "You've already done today's session. Come back tomorrow." else "Finish the earlier days first.",
+            "Finish day ${session.day - 1} first — sessions build on each other.",
             color = TextSecondary,
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
