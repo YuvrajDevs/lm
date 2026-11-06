@@ -78,6 +78,16 @@ fun RoutinesScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(24.dp, 0.dp, 24.dp, 110.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (routineCards.isEmpty()) {
+                    item {
+                        Text(
+                            if (selectedFilter == "All") "No routines yet. Tap + to add one from a template." else "No $selectedFilter routines yet.",
+                            color = TextSecondary,
+                            fontSize = 13.5.sp,
+                            modifier = Modifier.padding(vertical = 12.dp),
+                        )
+                    }
+                }
                 items(routineCards, key = { it.id }) { card ->
                     Box(
                         modifier = Modifier
@@ -90,9 +100,9 @@ fun RoutinesScreen(navController: NavHostController) {
                         Column(modifier = Modifier.fillMaxWidth(0.74f)) {
                             Text(card.area, color = card.accent, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
                             Text(card.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 2.dp, bottom = 8.dp))
-                            StreakChip(card.streakDays, card.accent)
+                            StreakChip(card.streakDays(), card.accent)
                             Spacer(Modifier.height(8.dp))
-                            WeekStreakDots(card.week, card.accent)
+                            WeekStreakDots(card.week(), card.accent)
                         }
                         Image(
                             painterResource(card.icon),

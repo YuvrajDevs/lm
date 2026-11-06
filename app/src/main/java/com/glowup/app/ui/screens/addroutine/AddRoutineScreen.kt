@@ -33,12 +33,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
 import com.glowup.app.ui.components.GlowUpOptionRow
 import com.glowup.app.ui.data.RoutineStore
+import com.glowup.app.ui.data.parseClock
 import com.glowup.app.ui.theme.*
+
+private const val NO_REMINDER = "No reminder"
 
 private data class TemplateGroup(val label: String, val icon: Int, val tint: Color, val items: List<String>)
 
@@ -85,7 +89,8 @@ fun AddRoutineScreen(navController: NavHostController) {
     var showTemplates by remember { mutableStateOf(true) }
     var addedItems by remember { mutableStateOf(setOf<String>()) }
     var showTimeDialog by remember { mutableStateOf(false) }
-    var selectedTime by remember { mutableStateOf("9:00 PM") }
+    var selectedTime by remember { mutableStateOf(NO_REMINDER) }
+    val askPermission = com.glowup.app.ui.components.rememberNotificationPermission()
     var customText by remember { mutableStateOf("") }
     var selectedArea by remember { mutableStateOf("Looks") }
     var showSaved by remember { mutableStateOf(false) }
@@ -94,7 +99,7 @@ fun AddRoutineScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("Add a routine") { navController.popBackStack() }
+            DetailHeader("Add a routine") { navController.goBack() }
 
             Row(
                 modifier = Modifier.fillMaxWidth().padding(24.dp, 16.dp, 24.dp, 0.dp),
@@ -218,7 +223,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                         Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
                     }
                     Spacer(Modifier.height(8.dp))
-                    Text("Needs exact-alarm permission — we'll ask once.", color = TextMuted, fontSize = 11.5.sp)
+                    Text("A daily notification at this time, skipped on days you've already done it.", color = TextMuted, fontSize = 11.5.sp)
 
                     Spacer(Modifier.height(20.dp))
                     Text("Area", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
@@ -252,7 +257,9 @@ fun AddRoutineScreen(navController: NavHostController) {
                             if (showTemplates) {
                                 addedItems.forEach { item -> RoutineStore.add(groupFor(item), item) }
                             } else {
-                                RoutineStore.add(selectedArea, customText.trim())
+                                val reminder = selectedTime.takeIf { it != NO_REMINDER }?.let(::parseClock)
+                                RoutineStore.add(selectedArea, customText.trim(), reminderTime = reminder)
+                                if (reminder != null) askPermission()
                             }
                             showSaved = true
                         },
@@ -265,12 +272,12 @@ fun AddRoutineScreen(navController: NavHostController) {
 
         if (showSaved) {
             GlowUpDialog(
-                onDismissRequest = { navController.popBackStack() },
+                onDismissRequest = { navController.goBack() },
                 title = "Routine saved",
                 message = "It's been added to your routines list.",
                 primaryText = "Done",
                 secondaryText = null,
-                onPrimary = { navController.popBackStack() },
+                onPrimary = { navController.goBack() },
             )
         }
 
@@ -282,7 +289,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                 secondaryText = null,
                 content = {
                     Column {
-                        listOf("6:00 AM", "7:00 AM", "8:00 PM", "9:00 PM", "10:00 PM").forEach { time ->
+                        listOf(NO_REMINDER, "6:00 AM", "7:00 AM", "8:00 AM", "12:00 PM", "6:00 PM", "8:00 PM", "9:00 PM", "9:30 PM", "10:00 PM").forEach { time ->
                             GlowUpOptionRow(time, selected = time == selectedTime) { selectedTime = time }
                         }
                     }

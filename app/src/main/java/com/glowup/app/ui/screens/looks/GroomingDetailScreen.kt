@@ -23,11 +23,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
 import com.glowup.app.ui.data.GroomingStore
+import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.theme.*
+
+private const val FACE_SHAPE_LESSON_ID = 5
 
 @Composable
 fun GroomingDetailScreen(navController: NavHostController, id: Int) {
@@ -39,7 +43,7 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader(lesson.track) { navController.popBackStack() }
+            DetailHeader(lesson.track) { navController.goBack() }
 
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 16.dp, 24.dp, 24.dp)) {
                 Column(
@@ -66,6 +70,27 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                 }
 
                 Spacer(Modifier.height(22.dp))
+                if (lesson.id == FACE_SHAPE_LESSON_ID) {
+                    val shape = ProfileStore.faceShape
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (shape != null) Ink else CardNeutral)
+                            .clickable(enabled = shape == null) { navController.navigate("settings") }
+                            .padding(18.dp, 16.dp),
+                    ) {
+                        if (shape != null) {
+                            Text("FOR YOUR ${shape.uppercase()} FACE", color = Color.White.copy(alpha = 0.6f), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Spacer(Modifier.height(6.dp))
+                            Text(GroomingStore.faceShapeTips[shape].orEmpty(), color = Color.White, fontSize = 14.5.sp, lineHeight = 21.sp, fontWeight = FontWeight.Medium)
+                        } else {
+                            Text("Get advice for your face shape", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Set your face shape in Settings → Profile", color = TextSecondary, fontSize = 12.5.sp)
+                        }
+                    }
+                    Spacer(Modifier.height(18.dp))
+                }
                 Text("How to do it", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(10.dp))
 

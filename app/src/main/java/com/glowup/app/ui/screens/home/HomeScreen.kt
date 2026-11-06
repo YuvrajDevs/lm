@@ -28,12 +28,14 @@ import androidx.navigation.NavHostController
 import com.glowup.app.R
 import com.glowup.app.ui.components.GlowUpBottomNav
 import com.glowup.app.ui.components.NavTab
-import com.glowup.app.ui.data.MoodStore
+import com.glowup.app.ui.data.DailyContent
+import com.glowup.app.ui.data.ProfileStore
+import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoStore
 import com.glowup.app.ui.theme.*
 
-private data class QuickAccess(val label: String, val icon: Int, val bg: Color, val route: String? = null)
+private data class QuickAccess(val label: String, val icon: Int, val bg: Color, val route: String)
 
 private val quickAccessItems = listOf(
     QuickAccess("Looks", R.drawable.ic_looks, CoralTint, "looks"),
@@ -44,10 +46,14 @@ private val quickAccessItems = listOf(
     QuickAccess("Quotes", R.drawable.ic_quote, MaroonTint, "quotes_notes"),
 )
 
-private const val QUOTE_OF_THE_DAY = "\"Small, boring habits — done daily — beat big plans done never.\""
-
 @Composable
 fun HomeScreen(navController: NavHostController) {
+    val focus = ProfileStore.focusAreas.toList()
+    val orderedQuickAccess = quickAccessItems.sortedBy { item -> if (item.label in focus) 0 else 1 }
+    val streak = ProgressStore.streakDays()
+    val (goalArea, goal) = DailyContent.goalOfTheDay(focus)
+    val goalAdded = TodoStore.items.any { it.title == goal }
+
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -57,8 +63,8 @@ fun HomeScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
-                    Text("Good morning", color = TextSecondary, fontSize = 13.sp)
-                    Text("Hey, Arjun", style = MaterialTheme.typography.headlineMedium, fontSize = 24.sp)
+                    Text(DailyContent.greeting(), color = TextSecondary, fontSize = 13.sp)
+                    Text("Hey, ${ProfileStore.firstName}", style = MaterialTheme.typography.headlineMedium, fontSize = 24.sp)
                 }
                 Box(
                     modifier = Modifier
@@ -77,13 +83,16 @@ fun HomeScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
             ) {
-                items(quickAccessItems) { item ->
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                items(orderedQuickAccess) { item ->
+                    Column(
+                        modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { navController.navigate(item.route) },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(52.dp)
-                                .background(item.bg, CircleShape)
-                                .let { m -> item.route?.let { r -> m.clickable { navController.navigate(r) } } ?: m },
+                                .clip(CircleShape)
+                                .background(item.bg),
                             contentAlignment = Alignment.Center,
                         ) {
                             Image(painterResource(item.icon), contentDescription = null, modifier = Modifier.size(22.dp), contentScale = ContentScale.Fit)
@@ -107,13 +116,13 @@ fun HomeScreen(navController: NavHostController) {
                     .padding(20.dp, 18.dp),
             ) {
                 Column {
-                    Text("This week", color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
+                    Text(if (streak == 0) "Start your streak today" else "Current streak", color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("${MoodStore.streakDays}-day streak", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        Text(if (streak == 1) "1-day streak" else "$streak-day streak", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.width(6.dp))
                         Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(20.dp))
                     }
-                    Text("${MoodStore.points} points · Level ${MoodStore.level}", color = Color.White.copy(alpha = 0.65f), fontSize = 12.5.sp)
+                    Text("${ProgressStore.points} points · Level ${ProgressStore.level}", color = Color.White.copy(alpha = 0.65f), fontSize = 12.5.sp)
                 }
                 Image(
                     painterResource(R.drawable.ic_streak),
@@ -138,7 +147,7 @@ fun HomeScreen(navController: NavHostController) {
                 Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text("QUOTE OF THE DAY", color = Maroon, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                    Text(QUOTE_OF_THE_DAY, fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
+                    Text(DailyContent.quoteOfTheDay().text, fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
                 }
             }
 
@@ -186,9 +195,20 @@ fun HomeScreen(navController: NavHostController) {
                             )
                             plan.meta?.let { Text(it, color = TextSecondary, fontSize = 11.5.sp) }
                         }
-                        if (!plan.done && plan.icon != null) {
-                            Image(painterResource(plan.icon), contentDescription = null, modifier = Modifier.size(32.dp))
+                        val icon = plan.icon
+                        if (!plan.done && icon != null) {
+                            Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(32.dp))
                         }
+                    }
+                }
+                if (planItems.isEmpty()) {
+                    item {
+                        Text(
+                            "Nothing planned yet — add a to-do or pick up today's goal below.",
+                            color = TextSecondary,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        )
                     }
                 }
                 item {
@@ -198,14 +218,21 @@ fun HomeScreen(navController: NavHostController) {
                             .padding(top = 8.dp)
                             .clip(RoundedCornerShape(24.dp))
                             .background(PurpleTint)
+                            .clickable(enabled = !goalAdded) { TodoStore.add(goal, TodoBucket.TODAY, "Goal of the day · $goalArea") }
                             .padding(18.dp, 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Image(painterResource(R.drawable.ic_social), contentDescription = null, modifier = Modifier.size(40.dp))
-                        Column {
-                            Text("GOAL OF THE DAY", color = Color(0xFF6B4FD1), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Start one new conversation today", fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("GOAL OF THE DAY · ${goalArea.uppercase()}", color = Color(0xFF6B4FD1), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            Text(goal, fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp)
+                            Text(
+                                if (goalAdded) "Added to today's plan" else "Tap to add it to today's plan",
+                                color = Color(0xFF6B4FD1),
+                                fontSize = 11.5.sp,
+                                modifier = Modifier.padding(top = 2.dp),
+                            )
                         }
                     }
                 }

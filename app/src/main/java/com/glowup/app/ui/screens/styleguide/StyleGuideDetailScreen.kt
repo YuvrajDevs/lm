@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.theme.*
 
@@ -213,7 +214,7 @@ fun StyleGuideDetailScreen(navController: NavHostController, title: String) {
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(Ink)
-                        .clickable { navController.popBackStack() },
+                        .clickable { navController.goBack() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))

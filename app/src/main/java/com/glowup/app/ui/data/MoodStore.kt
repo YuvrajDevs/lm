@@ -2,6 +2,7 @@ package com.glowup.app.ui.data
 
 import androidx.compose.runtime.mutableStateMapOf
 import com.glowup.app.R
+import org.json.JSONObject
 import java.time.LocalDate
 
 data class LoggedMood(val label: String, val icon: Int)
@@ -17,27 +18,45 @@ val moodOptions = listOf(
     LoggedMood("Angry", R.drawable.ic_mood_angry),
 )
 
-/** Per-day mood log, keyed by day-of-month for the current month, shared by the streak detail screen and the check-in flow. */
+/** Mood log keyed by ISO date, shared by the streak detail screen and the check-in flow. */
 object MoodStore {
-    var streakDays = 7
-    val points = 128
-    val level = 3
+    private const val KEY = "moods"
+    const val POINTS_PER_CHECK_IN = 5
 
-    val moodLog = mutableStateMapOf<Int, String>().apply {
-        val today = LocalDate.now().dayOfMonth
-        val pattern = listOf("Happy", "Calm", "Grateful", "Tired", "Happy", "Calm")
-        pattern.forEachIndexed { index, label ->
-            val day = today - pattern.size + index
-            if (day in 1..31) put(day, label)
-        }
-    }
+    val moodLog = mutableStateMapOf<String, String>()
+    val notes = mutableStateMapOf<String, String>()
+
+    fun moodOn(date: LocalDate) = moodLog[date.toString()]
+
+    fun noteOn(date: LocalDate) = notes[date.toString()]
 
     fun iconFor(label: String) = moodOptions.firstOrNull { it.label == label }?.icon
 
-    fun logToday(label: String) {
-        val today = LocalDate.now().dayOfMonth
-        val alreadyLogged = moodLog.containsKey(today)
-        moodLog[today] = label
-        if (!alreadyLogged) streakDays += 1
+    fun logToday(label: String, note: String = "", today: LocalDate = LocalDate.now()) {
+        val key = today.toString()
+        val firstToday = key !in moodLog
+        moodLog[key] = label
+        if (note.isNotBlank()) notes[key] = note.trim() else notes.remove(key)
+        if (firstToday) ProgressStore.award(POINTS_PER_CHECK_IN, today)
+        save()
+    }
+
+    fun load() {
+        moodLog.clear()
+        notes.clear()
+        val json = Storage.read(KEY)?.let(::JSONObject) ?: return
+        json.keys().forEach { day ->
+            val entry = json.getJSONObject(day)
+            moodLog[day] = entry.getString("mood")
+            entry.optStringOrNull("note")?.let { notes[day] = it }
+        }
+    }
+
+    private fun save() {
+        val json = JSONObject()
+        moodLog.forEach { (day, mood) ->
+            json.put(day, JSONObject().put("mood", mood).put("note", notes[day] ?: JSONObject.NULL))
+        }
+        Storage.write(KEY, json.toString())
     }
 }

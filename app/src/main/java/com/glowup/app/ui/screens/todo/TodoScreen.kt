@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
@@ -39,6 +40,7 @@ import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoEntry
 import com.glowup.app.ui.data.TodoStore
 import com.glowup.app.ui.theme.*
+import androidx.compose.material.icons.filled.Close
 
 @Composable
 fun TodoScreen(navController: NavHostController) {
@@ -57,7 +59,7 @@ fun TodoScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("To-do") { navController.popBackStack() }
+            DetailHeader("To-do") { navController.goBack() }
 
             Row(
                 modifier = Modifier
@@ -79,11 +81,25 @@ fun TodoScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(24.dp, 16.dp, 24.dp, 24.dp),
             ) {
                 item {
-                    Text("TODAY", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("TODAY", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                        if (TodoStore.items.any { it.done }) {
+                            Text(
+                                "Clear completed",
+                                color = TextSecondary,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.clickable { TodoStore.clearDone() },
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(10.dp))
                 }
+                if (todayItems.isEmpty()) {
+                    item { Text("Nothing for today yet.", color = TextMuted, fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp)) }
+                }
                 items(todayItems, key = { it.id }) { item ->
-                    TodoRow(item) { TodoStore.toggle(item.id) }
+                    TodoRow(item, onDelete = { TodoStore.remove(item.id) }) { TodoStore.toggle(item.id) }
                     Spacer(Modifier.height(8.dp))
                 }
                 item { Spacer(Modifier.height(10.dp)) }
@@ -91,8 +107,11 @@ fun TodoScreen(navController: NavHostController) {
                     Text("THIS WEEK", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                     Spacer(Modifier.height(10.dp))
                 }
+                if (weekItems.isEmpty()) {
+                    item { Text("Nothing for this week yet.", color = TextMuted, fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp)) }
+                }
                 items(weekItems, key = { it.id }) { item ->
-                    TodoRow(item) { TodoStore.toggle(item.id) }
+                    TodoRow(item, onDelete = { TodoStore.remove(item.id) }) { TodoStore.toggle(item.id) }
                     Spacer(Modifier.height(10.dp))
                 }
                 item { Spacer(Modifier.height(80.dp)) }
@@ -178,7 +197,7 @@ fun TodoScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun TodoRow(item: TodoEntry, onToggle: () -> Unit) {
+private fun TodoRow(item: TodoEntry, onDelete: () -> Unit, onToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,7 +219,7 @@ private fun TodoRow(item: TodoEntry, onToggle: () -> Unit) {
                     .border(2.dp, Ink, CircleShape),
             )
         }
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 item.title,
                 fontSize = 14.5.sp,
@@ -211,5 +230,11 @@ private fun TodoRow(item: TodoEntry, onToggle: () -> Unit) {
                 Text(it, color = TextSecondary, fontSize = 12.sp)
             }
         }
+        androidx.compose.material3.Icon(
+            androidx.compose.material.icons.Icons.Filled.Close,
+            contentDescription = "Delete",
+            tint = TextMuted,
+            modifier = Modifier.size(28.dp).clip(CircleShape).clickable(onClick = onDelete).padding(6.dp),
+        )
     }
 }

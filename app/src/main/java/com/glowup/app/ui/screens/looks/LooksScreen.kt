@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.data.GroomingStore
@@ -32,7 +33,7 @@ fun LooksScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("Looks & Grooming") { navController.popBackStack() }
+            DetailHeader("Looks & Grooming") { navController.goBack() }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),

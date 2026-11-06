@@ -151,13 +151,35 @@ object GroomingStore {
         ),
     )
 
-    val completedIds = mutableStateListOf(1)
+    private const val KEY = "grooming_done"
+
+    val completedIds = mutableStateListOf<Int>()
 
     fun find(id: Int) = lessons.firstOrNull { it.id == id }
 
     fun isDone(id: Int) = id in completedIds
 
     fun markDone(id: Int) {
-        if (id !in completedIds) completedIds.add(id)
+        if (id in completedIds) return
+        completedIds.add(id)
+        find(id)?.let { ProgressStore.award(it.points) }
+        Storage.write(KEY, completedIds.map { it.toString() }.toJsonArray().toString())
     }
+
+    fun load() {
+        completedIds.clear()
+        Storage.read(KEY)?.let { completedIds.addAll(org.json.JSONArray(it).strings().map(String::toInt)) }
+    }
+
+    val faceShapes = listOf("Oval", "Round", "Square", "Heart", "Long", "Diamond")
+
+    /** Personalised haircut advice shown on the face-shape lesson once the user sets their face shape. */
+    val faceShapeTips = mapOf(
+        "Oval" to "Most cuts work for you. Keep some length on top and avoid a heavy fringe that hides your balanced proportions.",
+        "Round" to "Add height and angles: a textured quiff, short sides and a side part make your face read longer and sharper.",
+        "Square" to "Your jaw is the feature. Classic short cuts, a crew cut or a slick side part keep things clean and strong.",
+        "Heart" to "Balance a wider forehead with medium length and a soft fringe or side-swept top. Avoid very short sides with lots of top volume.",
+        "Long" to "Avoid extra height on top. Go for a fuller side profile, a fringe, or medium length to visually shorten the face.",
+        "Diamond" to "Soften the cheekbones with fuller sides and a textured fringe. A slightly longer top swept forward works well.",
+    )
 }

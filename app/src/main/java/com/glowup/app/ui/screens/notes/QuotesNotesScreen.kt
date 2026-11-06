@@ -34,48 +34,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.data.NotesStore
+import com.glowup.app.ui.data.UserNote
+import com.glowup.app.ui.data.quoteLibrary
 import com.glowup.app.ui.theme.*
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-private data class Quote(val text: String, val tag: String, val tint: Color, val hasHeartIcon: Boolean = false)
-
-private val quotes = listOf(
-    Quote("\"Small, boring habits — done daily — beat big plans done never.\"", "Habits", CoralTint, true),
-    Quote("\"Confidence is a skill you practise, not a trait you're born with.\"", "Confidence", CardNeutral),
-    Quote("\"Dress for the day you want, not just the one you're having.\"", "Style", BlueTint),
-    Quote("\"Sleep is the easiest glow-up most people skip.\"", "Sleep", GreenTint),
-    Quote("\"Nobody is thinking about you nearly as much as you think they are.\"", "Confidence", PurpleTint),
-    Quote("\"The person you'll be in a year is built by what you repeat this week.\"", "Habits", CardNeutral),
-    Quote("\"Say less, listen more — people remember how you made them feel.\"", "Communication", GreenTint),
-    Quote("\"Posture is a sentence you say before you've said a word.\"", "Style", CoralTint),
-    Quote("\"Discipline is just choosing between what you want now and what you want most.\"", "Habits", BlueTint),
-    Quote("\"A good night's sleep solves more problems than a strong cup of coffee.\"", "Sleep", CardNeutral),
-)
-
-private data class Note(val label: String, val body: String, val tint: Color, val labelColor: Color, val italic: Boolean = false)
-
-private val notes = listOf(
-    Note("GOAL · PINNED", "Feel confident enough to speak up in team meetings by December.", CardNeutral, TextSecondary),
-    Note("NOTE · OCT 24", "Linen shirt + chinos combo worked really well for the Saturday brunch — repeat for similar occasions.", CardNeutral, TextSecondary),
-    Note("SAVED QUOTE", "\"Small, boring habits — done daily — beat big plans done never.\"", CoralTint, Coral, italic = true),
-)
+private val quoteTints = listOf(CoralTint, CardNeutral, BlueTint, GreenTint, PurpleTint)
+private val noteDateFormat = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
 
 @Composable
 fun QuotesNotesScreen(navController: NavHostController) {
     var showQuotes by remember { mutableStateOf(true) }
     var selectedTag by remember { mutableStateOf("All") }
-    var likedQuotes by remember { mutableStateOf(quotes.filter { it.hasHeartIcon }.map { it.text }.toSet()) }
-    val quoteTags = listOf("All") + quotes.map { it.tag }.distinct()
-    val filteredQuotes = if (selectedTag == "All") quotes else quotes.filter { it.tag == selectedTag }
-    val noteItems = remember { notes.toMutableStateList() }
+    val quoteTags = listOf("All") + quoteLibrary.map { it.tag }.distinct()
+    val filteredQuotes = if (selectedTag == "All") quoteLibrary else quoteLibrary.filter { it.tag == selectedTag }
     var showAddNote by remember { mutableStateOf(false) }
     var newNoteText by remember { mutableStateOf("") }
+    var selectedNote by remember { mutableStateOf<UserNote?>(null) }
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("Quotes & Notes") { navController.popBackStack() }
+            DetailHeader("Quotes & Notes") { navController.goBack() }
 
             Row(
                 modifier = Modifier.fillMaxWidth().padding(24.dp, 14.dp, 24.dp, 0.dp),
@@ -125,23 +110,23 @@ fun QuotesNotesScreen(navController: NavHostController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(22.dp))
-                                .background(quote.tint)
+                                .background(quoteTints[quoteLibrary.indexOf(quote) % quoteTints.size])
                                 .padding(18.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             Text(quote.text, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, fontStyle = FontStyle.Italic, lineHeight = 22.sp)
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                 Text(quote.tag, color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
-                                val liked = quote.text in likedQuotes
+                                val liked = quote.text in NotesStore.likedQuotes
                                 Icon(
                                     if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                    contentDescription = "Like",
+                                    contentDescription = if (liked) "Remove from saved" else "Save quote",
                                     tint = if (liked) Coral else TextMuted,
                                     modifier = Modifier
-                                        .size(20.dp)
-                                        .clickable {
-                                            likedQuotes = if (liked) likedQuotes - quote.text else likedQuotes + quote.text
-                                        },
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .clickable { NotesStore.toggleLiked(quote.text) }
+                                        .padding(6.dp),
                                 )
                             }
                         }
@@ -173,23 +158,57 @@ fun QuotesNotesScreen(navController: NavHostController) {
                             Text("Write a new note", color = TextSecondary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
-                    items(noteItems) { note ->
+                    val userNotes = NotesStore.ordered()
+                    if (userNotes.isEmpty() && NotesStore.likedQuotes.isEmpty()) {
+                        item {
+                            Text(
+                                "Write down goals, outfits that worked, or anything you want to remember. Quotes you heart show up here too.",
+                                color = TextSecondary,
+                                fontSize = 13.sp,
+                                lineHeight = 19.sp,
+                            )
+                        }
+                    }
+                    items(userNotes, key = { "note-${it.id}" }) { note ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(22.dp))
-                                .background(note.tint)
+                                .background(CardNeutral)
+                                .clickable { selectedNote = note }
                                 .padding(18.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Text(note.label, color = note.labelColor, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                             Text(
-                                note.body,
-                                fontSize = 14.5.sp,
-                                fontWeight = if (note.italic) FontWeight.SemiBold else FontWeight.Medium,
-                                fontStyle = if (note.italic) FontStyle.Italic else FontStyle.Normal,
-                                lineHeight = 21.sp,
+                                if (note.pinned) "PINNED · ${note.date.format(noteDateFormat).uppercase()}" else "NOTE · ${note.date.format(noteDateFormat).uppercase()}",
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 0.4.sp,
                             )
+                            Text(note.body, fontSize = 14.5.sp, fontWeight = FontWeight.Medium, lineHeight = 21.sp)
+                        }
+                    }
+                    items(NotesStore.likedQuotes.toList(), key = { "quote-$it" }) { quote ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(CoralTint)
+                                .padding(18.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("SAVED QUOTE", color = Coral, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                                Text(
+                                    "Remove",
+                                    color = Coral,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.clickable { NotesStore.toggleLiked(quote) },
+                                )
+                            }
+                            Text(quote, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, fontStyle = FontStyle.Italic, lineHeight = 21.sp)
                         }
                     }
                 }
@@ -204,7 +223,7 @@ fun QuotesNotesScreen(navController: NavHostController) {
                 primaryText = "Save",
                 primaryEnabled = newNoteText.isNotBlank(),
                 onPrimary = {
-                    noteItems.add(0, Note("NOTE · TODAY", newNoteText.trim(), CardNeutral, TextSecondary))
+                    NotesStore.add(newNoteText)
                     showAddNote = false
                     newNoteText = ""
                 },
@@ -219,6 +238,19 @@ fun QuotesNotesScreen(navController: NavHostController) {
                         ),
                     )
                 },
+            )
+        }
+
+        selectedNote?.let { note ->
+            GlowUpDialog(
+                onDismissRequest = { selectedNote = null },
+                title = if (note.pinned) "Pinned note" else "Note",
+                message = note.body,
+                secondaryText = "Delete",
+                secondaryDestructive = true,
+                onSecondary = { NotesStore.remove(note.id); selectedNote = null },
+                primaryText = if (note.pinned) "Unpin" else "Pin to top",
+                onPrimary = { NotesStore.togglePinned(note.id); selectedNote = null },
             )
         }
     }

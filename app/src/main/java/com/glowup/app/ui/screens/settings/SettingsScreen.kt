@@ -28,19 +28,49 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
 import com.glowup.app.R
+import com.glowup.app.audio.SleepSoundService
 import com.glowup.app.ui.components.GlowUpDialog
 import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.data.GroomingStore
+import com.glowup.app.ui.data.ProfileStore
+import com.glowup.app.ui.data.ProgressStore
+import com.glowup.app.ui.data.Storage
+import com.glowup.app.ui.data.Stores
 import com.glowup.app.ui.theme.*
+import java.io.File
+import java.time.LocalDate
 
 private data class SettingsRow(val label: String, val value: String? = null, val danger: Boolean = false)
 
+private val faqs = listOf(
+    "Where is my data stored?" to "Everything — routines, notes, moods, wardrobe and progress — is saved only on this phone. Nothing is uploaded.",
+    "How do points and streaks work?" to "You earn points for checking off routines, to-dos, lessons, mood check-ins, confidence cards and practice sessions. Any day you earn points counts towards your streak. Every 100 points is a new level.",
+    "Why didn't a reminder arrive?" to "Make sure notifications are allowed for Glow-Up. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time.",
+    "Do sleep sounds need the internet?" to "No. They're generated on your phone and keep playing with the screen off until the sleep timer fades them out.",
+    "Is my speaking practice recorded?" to "Only while you practise, so you can listen back. The recording is deleted as soon as you leave the screen.",
+)
+
 @Composable
 fun SettingsScreen(navController: NavHostController) {
-    var language by remember { mutableStateOf("English") }
-    var appearance by remember { mutableStateOf("System") }
+    val context = LocalContext.current
     var dialog by remember { mutableStateOf<String?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var nameDraft by remember { mutableStateOf(ProfileStore.name) }
+    var focusDraft by remember { mutableStateOf(ProfileStore.focusAreas.toSet()) }
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -54,7 +84,7 @@ fun SettingsScreen(navController: NavHostController) {
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(Ink)
-                        .clickable { navController.popBackStack() },
+                        .clickable { navController.goBack() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))
@@ -75,14 +105,15 @@ fun SettingsScreen(navController: NavHostController) {
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(24.dp))
                     .background(Ink)
+                    .clickable { nameDraft = ProfileStore.name; dialog = "Name" }
                     .padding(16.dp, 15.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 Image(painterResource(R.drawable.ic_profile), contentDescription = null, modifier = Modifier.size(46.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Arjun Mehta", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text("Premium · Renews Dec 14", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp)
+                    Text(ProfileStore.name.ifBlank { "Your profile" }, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("Free plan · Level ${ProgressStore.level} · ${ProgressStore.points} points", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp)
                 }
                 Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(18.dp))
             }
@@ -94,23 +125,30 @@ fun SettingsScreen(navController: NavHostController) {
                 settingsSection(
                     "Profile",
                     listOf(
-                        SettingsRow("Gender & preferences"),
-                        SettingsRow("Face shape & appearance"),
-                        SettingsRow("Areas & topics"),
+                        SettingsRow("Name", ProfileStore.name.ifBlank { null }),
+                        SettingsRow("Face shape", ProfileStore.faceShape ?: "Not set"),
+                        SettingsRow("Focus areas", ProfileStore.focusAreas.size.takeIf { it > 0 }?.let { "$it selected" } ?: "None"),
                     ),
-                    onRowClick = { dialog = it },
+                    onRowClick = { label ->
+                        nameDraft = ProfileStore.name
+                        focusDraft = ProfileStore.focusAreas.toSet()
+                        dialog = label
+                    },
                 )
                 settingsSection(
                     "App",
                     listOf(
-                        SettingsRow("Notifications"),
-                        SettingsRow("Language", language),
-                        SettingsRow("Appearance", appearance),
+                        SettingsRow("Reminders"),
+                        SettingsRow("Sleep & alarms"),
+                        SettingsRow("System notification settings"),
                     ),
                     onRowClick = { label ->
                         when (label) {
-                            "Notifications" -> navController.navigate("notifications")
-                            else -> dialog = label
+                            "Reminders" -> navController.navigate("notifications")
+                            "Sleep & alarms" -> navController.navigate("sleep")
+                            else -> context.startActivity(
+                                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName),
+                            )
                         }
                     },
                 )
@@ -118,68 +156,147 @@ fun SettingsScreen(navController: NavHostController) {
                     "Privacy & data",
                     listOf(
                         SettingsRow("Export my data"),
-                        SettingsRow("Clear profile data"),
-                        SettingsRow("Delete account", danger = true),
+                        SettingsRow("Delete all my data", danger = true),
                     ),
                     onRowClick = { label ->
-                        if (label == "Delete account") showDeleteConfirm = true else dialog = label
+                        if (label == "Export my data") exportData(context) else showDeleteConfirm = true
                     },
                 )
                 settingsSection(
                     "Support",
                     listOf(
                         SettingsRow("Help & FAQ"),
-                        SettingsRow("Send feedback"),
                         SettingsRow("Rate Glow-Up"),
+                        SettingsRow("Version", versionName(context)),
                     ),
-                    onRowClick = { dialog = it },
+                    onRowClick = { label ->
+                        when (label) {
+                            "Help & FAQ" -> dialog = label
+                            "Rate Glow-Up" -> openStoreListing(context)
+                        }
+                    },
                     last = true,
                 )
             }
         }
 
-        if (dialog == "Language") {
-            PickerDialog(
-                title = "Language",
-                options = listOf("English", "Hindi", "Spanish"),
-                selected = language,
-                onSelect = { language = it; dialog = null },
-                onDismiss = { dialog = null },
-            )
-        } else if (dialog == "Appearance") {
-            PickerDialog(
-                title = "Appearance",
-                options = listOf("System", "Light", "Dark"),
-                selected = appearance,
-                onSelect = { appearance = it; dialog = null },
-                onDismiss = { dialog = null },
-            )
-        } else if (dialog != null) {
-            GlowUpDialog(
+        when (dialog) {
+            "Name" -> GlowUpDialog(
                 onDismissRequest = { dialog = null },
-                title = dialog ?: "",
-                message = "This is coming soon.",
-                primaryText = "OK",
+                title = "Your name",
+                secondaryText = "Cancel",
+                primaryText = "Save",
+                primaryEnabled = nameDraft.isNotBlank(),
+                onPrimary = { ProfileStore.updateName(nameDraft); dialog = null },
+                content = {
+                    OutlinedTextField(
+                        value = nameDraft,
+                        onValueChange = { nameDraft = it.take(40) },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
+                    )
+                },
+            )
+            "Face shape" -> PickerDialog(
+                title = "Face shape",
+                options = listOf("Not set") + GroomingStore.faceShapes,
+                selected = ProfileStore.faceShape ?: "Not set",
+                onSelect = { ProfileStore.updateFaceShape(it.takeIf { shape -> shape != "Not set" }); dialog = null },
+                onDismiss = { dialog = null },
+            )
+            "Focus areas" -> GlowUpDialog(
+                onDismissRequest = { dialog = null },
+                title = "Focus areas",
+                secondaryText = "Cancel",
+                primaryText = "Save",
+                primaryEnabled = focusDraft.isNotEmpty(),
+                onPrimary = { ProfileStore.updateFocus(ProfileStore.focusOptions.filter { it in focusDraft }); dialog = null },
+                content = {
+                    Column {
+                        ProfileStore.focusOptions.forEach { option ->
+                            val checked = option in focusDraft
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable { focusDraft = if (checked) focusDraft - option else focusDraft + option }
+                                    .padding(vertical = 10.dp, horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Checkbox(
+                                    checked = checked,
+                                    onCheckedChange = null,
+                                    colors = CheckboxDefaults.colors(checkedColor = Ink, uncheckedColor = TextMuted),
+                                )
+                                Spacer(Modifier.width(10.dp))
+                                Text(option, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                            }
+                        }
+                    }
+                },
+            )
+            "Help & FAQ" -> GlowUpDialog(
+                onDismissRequest = { dialog = null },
+                title = "Help & FAQ",
+                primaryText = "Close",
                 secondaryText = null,
+                content = {
+                    Column(
+                        modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        faqs.forEach { (question, answer) ->
+                            Column {
+                                Text(question, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                                Spacer(Modifier.height(4.dp))
+                                Text(answer, color = TextSecondary, fontSize = 13.5.sp, lineHeight = 19.sp)
+                            }
+                        }
+                    }
+                },
             )
         }
 
         if (showDeleteConfirm) {
             GlowUpDialog(
                 onDismissRequest = { showDeleteConfirm = false },
-                title = "Delete account?",
-                message = "This permanently deletes your profile, routines, and history. This can't be undone.",
+                title = "Delete all your data?",
+                message = "This permanently deletes your profile, routines, notes, moods, wardrobe, reminders and progress from this phone. This can't be undone.",
                 secondaryText = "Cancel",
                 primaryText = "Delete",
                 primaryDestructive = true,
                 onPrimary = {
                     showDeleteConfirm = false
-                    navController.navigate("home") { popUpTo("home") { inclusive = true } }
+                    SleepSoundService.stop(context)
+                    Stores.deleteAll()
+                    navController.navigate("onboarding") { popUpTo(navController.graph.id) { inclusive = true } }
                 },
             )
         }
     }
 }
+
+private fun exportData(context: Context) {
+    val dir = File(context.cacheDir, "exports").apply { mkdirs() }
+    val file = File(dir, "glowup-data-${LocalDate.now()}.json")
+    file.writeText(Storage.exportJson())
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
+    val share = Intent(Intent.ACTION_SEND)
+        .setType("application/json")
+        .putExtra(Intent.EXTRA_STREAM, uri)
+        .putExtra(Intent.EXTRA_SUBJECT, "My Glow-Up data")
+        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    context.startActivity(Intent.createChooser(share, "Export my data"))
+}
+
+private fun openStoreListing(context: Context) {
+    val market = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${context.packageName}"))
+    val web = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}"))
+    runCatching { context.startActivity(market) }.onFailure { runCatching { context.startActivity(web) } }
+}
+
+private fun versionName(context: Context): String =
+    runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: ""
 
 @Composable
 private fun PickerDialog(title: String, options: List<String>, selected: String, onSelect: (String) -> Unit, onDismiss: () -> Unit) {

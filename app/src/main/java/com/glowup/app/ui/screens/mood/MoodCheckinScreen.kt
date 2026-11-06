@@ -26,14 +26,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.MoodStore
 import com.glowup.app.ui.data.moodOptions
 import com.glowup.app.ui.theme.*
 
 @Composable
 fun MoodCheckinScreen(navController: NavHostController) {
-    var selected by remember { mutableStateOf<String?>(null) }
-    var note by remember { mutableStateOf("") }
+    val today = remember { java.time.LocalDate.now() }
+    var selected by remember { mutableStateOf(MoodStore.moodOn(today)) }
+    var note by remember { mutableStateOf(MoodStore.noteOn(today).orEmpty()) }
+    val dateLabel = remember {
+        today.format(java.time.format.DateTimeFormatter.ofPattern("EEEE, d MMMM", java.util.Locale.getDefault())).uppercase()
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -46,12 +51,12 @@ fun MoodCheckinScreen(navController: NavHostController) {
                     color = TextSecondary,
                     fontSize = 13.5.sp,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable { navController.popBackStack() },
+                    modifier = Modifier.clickable { navController.goBack() },
                 )
             }
 
             Column(modifier = Modifier.padding(24.dp, 4.dp, 24.dp, 0.dp)) {
-                Text("FRIDAY, 30 OCTOBER", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                Text(dateLabel, color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                 Spacer(Modifier.height(6.dp))
                 Text(
                     "How are you",
@@ -123,8 +128,8 @@ fun MoodCheckinScreen(navController: NavHostController) {
                         .clip(RoundedCornerShape(999.dp))
                         .background(if (selected != null) Ink else Color(0xFFD8D5CE))
                         .clickable(enabled = selected != null) {
-                            selected?.let { MoodStore.logToday(it) }
-                            navController.popBackStack()
+                            selected?.let { MoodStore.logToday(it, note) }
+                            navController.goBack()
                         },
                     contentAlignment = Alignment.Center,
                 ) {

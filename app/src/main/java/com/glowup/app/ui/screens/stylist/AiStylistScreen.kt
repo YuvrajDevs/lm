@@ -32,13 +32,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.theme.*
 
 private data class ChatMessage(val fromUser: Boolean, val text: String, val note: String? = null)
 
 private val chatMessages = listOf(
-    ChatMessage(false, "Hey Arjun! Tell me what you're dressing for and I'll work with what's in your wardrobe."),
+    ChatMessage(false, "Hey! Tell me what you're dressing for and I'll work with what's in your wardrobe."),
     ChatMessage(true, "What should I wear for a first date at a casual restaurant?"),
     ChatMessage(
         false,
@@ -88,7 +89,7 @@ fun AiStylistScreen(navController: NavHostController) {
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(Ink)
-                        .clickable { navController.popBackStack() },
+                        .clickable { navController.goBack() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))

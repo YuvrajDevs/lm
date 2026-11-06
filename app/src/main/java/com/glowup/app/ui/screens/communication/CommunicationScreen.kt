@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.data.LessonStore
 import com.glowup.app.ui.theme.*
@@ -32,7 +33,7 @@ fun CommunicationScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("Communication") { navController.popBackStack() }
+            DetailHeader("Communication") { navController.goBack() }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),

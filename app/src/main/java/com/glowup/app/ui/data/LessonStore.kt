@@ -131,14 +131,24 @@ object LessonStore {
         ),
     )
 
-    val completedIds = mutableStateListOf(1)
+    private const val KEY = "lessons_done"
+
+    val completedIds = mutableStateListOf<Int>()
 
     fun find(id: Int) = lessons.firstOrNull { it.id == id }
 
     fun isDone(id: Int) = id in completedIds
 
     fun markDone(id: Int) {
-        if (id !in completedIds) completedIds.add(id)
+        if (id in completedIds) return
+        completedIds.add(id)
+        find(id)?.let { ProgressStore.award(it.points) }
+        Storage.write(KEY, completedIds.map { it.toString() }.toJsonArray().toString())
+    }
+
+    fun load() {
+        completedIds.clear()
+        Storage.read(KEY)?.let { completedIds.addAll(org.json.JSONArray(it).strings().map(String::toInt)) }
     }
 
     fun nextUpAfter(id: Int) = lessons.firstOrNull { it.id > id && it.id !in completedIds }

@@ -36,6 +36,7 @@ import com.glowup.app.R
 import com.glowup.app.ui.components.GlowUpBottomNav
 import com.glowup.app.ui.components.GlowUpDialog
 import com.glowup.app.ui.components.NavTab
+import com.glowup.app.ui.data.StylingStore
 import com.glowup.app.ui.theme.*
 
 private data class StyleGuide(val title: String, val tint: Color, val accent: Color, val pro: Boolean = false)
@@ -51,8 +52,8 @@ private val styleGuides = listOf(
 
 private val outfitIdeasByOccasion = mapOf(
     "Office" to listOf(
-        "Light linen shirt + chinos" to "Breathable for the humidity — from your wardrobe.",
-        "Navy polo + tailored shorts" to "Smart-casual and cool for the Mumbai afternoon.",
+        "Light linen shirt + chinos" to "Breathable and sharp for a warm day at work.",
+        "Navy polo + tailored shorts" to "Smart-casual and cool for a hot afternoon.",
         "Black tee + light trousers" to "Simple, clean, and easy to layer with your watch.",
     ),
     "College" to listOf(
@@ -86,7 +87,7 @@ private val outfitIdeasByOccasion = mapOf(
 fun StylingScreen(navController: NavHostController) {
     var selectedOccasion by remember { mutableStateOf("Office") }
     var ideaIndex by remember { mutableStateOf(0) }
-    var ideasLeft by remember { mutableStateOf(3) }
+    val ideasLeft = StylingStore.ideasLeft()
     var showPaywall by remember { mutableStateOf(false) }
     val outfitIdeas = outfitIdeasByOccasion.getValue(selectedOccasion)
 
@@ -104,10 +105,7 @@ fun StylingScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 18.dp),
             ) {
                 item {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Image(painterResource(R.drawable.ic_sun), contentDescription = null, modifier = Modifier.size(16.dp))
-                        Text("Mumbai · 31°C · Humid", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                    }
+                    Text("What are you dressing for?", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.height(14.dp))
                 }
 
@@ -162,9 +160,8 @@ fun StylingScreen(navController: NavHostController) {
                                 .clip(RoundedCornerShape(999.dp))
                                 .background(Ink)
                                 .clickable {
-                                    if (ideasLeft > 0) {
+                                    if (StylingStore.useIdea()) {
                                         ideaIndex = (ideaIndex + 1) % outfitIdeas.size
-                                        ideasLeft -= 1
                                     } else {
                                         showPaywall = true
                                     }

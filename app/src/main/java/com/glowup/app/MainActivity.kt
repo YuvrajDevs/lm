@@ -1,11 +1,18 @@
 package com.glowup.app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import com.glowup.app.notify.Notifications
+import com.glowup.app.ui.data.ProfileStore
+import com.glowup.app.ui.screens.morning.MorningSessionScreen
+import com.glowup.app.ui.screens.onboarding.OnboardingScreen
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,18 +43,33 @@ import com.glowup.app.ui.screens.wardrobe.WardrobeScreen
 import com.glowup.app.ui.theme.GlowUpTheme
 
 class MainActivity : ComponentActivity() {
+    private val pendingRoute = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (savedInstanceState == null) pendingRoute.value = intent.getStringExtra(Notifications.EXTRA_ROUTE)
         setContent {
             GlowUpTheme {
                 val navController = rememberNavController()
+                val route = pendingRoute.value
+                LaunchedEffect(route) {
+                    if (route != null && ProfileStore.onboarded) navController.navigate(route) { launchSingleTop = true }
+                    pendingRoute.value = null
+                }
                 NavHost(
                     navController = navController,
-                    startDestination = "home",
+                    startDestination = if (ProfileStore.onboarded) "home" else "onboarding",
                     modifier = Modifier.fillMaxSize(),
                 ) {
+                    composable("onboarding") { OnboardingScreen(navController) }
                     composable("home") { HomeScreen(navController) }
+                    composable(
+                        "morning_session/{index}",
+                        arguments = listOf(navArgument("index") { type = NavType.IntType }),
+                    ) { backStackEntry ->
+                        MorningSessionScreen(navController, backStackEntry.arguments?.getInt("index") ?: 0)
+                    }
                     composable("routines") { RoutinesScreen(navController) }
                     composable("styling") { StylingScreen(navController) }
                     composable("settings") { SettingsScreen(navController) }
@@ -100,5 +122,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent.getStringExtra(Notifications.EXTRA_ROUTE)?.let { pendingRoute.value = it }
     }
 }

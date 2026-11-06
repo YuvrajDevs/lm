@@ -32,30 +32,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.data.WardrobeItem
+import com.glowup.app.ui.data.WardrobeStore
 import com.glowup.app.ui.theme.*
-
-private data class WardrobeItem(val category: String, val title: String, val meta: String, val tint: Color, val accent: Color)
-
-private val initialItems = listOf(
-    WardrobeItem("Top", "Linen shirt", "Blue · Office, Casual", BlueTint, Navy),
-    WardrobeItem("Bottom", "Beige chinos", "Beige · Office, Date", CoralTint, Coral),
-    WardrobeItem("Shoes", "White sneakers", "White · Daily, College", GreenTint, Green),
-    WardrobeItem("Top", "Black tee", "Black · Daily, Casual", PurpleTint, Purple),
-    WardrobeItem("Accessory", "Leather watch", "Brown · Office, Date", MaroonTint, Maroon),
-    WardrobeItem("Bottom", "Dark denim", "Indigo · Casual, Date", BlueTint, Navy),
-    WardrobeItem("Outerwear", "Navy bomber jacket", "Navy · Casual, Travel", NavyTint, Navy),
-    WardrobeItem("Shoes", "Black derbies", "Black · Office, Formal", GreenTint, Green),
-    WardrobeItem("Accessory", "Minimal chain necklace", "Silver · Date, Casual", MaroonTint, Maroon),
-    WardrobeItem("Top", "Grey hoodie", "Grey · Gym, Casual", PurpleTint, Purple),
-)
-
-private val tints = listOf(BlueTint to Navy, CoralTint to Coral, GreenTint to Green, PurpleTint to Purple, MaroonTint to Maroon)
 
 @Composable
 fun WardrobeScreen(navController: NavHostController) {
-    val items = remember { initialItems.toMutableStateList() }
+    val items = WardrobeStore.items
     var selectedItem by remember { mutableStateOf<WardrobeItem?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
     var newTitle by remember { mutableStateOf("") }
@@ -77,7 +63,7 @@ fun WardrobeScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("My wardrobe") { navController.popBackStack() }
+            DetailHeader("My wardrobe") { navController.goBack() }
 
             LazyRow(
                 contentPadding = PaddingValues(24.dp, 16.dp, 24.dp, 0.dp),
@@ -147,7 +133,7 @@ fun WardrobeScreen(navController: NavHostController) {
             }
 
             Text(
-                "Your AI stylist and outfit ideas use this automatically.",
+                if (items.isEmpty()) "Add the clothes you own to keep track of what you can wear." else "${items.size} item${if (items.size == 1) "" else "s"} · saved on this device",
                 color = TextMuted,
                 fontSize = 11.5.sp,
                 textAlign = TextAlign.Center,
@@ -162,7 +148,7 @@ fun WardrobeScreen(navController: NavHostController) {
                 message = "${item.category} · ${item.meta}",
                 secondaryText = "Remove",
                 secondaryDestructive = true,
-                onSecondary = { items.remove(item); selectedItem = null },
+                onSecondary = { WardrobeStore.remove(item.id); selectedItem = null },
                 primaryText = "Close",
             )
         }
@@ -175,16 +161,7 @@ fun WardrobeScreen(navController: NavHostController) {
                 primaryText = "Add",
                 primaryEnabled = newTitle.isNotBlank(),
                 onPrimary = {
-                    val (tint, accent) = tints[items.size % tints.size]
-                    items.add(
-                        WardrobeItem(
-                            newCategory.ifBlank { "Top" },
-                            newTitle.trim(),
-                            newMeta.ifBlank { "Added just now" },
-                            tint,
-                            accent,
-                        ),
-                    )
+                    WardrobeStore.add(newCategory.ifBlank { "Top" }, newTitle, newMeta.ifBlank { "Added just now" })
                     showAddDialog = false
                     newTitle = ""
                     newCategory = ""

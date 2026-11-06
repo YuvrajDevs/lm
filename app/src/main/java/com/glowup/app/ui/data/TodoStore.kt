@@ -7,6 +7,9 @@ import com.glowup.app.ui.theme.CardNeutral
 import com.glowup.app.ui.theme.CoralTint
 import com.glowup.app.ui.theme.GreenTint
 import com.glowup.app.ui.theme.NavyTint
+import com.glowup.app.ui.theme.PurpleTint
+import org.json.JSONArray
+import org.json.JSONObject
 
 enum class TodoBucket(val label: String) { TODAY("Today"), WEEK("This week") }
 
@@ -16,35 +19,106 @@ data class TodoEntry(
     val meta: String?,
     val done: Boolean,
     val bucket: TodoBucket,
-    val tint: Color = CardNeutral,
-    val icon: Int? = null,
-)
+    val category: String? = null,
+) {
+    val tint: Color get() = when (category) {
+        "Looks", "Style" -> CoralTint
+        "Confidence" -> GreenTint
+        "Life admin" -> NavyTint
+        "Mind" -> PurpleTint
+        else -> CardNeutral
+    }
+
+    val icon: Int? get() = when (category) {
+        "Looks" -> R.drawable.ic_looks
+        "Style" -> R.drawable.ic_outfit
+        "Confidence" -> R.drawable.ic_social
+        "Life admin" -> R.drawable.ic_lifeadmin
+        "Mind" -> R.drawable.ic_reflective
+        else -> null
+    }
+}
 
 /** Single source of truth for to-dos, shared by the Home "Today's plan" list and the To-do screen. */
 object TodoStore {
-    private var nextId = 100
+    private const val KEY = "todos"
+    const val POINTS_PER_TODO = 2
 
-    val items = mutableStateListOf(
-        TodoEntry(1, "Skincare — morning", "7:30 AM · Looks", true, TodoBucket.TODAY, CardNeutral, R.drawable.ic_check),
-        TodoEntry(2, "Lay out tomorrow's outfit", "8:00 PM · Style", false, TodoBucket.TODAY, CoralTint, R.drawable.ic_outfit),
-        TodoEntry(3, "2-minute eye contact practice", "Anytime · Confidence", false, TodoBucket.TODAY, GreenTint, R.drawable.ic_social),
-        TodoEntry(4, "Make your bed", "Morning · Life admin", false, TodoBucket.TODAY, NavyTint, R.drawable.ic_lifeadmin),
-        TodoEntry(5, "Pay electricity bill", "Due today · 6:00 PM", false, TodoBucket.TODAY),
-        TodoEntry(6, "Book haircut appointment", "Today", true, TodoBucket.TODAY),
-        TodoEntry(7, "Plan tomorrow's top 3", "No due date", false, TodoBucket.TODAY),
-        TodoEntry(8, "Order new running shoes", "Fri", false, TodoBucket.WEEK),
-        TodoEntry(9, "Call mom", "Sun", false, TodoBucket.WEEK),
+    val items = mutableStateListOf<TodoEntry>()
+
+    private fun seed() = listOf(
+        TodoEntry(1, "Skincare — morning", "7:30 AM · Looks", false, TodoBucket.TODAY, "Looks"),
+        TodoEntry(2, "Lay out tomorrow's outfit", "8:00 PM · Style", false, TodoBucket.TODAY, "Style"),
+        TodoEntry(3, "2-minute eye contact practice", "Anytime · Confidence", false, TodoBucket.TODAY, "Confidence"),
+        TodoEntry(4, "Make your bed", "Morning · Life admin", false, TodoBucket.TODAY, "Life admin"),
+        TodoEntry(5, "Plan tomorrow's top 3", "Evening", false, TodoBucket.TODAY),
+        TodoEntry(6, "Read one Talk lesson", "This week", false, TodoBucket.WEEK, "Mind"),
+        TodoEntry(7, "Try a look from a style guide", "This week", false, TodoBucket.WEEK, "Style"),
     )
 
     fun toggle(id: Int) {
         val index = items.indexOfFirst { it.id == id }
-        if (index >= 0) items[index] = items[index].copy(done = !items[index].done)
+        if (index < 0) return
+        val nowDone = !items[index].done
+        items[index] = items[index].copy(done = nowDone)
+        if (nowDone) ProgressStore.award(POINTS_PER_TODO) else ProgressStore.revoke(POINTS_PER_TODO)
+        save()
     }
 
     fun add(title: String, bucket: TodoBucket, meta: String?) {
-        items.add(0, TodoEntry(nextId++, title, meta?.ifBlank { null } ?: bucket.label, false, bucket))
+        val nextId = (items.maxOfOrNull { it.id } ?: 0) + 1
+        items.add(0, TodoEntry(nextId, title, meta?.ifBlank { null } ?: bucket.label, false, bucket))
+        save()
+    }
+
+    fun remove(id: Int) {
+        items.removeAll { it.id == id }
+        save()
+    }
+
+    fun clearDone() {
+        items.removeAll { it.done }
+        save()
     }
 
     fun doneCount(bucket: TodoBucket) = items.count { it.bucket == bucket && it.done }
     fun totalCount(bucket: TodoBucket) = items.count { it.bucket == bucket }
+
+    fun load() {
+        items.clear()
+        val raw = Storage.read(KEY)
+        if (raw == null) {
+            items.addAll(seed())
+            save()
+            return
+        }
+        JSONArray(raw).objects().forEach { json ->
+            items.add(
+                TodoEntry(
+                    id = json.getInt("id"),
+                    title = json.getString("title"),
+                    meta = json.optStringOrNull("meta"),
+                    done = json.getBoolean("done"),
+                    bucket = TodoBucket.valueOf(json.getString("bucket")),
+                    category = json.optStringOrNull("category"),
+                ),
+            )
+        }
+    }
+
+    private fun save() {
+        val array = JSONArray()
+        items.forEach { item ->
+            array.put(
+                JSONObject()
+                    .put("id", item.id)
+                    .put("title", item.title)
+                    .put("meta", item.meta ?: JSONObject.NULL)
+                    .put("done", item.done)
+                    .put("bucket", item.bucket.name)
+                    .put("category", item.category ?: JSONObject.NULL),
+            )
+        }
+        Storage.write(KEY, array.toString())
+    }
 }

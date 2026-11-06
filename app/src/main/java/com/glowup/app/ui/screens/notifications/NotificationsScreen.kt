@@ -1,10 +1,13 @@
 package com.glowup.app.ui.screens.notifications
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,104 +23,126 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.ui.components.goBack
+import com.glowup.app.notify.Notifications
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.GlowUpDialog
 import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.components.rememberNotificationPermission
+import com.glowup.app.ui.data.Reminder
+import com.glowup.app.ui.data.ReminderStore
+import com.glowup.app.ui.data.Schedule
 import com.glowup.app.ui.theme.*
-
-private data class ReminderItem(val title: String, val meta: String, val defaultOn: Boolean)
-
-private val yourReminders = listOf(
-    ReminderItem("Lay out tomorrow's outfit", "8:00 PM · Daily · Linked to a routine card", true),
-    ReminderItem("Drink water", "Every 2 hours · Notification only", true),
-    ReminderItem("Call mom", "Sun · One-time", false),
-)
-
-private val builtInReminders = listOf(
-    ReminderItem("Sunscreen reapply", "Off by default", false),
-    ReminderItem("Eating nudge", "A gentle nudge, not a fixed schedule", false),
-)
-
-private data class SuggestedReminder(val title: String, val defaultTime: String)
-
-private val suggestedReminders = listOf(
-    SuggestedReminder("Posture check", "Every 2 hours"),
-    SuggestedReminder("Stand up & stretch", "Every hour"),
-    SuggestedReminder("Skincare — PM routine", "9:30 PM · Daily"),
-    SuggestedReminder("Floss before bed", "10:00 PM · Daily"),
-    SuggestedReminder("Drink water", "Every 2 hours"),
-    SuggestedReminder("Lay out tomorrow's outfit", "8:00 PM · Daily"),
-    SuggestedReminder("Wind down — screens off", "10:30 PM · Daily"),
-    SuggestedReminder("Weekly wardrobe refresh", "Sun · Weekly"),
-)
-
-private val timeChipOptions = listOf(
-    "Every hour", "Every 2 hours", "8:00 AM · Daily", "7:00 PM · Daily",
-    "9:00 PM · Daily", "10:00 PM · Daily", "Sun · Weekly", "Notification only",
-)
 
 @Composable
 fun NotificationsScreen(navController: NavHostController) {
-    val customReminders = remember { yourReminders.toMutableStateList() }
+    val context = LocalContext.current
+    var permissionVersion by remember { mutableStateOf(0) }
+    val canPost = remember(permissionVersion) { Notifications.canPost(context) }
+    val askPermission = rememberNotificationPermission { permissionVersion++ }
+    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+        permissionVersion++
+        onPauseOrDispose { }
+    }
+
     var showAddDialog by remember { mutableStateOf(false) }
     var newTitle by remember { mutableStateOf("") }
-    var newTime by remember { mutableStateOf(timeChipOptions.first()) }
-    var showTimePicker by remember { mutableStateOf(false) }
+    var newSchedule by remember { mutableStateOf<Schedule>(Schedule.Daily(java.time.LocalTime.of(20, 0))) }
+    var pickingFor by remember { mutableStateOf<Reminder?>(null) }
+    var pickingForNew by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf<Reminder?>(null) }
+
+    val custom = ReminderStore.custom
+    val suggestions = ReminderStore.suggestions.filter { (title, _) -> custom.none { it.title == title } }
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("Reminders") { navController.popBackStack() }
+            DetailHeader("Reminders") { navController.goBack() }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(24.dp, 20.dp, 24.dp, 24.dp),
             ) {
-                item {
-                    Text("YOUR REMINDERS", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                    Spacer(Modifier.height(10.dp))
-                }
-                items(customReminders) { ReminderRow(it); Spacer(Modifier.height(10.dp)) }
-                item { Spacer(Modifier.height(10.dp)) }
-                item {
-                    Text("BUILT-IN REMINDERS", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                    Spacer(Modifier.height(10.dp))
-                }
-                items(builtInReminders) { ReminderRow(it); Spacer(Modifier.height(10.dp)) }
-                item { Spacer(Modifier.height(10.dp)) }
-                item {
-                    Text("SUGGESTED FOR YOU", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                    Spacer(Modifier.height(10.dp))
-                }
-                items(suggestedReminders.filter { s -> customReminders.none { it.title == s.title } }) { suggestion ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(ChipNeutral)
-                            .clickable { customReminders.add(0, ReminderItem(suggestion.title, suggestion.defaultTime, true)) }
-                            .padding(16.dp, 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(suggestion.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-                            Text(suggestion.defaultTime, color = TextSecondary, fontSize = 12.sp)
-                        }
-                        Box(
-                            modifier = Modifier.size(28.dp).clip(CircleShape).background(Ink),
-                            contentAlignment = Alignment.Center,
+                if (!canPost) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(MaroonTint)
+                                .clickable {
+                                    askPermission()
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName),
+                                    )
+                                }
+                                .padding(16.dp, 14.dp),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
+                            Text("Notifications are off", color = Maroon, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Reminders can't reach you until you allow them. Tap to turn them on.", color = Maroon, fontSize = 12.sp)
+                        }
+                    }
+                }
+                item { SectionLabel("YOUR REMINDERS") }
+                if (custom.isEmpty()) {
+                    item {
+                        Text("No reminders yet — add one below or with the + button.", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(bottom = 12.dp))
+                    }
+                }
+                items(custom, key = { it.id }) { reminder ->
+                    ReminderRow(reminder, onClick = { editing = reminder }) { on ->
+                        ReminderStore.setEnabled(reminder.id, on)
+                        if (on) askPermission()
+                    }
+                    Spacer(Modifier.height(10.dp))
+                }
+                item { Spacer(Modifier.height(10.dp)) }
+                item { SectionLabel("BUILT-IN REMINDERS") }
+                items(ReminderStore.builtIn, key = { it.id }) { reminder ->
+                    ReminderRow(reminder, onClick = { pickingFor = reminder }) { on ->
+                        ReminderStore.setEnabled(reminder.id, on)
+                        if (on) askPermission()
+                    }
+                    Spacer(Modifier.height(10.dp))
+                }
+                if (suggestions.isNotEmpty()) {
+                    item { Spacer(Modifier.height(10.dp)) }
+                    item { SectionLabel("SUGGESTED FOR YOU") }
+                    items(suggestions, key = { it.first }) { (title, schedule) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 10.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(ChipNeutral)
+                                .clickable {
+                                    ReminderStore.add(title, schedule)
+                                    askPermission()
+                                }
+                                .padding(16.dp, 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text(schedule.label, color = TextSecondary, fontSize = 12.sp)
+                            }
+                            Box(
+                                modifier = Modifier.size(28.dp).clip(CircleShape).background(Ink),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
+                            }
                         }
                     }
                 }
@@ -140,53 +165,59 @@ fun NotificationsScreen(navController: NavHostController) {
 
         if (showAddDialog) {
             GlowUpDialog(
-                onDismissRequest = { showAddDialog = false; newTitle = ""; newTime = timeChipOptions.first() },
+                onDismissRequest = { showAddDialog = false; newTitle = "" },
                 title = "Add a reminder",
                 secondaryText = "Cancel",
                 primaryText = "Add",
                 primaryEnabled = newTitle.isNotBlank(),
                 onPrimary = {
-                    customReminders.add(0, ReminderItem(newTitle.trim(), newTime, true))
+                    ReminderStore.add(newTitle, newSchedule)
+                    askPermission()
                     showAddDialog = false
                     newTitle = ""
-                    newTime = timeChipOptions.first()
                 },
                 content = {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedTextField(
                             value = newTitle,
-                            onValueChange = { newTitle = it },
+                            onValueChange = { newTitle = it.take(60) },
                             placeholder = { Text("Reminder title") },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                         )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(18.dp))
-                                .background(CardNeutral)
-                                .clickable { showTimePicker = true }
-                                .padding(16.dp, 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(newTime, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                            Text("Change", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
-                        }
+                        ScheduleField(newSchedule) { pickingForNew = true }
                     }
                 },
             )
         }
 
-        if (showTimePicker) {
+        editing?.let { reminder ->
             GlowUpDialog(
-                onDismissRequest = { showTimePicker = false },
+                onDismissRequest = { editing = null },
+                title = reminder.title,
+                message = reminder.schedule.label,
+                secondaryText = "Delete",
+                secondaryDestructive = true,
+                onSecondary = { ReminderStore.remove(reminder.id); editing = null },
+                primaryText = "Change time",
+                onPrimary = { pickingFor = reminder; editing = null },
+            )
+        }
+
+        if (pickingForNew || pickingFor != null) {
+            val current = pickingFor?.let { picked -> ReminderStore.items.firstOrNull { it.id == picked.id }?.schedule } ?: newSchedule
+            GlowUpDialog(
+                onDismissRequest = { pickingFor = null; pickingForNew = false },
                 title = "When?",
-                primaryText = "Close",
+                primaryText = "Done",
                 secondaryText = null,
                 content = {
-                    Column {
-                        timeChipOptions.forEach { time ->
-                            GlowUpOptionRow(time, selected = time == newTime) { newTime = time }
+                    Column(modifier = Modifier.heightIn(max = 420.dp).verticalScrollable()) {
+                        Schedule.presets.forEach { option ->
+                            GlowUpOptionRow(option.label, selected = option == current) {
+                                val target = pickingFor
+                                if (target != null) ReminderStore.setSchedule(target.id, option) else newSchedule = option
+                            }
                         }
                     }
                 },
@@ -196,24 +227,50 @@ fun NotificationsScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun ReminderRow(item: ReminderItem) {
-    var checked by remember { mutableStateOf(item.defaultOn) }
+private fun Modifier.verticalScrollable(): Modifier =
+    this.verticalScroll(androidx.compose.foundation.rememberScrollState())
+
+@Composable
+private fun SectionLabel(text: String) {
+    Text(text, color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+    Spacer(Modifier.height(10.dp))
+}
+
+@Composable
+private fun ScheduleField(schedule: Schedule, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(CardNeutral)
+            .clickable(onClick = onClick)
+            .padding(16.dp, 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(schedule.label, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+        Text("Change", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun ReminderRow(item: Reminder, onClick: () -> Unit, onToggle: (Boolean) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .background(CardNeutral)
+            .clickable(onClick = onClick)
             .padding(16.dp, 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-            Text(item.meta, color = TextSecondary, fontSize = 12.sp)
+            Text(item.schedule.label, color = TextSecondary, fontSize = 12.sp)
         }
         Switch(
-            checked = checked,
-            onCheckedChange = { checked = it },
+            checked = item.enabled,
+            onCheckedChange = onToggle,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White,
                 checkedTrackColor = Ink,
