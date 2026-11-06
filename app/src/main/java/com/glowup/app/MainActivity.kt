@@ -11,6 +11,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import com.glowup.app.notify.Notifications
 import com.glowup.app.ui.data.ProfileStore
+import com.glowup.app.ui.screens.focus.FocusScreen
+import com.glowup.app.ui.screens.learn.LearnScreen
+import com.glowup.app.ui.screens.learn.SessionScreen
 import com.glowup.app.ui.screens.morning.MorningSessionScreen
 import com.glowup.app.ui.screens.onboarding.OnboardingScreen
 import androidx.navigation.NavType
@@ -64,6 +67,14 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable("onboarding") { OnboardingScreen(navController) }
                     composable("home") { HomeScreen(navController) }
+                    composable("learn") { LearnScreen(navController) }
+                    composable("focus") { FocusScreen(navController) }
+                    composable(
+                        "session/{index}",
+                        arguments = listOf(navArgument("index") { type = NavType.IntType }),
+                    ) { backStackEntry ->
+                        SessionScreen(navController, backStackEntry.arguments?.getInt("index") ?: 0)
+                    }
                     composable(
                         "morning_session/{index}",
                         arguments = listOf(navArgument("index") { type = NavType.IntType }),

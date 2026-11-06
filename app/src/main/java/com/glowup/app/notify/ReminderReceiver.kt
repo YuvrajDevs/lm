@@ -3,7 +3,9 @@ package com.glowup.app.notify
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.glowup.app.ui.data.FocusStore
 import com.glowup.app.ui.data.ReminderStore
+import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.SleepStore
 import com.glowup.app.ui.data.formatClock
@@ -40,6 +42,27 @@ class ReminderReceiver : BroadcastReceiver() {
                     "Time to get up. Start with a 2-minute breathing session.",
                     "morning",
                 )
+            }
+            AlarmScheduler.KIND_FOCUS -> FocusStore.finishIfDue()?.let { minutes ->
+                val streak = FocusStore.streakDays()
+                Notifications.post(
+                    context, code, Notifications.CHANNEL_REMINDERS,
+                    "Focus complete — $minutes minutes",
+                    "+${minutes / FocusStore.MINUTES_PER_POINT} points · ${if (streak == 1) "1-day" else "$streak-day"} focus streak. Take a short break.",
+                    "focus",
+                )
+            }
+            AlarmScheduler.KIND_LEARN -> {
+                val next = ProgramStore.next
+                if (next != null && !ProgramStore.doneToday()) {
+                    val streak = ProgramStore.streakDays()
+                    Notifications.post(
+                        context, code, Notifications.CHANNEL_REMINDERS,
+                        if (streak > 0) "Keep your $streak-day streak alive" else "Day ${next.day} is ready",
+                        "${next.area.label}: ${next.title} · ${next.minutes} min",
+                        "session/${next.index}",
+                    )
+                }
             }
         }
 

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -25,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.theme.Ink
 
-enum class NavTab(val route: String) { HOME("home"), ROUTINES("routines"), STYLING("styling"), SETTINGS("settings") }
+enum class NavTab(val route: String) { HOME("home"), LEARN("learn"), ROUTINES("routines"), STYLING("styling"), SETTINGS("settings") }
 
 @Composable
 fun GlowUpBottomNav(navController: NavHostController, current: NavTab) {
@@ -44,6 +45,9 @@ fun GlowUpBottomNav(navController: NavHostController, current: NavTab) {
         ) {
             NavIcon(selected = current == NavTab.HOME, icon = Icons.Filled.Home) {
                 if (current != NavTab.HOME) navController.navigate(NavTab.HOME.route)
+            }
+            NavIcon(selected = current == NavTab.LEARN, icon = Icons.Filled.School) {
+                if (current != NavTab.LEARN) navController.navigate(NavTab.LEARN.route)
             }
             NavIcon(selected = current == NavTab.ROUTINES, icon = Icons.Filled.AccessTime) {
                 if (current != NavTab.ROUTINES) navController.navigate(NavTab.ROUTINES.route)

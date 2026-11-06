@@ -5,7 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.glowup.app.ui.data.FocusStore
 import com.glowup.app.ui.data.ReminderStore
+import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.Schedule
 import com.glowup.app.ui.data.SleepStore
@@ -18,6 +20,8 @@ object AlarmScheduler {
     const val KIND_ROUTINE = "routine"
     const val KIND_BEDTIME = "bedtime"
     const val KIND_WAKE = "wake"
+    const val KIND_FOCUS = "focus"
+    const val KIND_LEARN = "learn"
     const val EXTRA_KIND = "kind"
     const val EXTRA_ID = "id"
 
@@ -30,6 +34,8 @@ object AlarmScheduler {
         KIND_REMINDER -> 1000 + id
         KIND_ROUTINE -> 5000 + id
         KIND_BEDTIME -> BEDTIME_CODE
+        KIND_FOCUS -> 9003
+        KIND_LEARN -> 9004
         else -> WAKE_CODE
     }
 
@@ -51,8 +57,7 @@ object AlarmScheduler {
         }
 
         val scheduled = mutableSetOf<String>()
-        fun schedule(kind: String, id: Int, schedule: Schedule, alarmClock: Boolean = false) {
-            val trigger = schedule.nextAfter(now).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        fun scheduleAt(kind: String, id: Int, trigger: Long, alarmClock: Boolean = false) {
             val intent = pendingIntent(context, kind, id, PendingIntent.FLAG_UPDATE_CURRENT)!!
             when {
                 alarmClock && canScheduleExact(context) ->
@@ -62,6 +67,8 @@ object AlarmScheduler {
             }
             scheduled += "$kind:$id"
         }
+        fun schedule(kind: String, id: Int, schedule: Schedule, alarmClock: Boolean = false) =
+            scheduleAt(kind, id, schedule.nextAfter(now).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(), alarmClock)
 
         ReminderStore.items.filter { it.enabled }.forEach { schedule(KIND_REMINDER, it.id, it.schedule) }
         RoutineStore.items.forEach { routine ->
@@ -69,6 +76,9 @@ object AlarmScheduler {
         }
         if (SleepStore.bedtimeAlarmOn) schedule(KIND_BEDTIME, 0, Schedule.Daily(SleepStore.bedtime))
         if (SleepStore.wakeAlarmOn) schedule(KIND_WAKE, 0, Schedule.Daily(SleepStore.wakeTime), alarmClock = true)
+        FocusStore.active?.endAtMillis?.let { scheduleAt(KIND_FOCUS, 0, it) }
+        val learnTime = ProgramStore.reminderTime
+        if (learnTime != null && !ProgramStore.isFinished) schedule(KIND_LEARN, 0, Schedule.Daily(learnTime))
 
         prefs.edit().putStringSet(KEY_CODES, scheduled).apply()
     }

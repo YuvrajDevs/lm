@@ -15,6 +15,8 @@ object Stores {
         SleepStore.load()
         ConfidenceStore.load()
         StylingStore.load()
+        com.glowup.app.ui.data.program.ProgramStore.load()
+        FocusStore.load()
     }
 
     /** Wipes every saved value and reloads stores back to a first-launch state. */

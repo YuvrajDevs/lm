@@ -29,6 +29,9 @@ import com.glowup.app.R
 import com.glowup.app.ui.components.GlowUpBottomNav
 import com.glowup.app.ui.components.NavTab
 import com.glowup.app.ui.data.DailyContent
+import com.glowup.app.ui.data.FocusStore
+import com.glowup.app.ui.data.program.Program
+import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.data.TodoBucket
@@ -38,6 +41,8 @@ import com.glowup.app.ui.theme.*
 private data class QuickAccess(val label: String, val icon: Int, val bg: Color, val route: String)
 
 private val quickAccessItems = listOf(
+    QuickAccess("Learn", R.drawable.ic_mind, YellowTint, "learn"),
+    QuickAccess("Focus", R.drawable.ic_goal, BlueTint, "focus"),
     QuickAccess("Looks", R.drawable.ic_looks, CoralTint, "looks"),
     QuickAccess("Sleep", R.drawable.ic_moon, BlueTint, "sleep"),
     QuickAccess("Confidence", R.drawable.ic_heart, GreenTint, "confidence"),
@@ -49,7 +54,13 @@ private val quickAccessItems = listOf(
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val focus = ProfileStore.focusAreas.toList()
-    val orderedQuickAccess = quickAccessItems.sortedBy { item -> if (item.label in focus) 0 else 1 }
+    val orderedQuickAccess = quickAccessItems.sortedBy { item ->
+        when (item.label) {
+            "Learn", "Focus" -> 0
+            in focus -> 1
+            else -> 2
+        }
+    }
     val streak = ProgressStore.streakDays()
     val (goalArea, goal) = DailyContent.goalOfTheDay(focus)
     val goalAdded = TodoStore.items.any { it.title == goal }
@@ -85,7 +96,7 @@ fun HomeScreen(navController: NavHostController) {
             ) {
                 items(orderedQuickAccess) { item ->
                     Column(
-                        modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { navController.navigate(item.route) },
+                        modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { navController.navigate(item.route) }.padding(horizontal = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Box(
@@ -105,54 +116,6 @@ fun HomeScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(14.dp))
 
-            // Streak hero card
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(Ink)
-                    .clickable { navController.navigate("streak_detail") }
-                    .padding(20.dp, 18.dp),
-            ) {
-                Column {
-                    Text(if (streak == 0) "Start your streak today" else "Current streak", color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (streak == 1) "1-day streak" else "$streak-day streak", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                        Spacer(Modifier.width(6.dp))
-                        Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(20.dp))
-                    }
-                    Text("${ProgressStore.points} points · Level ${ProgressStore.level}", color = Color.White.copy(alpha = 0.65f), fontSize = 12.5.sp)
-                }
-                Image(
-                    painterResource(R.drawable.ic_streak),
-                    contentDescription = null,
-                    modifier = Modifier.align(Alignment.BottomEnd).size(66.dp),
-                )
-            }
-
-            Spacer(Modifier.height(14.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaroonTint)
-                    .clickable { navController.navigate("quotes_notes") }
-                    .padding(18.dp, 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("QUOTE OF THE DAY", color = Maroon, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                    Text(DailyContent.quoteOfTheDay().text, fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
-                }
-            }
-
-            Spacer(Modifier.height(18.dp))
-
             val planItems = TodoStore.items.filter { it.bucket == TodoBucket.TODAY }
             val doneCount = planItems.count { it.done }
 
@@ -161,9 +124,34 @@ fun HomeScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                item { TodaySessionCard(navController) }
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        StreakTile(streak, Modifier.weight(1f)) { navController.navigate("streak_detail") }
+                        FocusTile(Modifier.weight(1f)) { navController.navigate("focus") }
+                    }
+                }
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(MaroonTint)
+                            .clickable { navController.navigate("quotes_notes") }
+                            .padding(18.dp, 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("QUOTE OF THE DAY", color = Maroon, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Text(DailyContent.quoteOfTheDay().text, fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
+                        }
+                    }
+                }
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text("Today's plan", style = MaterialTheme.typography.titleLarge, fontSize = 17.sp)
@@ -243,5 +231,114 @@ fun HomeScreen(navController: NavHostController) {
         Box(modifier = Modifier.align(Alignment.BottomCenter)) {
             GlowUpBottomNav(navController, NavTab.HOME)
         }
+    }
+}
+
+@Composable
+private fun TodaySessionCard(navController: NavHostController) {
+    val next = ProgramStore.next ?: return
+    val doneToday = ProgramStore.doneToday()
+    val learningStreak = ProgramStore.streakDays()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(28.dp))
+            .background(if (doneToday) CardNeutral else next.area.tint)
+            .clickable { navController.navigate(if (doneToday) "learn" else "session/${next.index}") }
+            .padding(20.dp, 18.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    if (doneToday) "TODAY'S SESSION · DONE" else "TODAY · DAY ${next.day} OF ${Program.TOTAL}",
+                    color = if (doneToday) Green else next.area.accent,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.4.sp,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    if (doneToday) "Nice — see you tomorrow" else next.title,
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 24.sp,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    if (doneToday) "Up next: ${next.title}" else "${next.area.label} · ${next.minutes} min · +${next.points} points",
+                    color = TextSecondary,
+                    fontSize = 12.5.sp,
+                )
+            }
+            Image(painterResource(if (doneToday) R.drawable.ic_check else next.area.icon), contentDescription = null, modifier = Modifier.size(52.dp))
+        }
+        if (!doneToday) {
+            Spacer(Modifier.height(14.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(18.dp, 10.dp),
+                ) {
+                    Text("Start session", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Spacer(Modifier.width(12.dp))
+                if (learningStreak > 0) {
+                    Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Keep your $learningStreak-day streak", color = Coral, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StreakTile(streak: Int, modifier: Modifier, onClick: () -> Unit) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
+            .background(Ink)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(4.dp))
+            Text("$streak", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        }
+        Text("day streak", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+        Spacer(Modifier.height(6.dp))
+        Text("Level ${ProgressStore.level} · ${ProgressStore.points} pts", color = Color.White, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun FocusTile(modifier: Modifier, onClick: () -> Unit) {
+    val active = FocusStore.active
+    val focusStreak = FocusStore.streakDays()
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
+            .background(BlueTint)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+    ) {
+        Text(
+            when {
+                active == null -> "${FocusStore.minutesOn(java.time.LocalDate.now())} min"
+                active.isRunning -> "Focusing"
+                else -> "Paused"
+            },
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = Navy,
+        )
+        Text(if (active == null) "focused today" else active.label, color = TextSecondary, fontSize = 12.sp)
+        Spacer(Modifier.height(6.dp))
+        Text(
+            if (active != null) "Tap to return" else if (focusStreak > 0) "$focusStreak-day focus streak" else "Start a focus block",
+            color = Navy,
+            fontSize = 12.5.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
     }
 }
