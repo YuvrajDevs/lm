@@ -40,6 +40,7 @@ import com.glowup.app.ui.screens.settings.SettingsScreen
 import com.glowup.app.ui.screens.sleep.SleepScreen
 import com.glowup.app.ui.screens.speaking.SpeakingPracticeScreen
 import com.glowup.app.ui.screens.streak.StreakDetailScreen
+import com.glowup.app.ui.screens.styleguide.OutfitDetailScreen
 import com.glowup.app.ui.screens.styleguide.StyleGuideDetailScreen
 import com.glowup.app.ui.screens.styling.StylingScreen
 import com.glowup.app.ui.screens.stylist.AiStylistScreen
@@ -125,10 +126,16 @@ class MainActivity : ComponentActivity() {
                         GroomingDetailScreen(navController, backStackEntry.arguments?.getInt("id") ?: 0)
                     }
                     composable(
-                        "style_guide_detail/{title}",
-                        arguments = listOf(navArgument("title") { type = NavType.StringType }),
+                        "style_guide_detail/{key}",
+                        arguments = listOf(navArgument("key") { type = NavType.StringType }),
                     ) { backStackEntry ->
-                        StyleGuideDetailScreen(navController, backStackEntry.arguments?.getString("title") ?: "Old Money")
+                        StyleGuideDetailScreen(navController, backStackEntry.arguments?.getString("key") ?: "")
+                    }
+                    composable(
+                        "outfit/{id}",
+                        arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                    ) { backStackEntry ->
+                        OutfitDetailScreen(navController, backStackEntry.arguments?.getString("id") ?: "")
                     }
                     composable(
                         "routine_detail/{id}",
