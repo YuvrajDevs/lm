@@ -87,6 +87,9 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
                     }
                 }
 
+                Spacer(Modifier.height(18.dp))
+                com.glowup.app.ui.screens.wardrobe.MakeThisLook(outfit, navController)
+
                 Spacer(Modifier.height(24.dp))
                 Text("The pieces", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(10.dp))

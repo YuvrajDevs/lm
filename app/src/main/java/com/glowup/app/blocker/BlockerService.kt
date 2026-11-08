@@ -169,10 +169,14 @@ class BlockerService : Service() {
         val e = UsageEvents.Event()
         while (events.hasNextEvent()) {
             events.getNextEvent(e)
-            if (e.eventType == UsageEvents.Event.ACTIVITY_RESUMED) foreground = e.packageName
+            when (e.eventType) {
+                UsageEvents.Event.ACTIVITY_RESUMED -> foreground = e.packageName
+                // The app left the screen: forget it, so we never block based on a stale app.
+                UsageEvents.Event.ACTIVITY_PAUSED, UsageEvents.Event.ACTIVITY_STOPPED -> if (e.packageName == foreground) foreground = null
+            }
         }
-        val pkg = foreground ?: return
-        if (pkg == packageName || pkg == homePackage) {
+        val pkg = foreground ?: run { handled = null; return }
+        if (pkg == packageName || pkg == homePackage || isSystemSurface(pkg)) {
             handled = null
             return
         }
@@ -191,6 +195,11 @@ class BlockerService : Service() {
             Intervention.None -> handled = null
         }
     }
+
+    /** Screens that belong to Android itself (pickers, permission prompts) are never blocked. */
+    private fun isSystemSurface(pkg: String) =
+        pkg == "android" || pkg == "com.android.systemui" || pkg.contains("permissioncontroller") || pkg.contains("photopicker") ||
+            pkg.contains("documentsui") || pkg.contains("providers.media") || pkg.contains("packageinstaller") || pkg == "com.android.settings"
 
     private fun show(pkg: String, mode: String, detail: String?) {
         val intent = Intent(this, InterventionActivity::class.java)

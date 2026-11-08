@@ -38,7 +38,7 @@ class DataCatalogTest {
         ConsentStore.grant(Consent.MICROPHONE, day)
         ReminderStore.add("Drink water", Schedule.Daily(LocalTime.of(9, 0)))
         SleepStore.updateBedtime(LocalTime.of(22, 30))
-        WardrobeStore.add("Tops", "White tee", "Cotton")
+        WardrobeStore.add(com.glowup.app.ui.data.style.Garment.TEE, com.glowup.app.ui.data.style.Palette.White, "White tee")
         com.glowup.app.ui.data.style.SavedLooksStore.toggle(com.glowup.app.ui.data.style.StyleLibrary.outfits.first().id)
         LessonStore.markDone(LessonStore.lessons.first().id)
         GroomingStore.markDone(GroomingStore.lessons.first().id)

@@ -64,7 +64,7 @@ class PersistenceTest {
 
     @Test
     fun userContentSurvivesRestart() {
-        WardrobeStore.add("Outerwear", "Denim jacket", "Blue · Casual")
+        WardrobeStore.add(com.glowup.app.ui.data.style.Garment.JACKET, com.glowup.app.ui.data.style.Palette.Denim, "Denim jacket")
         NotesStore.add("Speak first in Monday's meeting")
         NotesStore.togglePinned(NotesStore.notes.first().id)
         NotesStore.toggleLiked(quoteLibrary.first().text)
@@ -106,7 +106,7 @@ class PersistenceTest {
     @Test
     fun deleteAllReturnsToFirstLaunch() {
         ProfileStore.completeOnboarding("Sam", listOf("Looks"), null)
-        WardrobeStore.add("Top", "Tee", "White")
+        WardrobeStore.add(com.glowup.app.ui.data.style.Garment.TEE, com.glowup.app.ui.data.style.Palette.White, "Tee")
         ProgressStore.award(40)
         SleepStore.updateWakeTime(LocalTime.of(6, 30))
         SleepStore.selectSound("Deep Space")

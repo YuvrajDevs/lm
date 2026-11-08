@@ -104,7 +104,7 @@ object DataCatalog {
         ),
         DataCategory(
             "wardrobe", "Wardrobe & saved looks",
-            "Clothes you've added and looks you've saved, to suggest outfits.",
+            "Clothes you've added (with their photos, if you took any), what you wore when, and looks you've saved — to build outfits from what you own.",
             setOf("wardrobe", "saved_looks"),
             { plural(WardrobeStore.items.size, "item") + " · " + plural(SavedLooksStore.ids.size, "saved look") },
             { WardrobeStore.clearAll(); SavedLooksStore.clearAll() },

@@ -130,6 +130,8 @@ class MainActivity : ComponentActivity() {
                         com.glowup.app.ui.screens.glow.LooksRoutineDetailScreen(navController, it.arguments?.getString("id").orEmpty())
                     }
                     composable("blocker") { com.glowup.app.ui.screens.focus.BlockerScreen(navController) }
+                    composable("capsule") { com.glowup.app.ui.screens.wardrobe.CapsuleScreen(navController) }
+                    composable("packing") { com.glowup.app.ui.screens.wardrobe.PackingScreen(navController) }
                     composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
                     composable("ai_stylist") { AiStylistScreen(navController) }

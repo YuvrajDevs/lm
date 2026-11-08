@@ -49,6 +49,14 @@ enum class Consent(
         purpose = "To show the block or pause screen when you open an app you chose.",
         storage = "Only your lists and daily counts (like \"3 blocks\") are saved, on this phone, for 30 days.",
     ),
+    WARDROBE_PHOTOS(
+        key = "wardrobe",
+        title = "Wardrobe photos",
+        summary = "Photos of your clothes, kept inside the app to show your closet and outfits.",
+        collects = "The photos you take or pick of your clothes. We read the main colour from the photo on your phone.",
+        purpose = "To show your closet, build outfits from what you own and track what you wear.",
+        storage = "Inside the app only — never in your gallery, never backed up or uploaded. Deleting an item deletes its photo.",
+    ),
     BODY(
         key = "body",
         title = "Your body measurements",

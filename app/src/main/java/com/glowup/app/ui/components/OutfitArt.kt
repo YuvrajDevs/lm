@@ -56,6 +56,28 @@ fun OutfitArt(outfit: Outfit, modifier: Modifier = Modifier) {
     }
 }
 
+/** One garment on its own, centred — used for wardrobe items without a photo. */
+@Composable
+fun GarmentArt(garment: Garment, color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val r = when (garment.slot) {
+            com.glowup.app.ui.data.style.Slot.BOTTOM -> if (garment == Garment.SHORTS) Rect(w * 0.22f, h * 0.2f, w * 0.78f, h * 0.8f) else Rect(w * 0.25f, h * 0.02f, w * 0.75f, h * 0.98f)
+            com.glowup.app.ui.data.style.Slot.SHOES -> Rect(w * 0.04f, h * 0.3f, w * 0.96f, h * 0.7f)
+            com.glowup.app.ui.data.style.Slot.ACCESSORY -> Rect(w * 0.22f, h * 0.22f, w * 0.78f, h * 0.78f)
+            else -> Rect(w * 0.02f, h * 0.06f, w * 0.98f, h * 0.94f)
+        }
+        when (garment.slot) {
+            com.glowup.app.ui.data.style.Slot.TOP -> drawTop(garment, r, color)
+            com.glowup.app.ui.data.style.Slot.LAYER -> if (garment == Garment.NEHRU) drawVest(r, color, false) else drawLayer(garment, r, color, Color(0xFFF8F7F2), null)
+            com.glowup.app.ui.data.style.Slot.BOTTOM -> drawBottom(garment, r, color)
+            com.glowup.app.ui.data.style.Slot.SHOES -> drawShoes(garment, r, color)
+            com.glowup.app.ui.data.style.Slot.ACCESSORY -> if (garment == Garment.TIE) drawTie(Rect(w * 0.1f, h * 0.0f, w * 0.9f, h * 1.6f), color) else drawAccessory(garment, r, color)
+        }
+    }
+}
+
 private fun outlineFor(color: Color) = if (color.luminance() > 0.5f) lerp(color, Color.Black, 0.28f) else lerp(color, Color.Black, 0.45f)
 
 private fun detailFor(color: Color) = if (color.luminance() > 0.35f) lerp(color, Color.Black, 0.22f) else lerp(color, Color.White, 0.22f)
