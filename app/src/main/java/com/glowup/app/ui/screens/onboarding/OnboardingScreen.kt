@@ -29,7 +29,6 @@ import androidx.navigation.NavHostController
 import com.glowup.app.R
 import androidx.compose.material.icons.filled.Lock
 import com.glowup.app.ui.components.rememberNotificationPermission
-import com.glowup.app.ui.data.GroomingStore
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.theme.*
 
@@ -38,17 +37,18 @@ fun OnboardingScreen(navController: NavHostController) {
     var step by remember { mutableStateOf(0) }
     var name by remember { mutableStateOf("") }
     var focus by remember { mutableStateOf(setOf<String>()) }
-    var faceShape by remember { mutableStateOf<String?>(null) }
     var ageBand by remember { mutableStateOf<String?>(null) }
 
     fun finish() {
-        ProfileStore.completeOnboarding(name, ProfileStore.focusOptions.filter { it in focus }, faceShape, ageBand)
+        ProfileStore.completeOnboarding(name, ProfileStore.focusOptions.filter { it in focus }, ProfileStore.faceShape, ageBand)
         navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
+        // Home opens the personalised check once, so backing out of it lands on Home.
+        com.glowup.app.ui.data.glow.GlowCheckStore.openAfterOnboarding = true
     }
 
     val askNotifications = rememberNotificationPermission { finish() }
 
-    val lastStep = 4
+    val lastStep = 3
     val canContinue = when (step) {
         0 -> name.isNotBlank()
         1 -> ageBand != null
@@ -111,14 +111,6 @@ fun OnboardingScreen(navController: NavHostController) {
                         ChoiceRow(option, selected) { focus = if (selected) focus - option else focus + option }
                     }
                 }
-                3 -> {
-                    Title("What's your face shape?")
-                    Subtitle("Optional — it personalises haircut advice. Not sure? Pull your hair back and look at the widest part of your face.")
-                    Spacer(Modifier.height(20.dp))
-                    GroomingStore.faceShapes.forEach { shape ->
-                        ChoiceRow(shape, faceShape == shape) { faceShape = if (faceShape == shape) null else shape }
-                    }
-                }
                 else -> {
                     Box(
                         modifier = Modifier.size(72.dp).clip(androidx.compose.foundation.shape.CircleShape).background(Ink),
@@ -145,7 +137,6 @@ fun OnboardingScreen(navController: NavHostController) {
             ) {
                 Text(
                     when (step) {
-                        3 -> if (faceShape == null) "Skip for now" else "Continue"
                         lastStep -> "Allow notifications"
                         else -> "Continue"
                     },

@@ -70,6 +70,12 @@ fun HomeScreen(navController: NavHostController) {
         }
     }
     val streak = ProgressStore.streakDays()
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (com.glowup.app.ui.data.glow.GlowCheckStore.openAfterOnboarding) {
+            com.glowup.app.ui.data.glow.GlowCheckStore.openAfterOnboarding = false
+            navController.navigate("glow_check")
+        }
+    }
     val (goalArea, goal) = DailyContent.goalOfTheDay(focus)
     val goalAdded = TodoStore.items.any { it.title == goal }
 
@@ -155,6 +161,7 @@ fun HomeScreen(navController: NavHostController) {
                         )
                     }
                 }
+                item { GlowCheckCard(navController) }
                 item { TodaySessionCard(navController) }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -496,5 +503,43 @@ private fun CheckCircle(done: Boolean) {
                 .clip(CircleShape)
                 .border(2.dp, TextMuted, CircleShape),
         )
+    }
+}
+
+@Composable
+private fun GlowCheckCard(navController: NavHostController) {
+    val latest = com.glowup.app.ui.data.glow.GlowCheckStore.latest
+    val due = com.glowup.app.ui.data.glow.GlowCheckStore.daysUntilRescan()
+    if (latest == null) {
+        Row(
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(Ink).clickable { navController.navigate("glow_check") }.padding(20.dp, 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("YOUR PERSONAL PLAN", color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                Text("Take the Glow-Up Check", color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                Text("3 minutes · find what will make the biggest difference for you", color = Color.White.copy(alpha = 0.65f), fontSize = 12.5.sp, lineHeight = 17.sp)
+            }
+            Spacer(Modifier.width(10.dp))
+            Image(painterResource(R.drawable.ic_streak), contentDescription = null, modifier = Modifier.size(54.dp))
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(CardNeutral).clickable { navController.navigate("glow_results") }.padding(16.dp, 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Your Glow-Up map", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    latest.focus.joinToString(" · ") { it.area.title }.ifBlank { "All areas looking good" },
+                    color = TextSecondary, fontSize = 12.5.sp, maxLines = 1,
+                )
+            }
+            Text(
+                if (due == 0) "Rescan due" else "Rescan in $due d",
+                color = if (due == 0) Color.White else Ink, fontSize = 11.5.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(if (due == 0) Coral else Color.White).padding(10.dp, 5.dp),
+            )
+        }
     }
 }

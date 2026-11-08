@@ -68,6 +68,12 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.5")
     implementation("com.android.billingclient:billing-ktx:7.1.1")
     implementation("androidx.glance:glance-appwidget:1.1.1")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
+    // On-device only: models are bundled in the app, nothing is sent to a server.
+    implementation("com.google.mlkit:face-detection:16.1.7")
+    implementation("com.google.mlkit:pose-detection:18.0.0-beta5")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     testImplementation("junit:junit:4.13.2")

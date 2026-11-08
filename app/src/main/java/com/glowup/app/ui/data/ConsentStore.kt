@@ -25,6 +25,22 @@ enum class Consent(
         purpose = "So you can play your answer back and hear how you sound.",
         storage = "A temporary file on this phone, deleted as soon as you leave the practice screen. Never uploaded.",
     ),
+    FACE_SCAN(
+        key = "face",
+        title = "Face & posture scan",
+        summary = "Measures your face and posture from the live camera. No photo is taken or saved — only the numbers are kept.",
+        collects = "Live camera frames, read on your phone for a few seconds. No photo is taken, saved or uploaded.",
+        purpose = "To estimate your face shape, a symmetry baseline and your neck angle, so advice fits you and you can track change.",
+        storage = "Only the numbers (like \"Oval\", \"92\" or \"71°\") are saved, on this phone. Delete them any time in Your data.",
+    ),
+    PROGRESS_PHOTOS(
+        key = "photos",
+        title = "Progress photos",
+        summary = "Photos you choose to take for side-by-side progress. Kept inside the app only.",
+        collects = "The progress photos you take — front, side or body.",
+        purpose = "So you can compare how you look week to week, side by side.",
+        storage = "Inside the app only: never in your gallery, never backed up, never uploaded. Delete any photo, or all of them, any time.",
+    ),
     BODY(
         key = "body",
         title = "Your body measurements",

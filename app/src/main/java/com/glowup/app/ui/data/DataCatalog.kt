@@ -58,6 +58,13 @@ object DataCatalog {
             { SleepLogStore.clearAll() },
         ),
         DataCategory(
+            "glow", "Glow-Up Check results",
+            "Your answers and the numbers measured during each check (face shape, a symmetry score, neck angle) — never a photo. Used to build your plan and show change over time.",
+            setOf("glow_checks"),
+            { plural(com.glowup.app.ui.data.glow.GlowCheckStore.results.size, "check") },
+            { com.glowup.app.ui.data.glow.GlowCheckStore.clearAll() },
+        ),
+        DataCategory(
             "fitness", "Workouts & body",
             "Your fitness goal and schedule, every workout and set you log, and the weight and waist you enter — to plan sessions, adjust difficulty and show your progress.",
             setOf("fitness"),

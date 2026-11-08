@@ -121,6 +121,14 @@ class MainActivity : ComponentActivity() {
                     composable("player/{key}", arguments = listOf(navArgument("key") { type = NavType.StringType })) {
                         com.glowup.app.ui.screens.fitness.WorkoutPlayerScreen(navController, it.arguments?.getString("key").orEmpty())
                     }
+                    composable("glow_check") { com.glowup.app.ui.screens.glow.GlowCheckScreen(navController) }
+                    composable("glow_results") { com.glowup.app.ui.screens.glow.GlowResultsScreen(navController) }
+                    composable("face_shape") { com.glowup.app.ui.screens.glow.FaceShapeScreen(navController) }
+                    composable("glow_routines") { com.glowup.app.ui.screens.glow.LooksRoutinesScreen(navController) }
+                    composable("progress_photos") { com.glowup.app.ui.screens.glow.ProgressPhotosScreen(navController) }
+                    composable("glow_routine/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
+                        com.glowup.app.ui.screens.glow.LooksRoutineDetailScreen(navController, it.arguments?.getString("id").orEmpty())
+                    }
                     composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
                     composable("ai_stylist") { AiStylistScreen(navController) }

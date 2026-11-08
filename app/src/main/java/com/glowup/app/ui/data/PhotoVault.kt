@@ -24,9 +24,9 @@ object PhotoVault {
     private fun dir(album: Album): File? = root?.let { File(it, album.folder) }
 
     /** Writes JPEG bytes and returns the saved file, or null if storage isn't available. */
-    fun save(album: Album, jpeg: ByteArray, now: LocalDateTime = LocalDateTime.now()): File? {
+    fun save(album: Album, jpeg: ByteArray, now: LocalDateTime = LocalDateTime.now(), tag: String? = null): File? {
         val folder = dir(album)?.apply { mkdirs() } ?: return null
-        val base = now.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
+        val base = (tag?.let { "$it-" } ?: "") + now.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
         var file = File(folder, "$base.jpg")
         var n = 1
         while (file.exists()) file = File(folder, "$base-${n++}.jpg")
@@ -35,7 +35,16 @@ object PhotoVault {
     }
 
     fun list(album: Album): List<File> =
-        dir(album)?.listFiles { f -> f.isFile && f.extension == "jpg" }?.sortedBy { it.name }.orEmpty()
+        dir(album)?.listFiles { f -> f.isFile && f.extension == "jpg" }?.sortedBy { it.lastModified() }.orEmpty()
+
+    /** Photos saved with [tag], oldest first. */
+    fun list(album: Album, tag: String): List<File> = list(album).filter { it.name.startsWith("$tag-") }
+
+    /** The date a photo was taken, from its file name. */
+    fun dateOf(file: File): java.time.LocalDate? =
+        Regex("(\\d{8})-\\d{6}").find(file.name)?.groupValues?.get(1)?.let {
+            runCatching { java.time.LocalDate.parse(it, DateTimeFormatter.BASIC_ISO_DATE) }.getOrNull()
+        }
 
     fun count(album: Album) = list(album).size
 
