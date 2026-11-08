@@ -39,6 +39,11 @@ object SavedLooksStore {
         Storage.write(KEY, ids.toJsonArray().toString())
     }
 
+    fun clearAll() {
+        Storage.remove(KEY)
+        load()
+    }
+
     fun load() {
         ids.clear()
         Storage.read(KEY)?.let { raw -> ids.addAll(JSONArray(raw).strings().filter { StyleLibrary.outfit(it) != null }) }

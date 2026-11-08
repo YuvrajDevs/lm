@@ -7,6 +7,7 @@ import org.json.JSONObject
 interface KeyValueBackend {
     fun read(key: String): String?
     fun write(key: String, value: String)
+    fun remove(key: String)
     fun clear()
     fun all(): Map<String, String>
 }
@@ -15,6 +16,7 @@ private class PrefsBackend(context: Context) : KeyValueBackend {
     private val prefs = context.getSharedPreferences("glowup_store", Context.MODE_PRIVATE)
     override fun read(key: String) = prefs.getString(key, null)
     override fun write(key: String, value: String) = prefs.edit().putString(key, value).apply()
+    override fun remove(key: String) = prefs.edit().remove(key).apply()
     override fun clear() {
         prefs.edit().clear().commit()
     }
@@ -31,6 +33,9 @@ object Storage {
     /** Invoked after any change that affects scheduled notifications. */
     var onScheduleChanged: () -> Unit = {}
 
+    /** Invoked after any saved value changes — used to refresh home-screen widgets. */
+    var onDataChanged: () -> Unit = {}
+
     fun init(context: Context) {
         backend = PrefsBackend(context.applicationContext)
     }
@@ -39,10 +44,17 @@ object Storage {
 
     fun write(key: String, value: String) {
         backend?.write(key, value)
+        onDataChanged()
+    }
+
+    fun remove(key: String) {
+        backend?.remove(key)
+        onDataChanged()
     }
 
     fun clearAll() {
         backend?.clear()
+        onDataChanged()
     }
 
     fun exportJson(): String {

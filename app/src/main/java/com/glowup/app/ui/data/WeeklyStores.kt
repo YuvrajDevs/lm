@@ -40,6 +40,11 @@ object ConfidenceStore {
         }
     }
 
+    fun clearAll() {
+        Storage.remove(KEY)
+        load()
+    }
+
     fun load() {
         doneTitles.clear()
         val json = Storage.read(KEY)?.let(::JSONObject)

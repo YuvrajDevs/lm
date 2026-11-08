@@ -46,6 +46,11 @@ object WardrobeStore {
         save()
     }
 
+    fun clearAll() {
+        Storage.remove(KEY)
+        load()
+    }
+
     fun load() {
         items.clear()
         Storage.read(KEY)?.let { raw ->

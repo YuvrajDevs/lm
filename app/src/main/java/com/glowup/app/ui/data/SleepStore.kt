@@ -49,6 +49,13 @@ object SleepStore {
         Storage.onScheduleChanged()
     }
 
+    /** Turns alarms off and restores default sleep settings. */
+    fun resetAlarms() {
+        Storage.remove(KEY)
+        load()
+        Storage.onScheduleChanged()
+    }
+
     fun load() {
         val json = Storage.read(KEY)?.let(::JSONObject)
         bedtime = json?.let { LocalTime.parse(it.getString("bedtime")) } ?: LocalTime.of(23, 0)

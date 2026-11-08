@@ -22,6 +22,7 @@ object AlarmScheduler {
     const val KIND_WAKE = "wake"
     const val KIND_FOCUS = "focus"
     const val KIND_LEARN = "learn"
+    const val KIND_MIDNIGHT = "midnight"
     const val EXTRA_KIND = "kind"
     const val EXTRA_ID = "id"
 
@@ -36,6 +37,7 @@ object AlarmScheduler {
         KIND_BEDTIME -> BEDTIME_CODE
         KIND_FOCUS -> 9003
         KIND_LEARN -> 9004
+        KIND_MIDNIGHT -> 9005
         else -> WAKE_CODE
     }
 
@@ -79,6 +81,10 @@ object AlarmScheduler {
         FocusStore.active?.endAtMillis?.let { scheduleAt(KIND_FOCUS, 0, it) }
         val learnTime = ProgramStore.reminderTime
         if (learnTime != null && !ProgramStore.isFinished) schedule(KIND_LEARN, 0, Schedule.Daily(learnTime))
+        // Home-screen widgets show "today", so refresh them just after midnight.
+        if (com.glowup.app.widget.Widgets.anyPlaced(context)) {
+            schedule(KIND_MIDNIGHT, 0, Schedule.Daily(java.time.LocalTime.of(0, 1)))
+        }
 
         prefs.edit().putStringSet(KEY_CODES, scheduled).apply()
     }

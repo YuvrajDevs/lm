@@ -109,6 +109,13 @@ object RoutineStore {
         save()
     }
 
+    /** Removes every routine (no defaults come back) and its reminders. */
+    fun clearAll() {
+        items.clear()
+        save()
+        Storage.onScheduleChanged()
+    }
+
     fun load() {
         items.clear()
         val raw = Storage.read(KEY)

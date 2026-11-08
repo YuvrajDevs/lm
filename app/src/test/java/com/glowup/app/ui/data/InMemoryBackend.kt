@@ -6,6 +6,9 @@ class InMemoryBackend : KeyValueBackend {
     override fun write(key: String, value: String) {
         values[key] = value
     }
+    override fun remove(key: String) {
+        values.remove(key)
+    }
     override fun clear() = values.clear()
     override fun all(): Map<String, String> = values.toMap()
 }
@@ -15,6 +18,7 @@ fun freshStores(): InMemoryBackend {
     val backend = InMemoryBackend()
     Storage.backend = backend
     Storage.onScheduleChanged = {}
+    Storage.onDataChanged = {}
     Stores.loadAll()
     return backend
 }

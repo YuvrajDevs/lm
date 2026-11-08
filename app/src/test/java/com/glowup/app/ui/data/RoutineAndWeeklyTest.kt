@@ -55,3 +55,18 @@ class RoutineAndWeeklyTest {
         assertEquals(17, ProgressStore.points)
     }
 }
+
+class RoutineLinksTest {
+    private fun r(title: String, category: String) = RoutineEntry(1, category, "DAILY", title)
+
+    @org.junit.Test
+    fun routinesOpenThePageWhereTheyAreDone() {
+        org.junit.Assert.assertEquals("looks", RoutineLinks.routeFor(r("Skincare — morning & night", "Looks")))
+        org.junit.Assert.assertEquals("communication", RoutineLinks.routeFor(r("2-minute eye contact practice", "Social")))
+        org.junit.Assert.assertEquals("quotes_notes", RoutineLinks.routeFor(r("Journaling — 5 minutes", "Mind")))
+        org.junit.Assert.assertEquals("wardrobe", RoutineLinks.routeFor(r("Wardrobe refresh", "Style")))
+        org.junit.Assert.assertEquals("focus", RoutineLinks.routeFor(r("Focus block", "Life admin")))
+        org.junit.Assert.assertNull(RoutineLinks.routeFor(r("Make your bed", "Life admin")))
+        org.junit.Assert.assertNull(RoutineLinks.routeFor(r("Drink 2L water", "Life admin")))
+    }
+}

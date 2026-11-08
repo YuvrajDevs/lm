@@ -2,6 +2,7 @@ package com.glowup.app.ui.screens.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -12,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,6 +39,9 @@ import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoStore
+import com.glowup.app.ui.data.RoutineStore
+import com.glowup.app.ui.data.RoutineLinks
+import com.glowup.app.ui.data.RoutineSession
 import com.glowup.app.ui.theme.*
 
 private data class QuickAccess(val label: String, val icon: Int, val bg: Color, val route: String)
@@ -45,6 +51,7 @@ private val quickAccessItems = listOf(
     QuickAccess("Focus", R.drawable.ic_goal, BlueTint, "focus"),
     QuickAccess("Looks", R.drawable.ic_looks, CoralTint, "looks"),
     QuickAccess("Sleep", R.drawable.ic_moon, BlueTint, "sleep"),
+    QuickAccess("Mood", R.drawable.ic_mood_peaceful, GreenTint, "mood_insights"),
     QuickAccess("Confidence", R.drawable.ic_heart, GreenTint, "confidence"),
     QuickAccess("Talk", R.drawable.ic_speech, CoralTint, "communication"),
     QuickAccess("To-do", R.drawable.ic_list, PurpleTint, "todo"),
@@ -128,6 +135,25 @@ fun HomeScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                ProgressStore.freezeNotice?.let { notice ->
+                    item {
+                        FreezeBanner(
+                            title = "Streak saved",
+                            text = (if (notice.daysCovered == 1) "A freeze covered the day you missed" else "${notice.daysCovered} freezes covered the days you missed") +
+                                " — your ${notice.streak}-day streak is safe.",
+                            onDismiss = { ProgressStore.dismissFreezeNotice() },
+                        )
+                    }
+                }
+                if (ProgressStore.freezeJustEarned && ProgressStore.freezeNotice == null) {
+                    item {
+                        FreezeBanner(
+                            title = "You earned a streak freeze",
+                            text = "7 days in a row! If you miss a day, it'll protect your streak automatically. ${ProgressStore.freezes} of ${ProgressStore.maxFreezes} banked.",
+                            onDismiss = { ProgressStore.acknowledgeFreezeEarned() },
+                        )
+                    }
+                }
                 item { TodaySessionCard(navController) }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -173,11 +199,7 @@ fun HomeScreen(navController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        if (plan.done) {
-                            Image(painterResource(R.drawable.ic_check), contentDescription = null, modifier = Modifier.size(26.dp))
-                        } else {
-                            Box(modifier = Modifier.size(24.dp).background(Color.Transparent, CircleShape))
-                        }
+                        CheckCircle(plan.done)
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 plan.title,
@@ -225,6 +247,87 @@ fun HomeScreen(navController: NavHostController) {
                                 fontSize = 11.5.sp,
                                 modifier = Modifier.padding(top = 2.dp),
                             )
+                        }
+                    }
+                }
+                val routines = RoutineStore.items.toList()
+                val today = java.time.LocalDate.now()
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column {
+                            Text("Routines", style = MaterialTheme.typography.titleLarge, fontSize = 17.sp)
+                            Text(
+                                if (routines.isEmpty()) "Habits you repeat every day"
+                                else "${routines.count { it.isDoneOn(today) }} of ${routines.size} done today",
+                                color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.Medium,
+                            )
+                        }
+                        Text(
+                            if (routines.isEmpty()) "Add" else "See all",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(ChipNeutral)
+                                .clickable { navController.navigate(if (routines.isEmpty()) "add_routine" else "routines") }
+                                .padding(14.dp, 7.dp),
+                        )
+                    }
+                }
+                items(routines, key = { "routine-${it.id}" }) { routine ->
+                    val done = routine.isDoneOn(today)
+                    val routineStreak = routine.streakDays(today)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(CardNeutral)
+                            .clickable {
+                                val route = RoutineLinks.routeFor(routine)
+                                if (!done && route != null) {
+                                    RoutineSession.start(routine.id)
+                                    navController.navigate(route)
+                                } else {
+                                    RoutineStore.toggleToday(routine.id)
+                                }
+                            }
+                            .padding(14.dp, 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        // The circle always ticks it off right here.
+                        Box(Modifier.clip(CircleShape).clickable { RoutineStore.toggleToday(routine.id) }) { CheckCircle(done) }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                routine.title,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp,
+                                color = if (done) TextSecondary else Ink,
+                                textDecoration = if (done) TextDecoration.LineThrough else null,
+                            )
+                            val route = RoutineLinks.routeFor(routine)
+                            Text(
+                                routine.category + (if (routine.frequency == "WEEKLY") " · Weekly" else "") +
+                                    if (!done && route != null) " · Tap to start" else "",
+                                color = TextSecondary, fontSize = 11.5.sp,
+                            )
+                        }
+                        if (routineStreak > 0) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(14.dp))
+                                Spacer(Modifier.width(3.dp))
+                                Text("$routineStreak", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        Box(
+                            Modifier.size(34.dp).clip(CircleShape).background(routine.tint),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(painterResource(routine.icon), contentDescription = null, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
@@ -313,7 +416,14 @@ private fun StreakTile(streak: Int, modifier: Modifier, onClick: () -> Unit) {
             Spacer(Modifier.width(4.dp))
             Text("$streak", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
         }
-        Text("day streak", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("day streak", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+            if (ProgressStore.freezes > 0) {
+                Spacer(Modifier.width(6.dp))
+                Icon(androidx.compose.material.icons.Icons.Filled.AcUnit, contentDescription = "Streak freezes", tint = Color(0xFF8DB8F5), modifier = Modifier.size(12.dp))
+                Text("${ProgressStore.freezes}", color = Color(0xFF8DB8F5), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+        }
         Spacer(Modifier.height(6.dp))
         Text("Level ${ProgressStore.level} · ${ProgressStore.points} pts", color = Color.White, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
     }
@@ -347,6 +457,43 @@ private fun FocusTile(modifier: Modifier, onClick: () -> Unit) {
             color = Navy,
             fontSize = 12.5.sp,
             fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+@Composable
+private fun FreezeBanner(title: String, text: String, onDismiss: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(BlueTint).padding(16.dp, 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(38.dp).clip(CircleShape).background(Blue), contentAlignment = Alignment.Center) {
+            Icon(androidx.compose.material.icons.Icons.Filled.AcUnit, contentDescription = null, tint = Color.White, modifier = Modifier.size(19.dp))
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, fontSize = 14.5.sp, fontWeight = FontWeight.Bold)
+            Text(text, color = Navy, fontSize = 12.5.sp, lineHeight = 17.sp)
+        }
+        Box(
+            Modifier.size(32.dp).clip(CircleShape).clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(androidx.compose.material.icons.Icons.Filled.Close, contentDescription = "Dismiss", tint = Navy, modifier = Modifier.size(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun CheckCircle(done: Boolean) {
+    if (done) {
+        Image(painterResource(R.drawable.ic_check), contentDescription = "Done", modifier = Modifier.size(26.dp))
+    } else {
+        Box(
+            Modifier
+                .size(26.dp)
+                .clip(CircleShape)
+                .border(2.dp, TextMuted, CircleShape),
         )
     }
 }

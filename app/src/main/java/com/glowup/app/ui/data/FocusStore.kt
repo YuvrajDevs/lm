@@ -108,6 +108,13 @@ object FocusStore {
         Storage.onScheduleChanged()
     }
 
+    /** Clears past focus history; a block that's running now keeps going. */
+    fun clearHistory() {
+        minutesByDay.clear()
+        sessionsByDay.clear()
+        save()
+    }
+
     fun load() {
         minutesByDay.clear()
         sessionsByDay.clear()

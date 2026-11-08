@@ -18,11 +18,15 @@ object Stores {
         com.glowup.app.ui.data.program.ProgramStore.load()
         FocusStore.load()
         com.glowup.app.ui.data.style.SavedLooksStore.load()
+        SleepLogStore.load()
+        ConsentStore.load()
+        ProgressStore.applyFreezes()
     }
 
     /** Wipes every saved value and reloads stores back to a first-launch state. */
     fun deleteAll() {
         Storage.clearAll()
+        PhotoVault.deleteAll()
         loadAll()
         Storage.onScheduleChanged()
     }

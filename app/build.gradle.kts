@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation("androidx.navigation:navigation-compose:2.9.5")
     implementation("com.android.billingclient:billing-ktx:7.1.1")
+    implementation("androidx.glance:glance-appwidget:1.1.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     testImplementation("junit:junit:4.13.2")

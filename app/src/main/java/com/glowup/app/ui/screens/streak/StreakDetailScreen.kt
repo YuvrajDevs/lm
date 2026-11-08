@@ -8,6 +8,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -69,11 +73,19 @@ fun StreakDetailScreen(navController: NavHostController) {
                     Image(painterResource(R.drawable.ic_streak), contentDescription = null, modifier = Modifier.align(Alignment.BottomEnd).size(58.dp))
                 }
 
+                Spacer(Modifier.height(12.dp))
+                FreezeCard(today)
+
                 Spacer(Modifier.height(22.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(monthLabel, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text("Mood · active days in green", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(8.dp).clip(CircleShape).background(Green))
+                        Text(" Active  ", color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                        Box(Modifier.size(8.dp).clip(CircleShape).background(Blue))
+                        Text(" Frozen", color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                    }
                 }
                 Spacer(Modifier.height(12.dp))
 
@@ -100,6 +112,7 @@ fun StreakDetailScreen(navController: NavHostController) {
                                     val mood = MoodStore.moodOn(date)
                                     val icon = mood?.let { MoodStore.iconFor(it) }
                                     val active = ProgressStore.isActive(date)
+                                    val frozen = ProgressStore.isFrozen(date)
                                     Box(
                                         modifier = Modifier
                                             .size(34.dp)
@@ -107,6 +120,7 @@ fun StreakDetailScreen(navController: NavHostController) {
                                             .background(
                                                 when {
                                                     active && icon == null -> GreenTint
+                                                    frozen -> BlueTint
                                                     isToday -> PurpleTint
                                                     else -> Color.Transparent
                                                 },
@@ -116,6 +130,8 @@ fun StreakDetailScreen(navController: NavHostController) {
                                     ) {
                                         if (icon != null) {
                                             Image(painterResource(icon), contentDescription = mood, modifier = Modifier.size(26.dp))
+                                        } else if (frozen) {
+                                            Icon(Icons.Filled.AcUnit, contentDescription = "Frozen day", tint = Blue, modifier = Modifier.size(16.dp))
                                         } else {
                                             Text(
                                                 day.toString(),
@@ -132,6 +148,23 @@ fun StreakDetailScreen(navController: NavHostController) {
                 }
 
                 Spacer(Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(PurpleTint)
+                        .clickable { navController.navigate("mood_insights") }
+                        .padding(18.dp, 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Mood patterns & Year in Pixels", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("See what lifts your mood", color = Color(0xFF5A4A8C), fontSize = 12.sp)
+                    }
+                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Ink, modifier = Modifier.size(18.dp))
+                }
 
                 Box(
                     modifier = Modifier
@@ -153,5 +186,50 @@ fun StreakDetailScreen(navController: NavHostController) {
                 Spacer(Modifier.height(16.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun FreezeCard(today: LocalDate) {
+    val banked = ProgressStore.freezes
+    val max = ProgressStore.maxFreezes
+    val next = ProgressStore.daysToNextFreeze(today)
+    Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(BlueTint).padding(18.dp, 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Streak freezes", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    when {
+                        next == null -> "Bank full — you're covered for $banked missed day${if (banked == 1) "" else "s"}"
+                        // When today isn't done yet, today is one of the days still needed.
+                        !ProgressStore.isActive(today) && next == 1 -> "Stay active today to earn one"
+                        ProgressStore.isActive(today) && next == 1 -> "Earn one tomorrow"
+                        else -> "Next freeze in $next days"
+                    },
+                    color = Navy,
+                    fontSize = 12.5.sp,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                repeat(max) { i ->
+                    val filled = i < banked
+                    Box(
+                        Modifier.size(34.dp).clip(CircleShape).background(if (filled) Blue else Color.White),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Filled.AcUnit, contentDescription = null, tint = if (filled) Color.White else TextMuted, modifier = Modifier.size(17.dp))
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(
+            "Every 7 days in a row earns a freeze. Miss a whole day and one is used automatically, so your streak survives." +
+                if (!com.glowup.app.ui.data.ProStore.isPro) " Pro banks up to ${ProgressStore.PRO_MAX_FREEZES}." else "",
+            color = TextSecondary,
+            fontSize = 12.sp,
+            lineHeight = 17.sp,
+        )
     }
 }

@@ -10,6 +10,7 @@ import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.SleepStore
 import com.glowup.app.ui.data.formatClock
 import java.time.LocalDate
+import kotlinx.coroutines.launch
 
 /** Posts the notification for a fired alarm, then schedules the next occurrence. */
 class ReminderReceiver : BroadcastReceiver() {
@@ -39,8 +40,8 @@ class ReminderReceiver : BroadcastReceiver() {
                 Notifications.post(
                     context, code, Notifications.CHANNEL_ALARMS,
                     "Good morning — it's ${formatClock(SleepStore.wakeTime)}",
-                    "Time to get up. Start with a 2-minute breathing session.",
-                    "morning",
+                    "Tap to log how you slept in one tap, then start your morning routine.",
+                    "sleep_log",
                 )
             }
             AlarmScheduler.KIND_FOCUS -> FocusStore.finishIfDue()?.let { minutes ->
@@ -62,6 +63,18 @@ class ReminderReceiver : BroadcastReceiver() {
                         "${next.area.label}: ${next.title} · ${next.minutes} min",
                         "session/${next.index}",
                     )
+                }
+            }
+        }
+
+        if (kind == AlarmScheduler.KIND_MIDNIGHT) {
+            com.glowup.app.ui.data.ProgressStore.applyFreezes()
+            val pending = goAsync()
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
+                try {
+                    com.glowup.app.widget.Widgets.updateNow(context)
+                } finally {
+                    pending.finish()
                 }
             }
         }

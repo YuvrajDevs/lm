@@ -145,6 +145,11 @@ object LessonStore {
         Storage.write(KEY, completedIds.map { it.toString() }.toJsonArray().toString())
     }
 
+    fun clearAll() {
+        Storage.remove(KEY)
+        load()
+    }
+
     fun load() {
         completedIds.clear()
         Storage.read(KEY)?.let { completedIds.addAll(org.json.JSONArray(it).strings().map(String::toInt)) }

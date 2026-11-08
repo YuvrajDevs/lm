@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
+import androidx.compose.material.icons.filled.Lock
 import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.GroomingStore
 import com.glowup.app.ui.data.ProfileStore
@@ -38,17 +39,20 @@ fun OnboardingScreen(navController: NavHostController) {
     var name by remember { mutableStateOf("") }
     var focus by remember { mutableStateOf(setOf<String>()) }
     var faceShape by remember { mutableStateOf<String?>(null) }
+    var ageBand by remember { mutableStateOf<String?>(null) }
 
     fun finish() {
-        ProfileStore.completeOnboarding(name, ProfileStore.focusOptions.filter { it in focus }, faceShape)
+        ProfileStore.completeOnboarding(name, ProfileStore.focusOptions.filter { it in focus }, faceShape, ageBand)
         navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
     }
 
     val askNotifications = rememberNotificationPermission { finish() }
 
+    val lastStep = 4
     val canContinue = when (step) {
         0 -> name.isNotBlank()
-        1 -> focus.isNotEmpty()
+        1 -> ageBand != null
+        2 -> focus.isNotEmpty()
         else -> true
     }
 
@@ -57,7 +61,7 @@ fun OnboardingScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxWidth().padding(24.dp, 24.dp, 24.dp, 0.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            repeat(4) { index ->
+            repeat(lastStep + 1) { index ->
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -87,8 +91,18 @@ fun OnboardingScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                     )
+                    Spacer(Modifier.height(18.dp))
+                    PrivacyNote()
                 }
                 1 -> {
+                    Title("How old are you?")
+                    Subtitle("We use this only to keep advice right for your age — for example, under-18s never get weight-loss goals. It stays on your phone.")
+                    Spacer(Modifier.height(20.dp))
+                    ProfileStore.ageBands.forEach { band ->
+                        ChoiceRow(band, ageBand == band) { ageBand = band }
+                    }
+                }
+                2 -> {
                     Title("What do you want to work on?")
                     Subtitle("Pick as many as you like. We'll put these first on your home screen.")
                     Spacer(Modifier.height(20.dp))
@@ -97,7 +111,7 @@ fun OnboardingScreen(navController: NavHostController) {
                         ChoiceRow(option, selected) { focus = if (selected) focus - option else focus + option }
                     }
                 }
-                2 -> {
+                3 -> {
                     Title("What's your face shape?")
                     Subtitle("Optional — it personalises haircut advice. Not sure? Pull your hair back and look at the widest part of your face.")
                     Spacer(Modifier.height(20.dp))
@@ -126,13 +140,13 @@ fun OnboardingScreen(navController: NavHostController) {
                     .height(58.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(if (canContinue) Ink else Color(0xFFD8D5CE))
-                    .clickable(enabled = canContinue) { if (step < 3) step++ else askNotifications() },
+                    .clickable(enabled = canContinue) { if (step < lastStep) step++ else askNotifications() },
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     when (step) {
-                        2 -> if (faceShape == null) "Skip for now" else "Continue"
-                        3 -> "Allow notifications"
+                        3 -> if (faceShape == null) "Skip for now" else "Continue"
+                        lastStep -> "Allow notifications"
                         else -> "Continue"
                     },
                     color = Color.White,
@@ -140,7 +154,7 @@ fun OnboardingScreen(navController: NavHostController) {
                     fontWeight = FontWeight.SemiBold,
                 )
             }
-            if (step == 3) {
+            if (step == lastStep) {
                 Text(
                     "Not now",
                     color = TextSecondary,
@@ -186,5 +200,28 @@ private fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit) {
     ) {
         Text(label, color = if (selected) Color.White else Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
         if (selected) Text("✓", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun PrivacyNote() {
+    Row(
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint).padding(14.dp, 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        androidx.compose.material3.Icon(
+            androidx.compose.material.icons.Icons.Filled.Lock,
+            contentDescription = null,
+            tint = Green,
+            modifier = Modifier.size(16.dp),
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            "Private by design: no account, no ads, and everything you add stays on this phone.",
+            color = Color(0xFF1E7A4F),
+            fontSize = 12.5.sp,
+            lineHeight = 17.sp,
+            fontWeight = FontWeight.Medium,
+        )
     }
 }

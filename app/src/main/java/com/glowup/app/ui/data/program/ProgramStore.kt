@@ -98,6 +98,12 @@ object ProgramStore {
         save()
     }
 
+    fun clearAll() {
+        Storage.remove(KEY)
+        load()
+        Storage.onScheduleChanged()
+    }
+
     fun load() {
         completions.clear()
         val json = Storage.read(KEY)?.let(::JSONObject)

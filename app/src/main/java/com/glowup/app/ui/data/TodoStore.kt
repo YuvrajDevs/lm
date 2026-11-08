@@ -84,6 +84,11 @@ object TodoStore {
     fun doneCount(bucket: TodoBucket) = items.count { it.bucket == bucket && it.done }
     fun totalCount(bucket: TodoBucket) = items.count { it.bucket == bucket }
 
+    fun clearAll() {
+        items.clear()
+        save()
+    }
+
     fun load() {
         items.clear()
         val raw = Storage.read(KEY)

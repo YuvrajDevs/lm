@@ -117,6 +117,11 @@ fun SleepScreen(navController: NavHostController) {
                 contentPadding = PaddingValues(24.dp, 16.dp, 24.dp, 16.dp),
             ) {
                 item {
+                    SleepLogSummary { navController.navigate("sleep_log") }
+                    Spacer(Modifier.height(12.dp))
+                }
+
+                item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -345,5 +350,39 @@ fun SleepScreen(navController: NavHostController) {
                 },
             )
         }
+    }
+}
+
+@Composable
+private fun SleepLogSummary(onClick: () -> Unit) {
+    val today = java.time.LocalDate.now()
+    val lastNight = com.glowup.app.ui.data.SleepLogStore.on(today)
+    val debt = com.glowup.app.ui.data.SleepLogStore.debtMinutes(today)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(Ink)
+            .clickable(onClick = onClick)
+            .padding(18.dp, 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            if (lastNight == null) {
+                Text("Log last night's sleep", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    if (debt != null) "Sleep debt ${com.glowup.app.ui.data.formatDuration(debt)} · 10-second check-in" else "See your sleep debt and how regular your sleep is",
+                    color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp,
+                )
+            } else {
+                Text("Last night · ${com.glowup.app.ui.data.formatDuration(lastNight.minutes)}", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    debt?.let { "Sleep debt " + (if (it == 0) "none" else com.glowup.app.ui.data.formatDuration(it)) + " · " + com.glowup.app.ui.data.SleepMath.level(it).label.lowercase() }
+                        ?: "Keep logging to see your sleep debt",
+                    color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp,
+                )
+            }
+        }
+        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
     }
 }

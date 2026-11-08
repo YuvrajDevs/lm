@@ -11,11 +11,13 @@ class GlowUpApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Storage.init(this)
+        com.glowup.app.ui.data.PhotoVault.init(noBackupFilesDir)
         Stores.loadAll()
         FocusStore.finishIfDue()
         com.glowup.app.billing.Billing.start(this)
         Notifications.createChannels(this)
         Storage.onScheduleChanged = { AlarmScheduler.syncAll(this) }
+        Storage.onDataChanged = { com.glowup.app.widget.Widgets.requestUpdate(this) }
         AlarmScheduler.syncAll(this)
     }
 }

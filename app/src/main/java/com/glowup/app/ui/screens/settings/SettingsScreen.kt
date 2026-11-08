@@ -43,28 +43,28 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.FileProvider
 import com.glowup.app.R
-import com.glowup.app.audio.SleepSoundService
 import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.DeleteEverythingDialog
+import com.glowup.app.ui.components.exportMyData
 import com.glowup.app.ui.components.GlowUpOptionRow
 import com.glowup.app.ui.data.GroomingStore
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.ProgressStore
-import com.glowup.app.ui.data.Storage
-import com.glowup.app.ui.data.Stores
 import com.glowup.app.ui.theme.*
-import java.io.File
 import java.time.LocalDate
 
 private data class SettingsRow(val label: String, val value: String? = null, val danger: Boolean = false)
 
 private val faqs = listOf(
-    "Where is my data stored?" to "Everything — routines, notes, moods, wardrobe and progress — is saved only on this phone. Nothing is uploaded.",
-    "How do points and streaks work?" to "You earn points for checking off routines, to-dos, lessons, mood check-ins, confidence cards and practice sessions. Any day you earn points counts towards your streak. Every 100 points is a new level.",
+    "Where is my data stored?" to "Only on this phone. Glow-Up has no account and no servers, and nothing is uploaded. Settings → Your data shows everything that's kept, why, and lets you export or delete any of it.",
+    "How do points and streaks work?" to "You earn points for checking off routines, to-dos, lessons, mood check-ins, sleep logs, confidence cards and practice sessions. Any day you earn points counts towards your streak. Every 100 points is a new level.",
+    "What are streak freezes?" to "Every 7 days in a row earns a freeze (you can bank 2, or 3 with Pro). If you miss a whole day, a banked freeze is used automatically so your streak survives. Frozen days keep the streak alive but don't add to it.",
+    "How is sleep debt worked out?" to "From the nights you log: how far short of your sleep need you've been over the last 14 nights. The latest week counts fully, the week before counts half, and extra sleep pays debt back. It's an estimate from your logs, not a medical measurement.",
+    "How do mood patterns work?" to "When you check in, you can tag what's been going on. Glow-Up also knows which days you focused, did your routines, learned or slept well. Once there are at least 5 days with and 5 without something, it compares your average mood — all on your phone.",
     "Why didn't a reminder arrive?" to "Make sure notifications are allowed for Glow-Up. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time.",
     "Do sleep sounds need the internet?" to "No. They're generated on your phone and keep playing with the screen off until the sleep timer fades them out.",
-    "What do I get with Pro?" to "The full 12-week programme, every style guide and outfit breakdown, every lesson and guide, and all sleep sounds and morning sessions. Manage or cancel any time in Google Play.",
+    "What do I get with Pro?" to "The full 12-week programme, every style guide and outfit breakdown, every lesson and guide, all sleep sounds and morning sessions, every mood pattern, and an extra streak freeze. Manage or cancel any time in Google Play.",
     "Is my speaking practice recorded?" to "Only while you practise, so you can listen back. The recording is deleted as soon as you leave the screen.",
 )
 
@@ -131,6 +131,7 @@ fun SettingsScreen(navController: NavHostController) {
                     "Profile",
                     listOf(
                         SettingsRow("Name", ProfileStore.name.ifBlank { null }),
+                        SettingsRow("Age", ProfileStore.ageBand ?: "Not set"),
                         SettingsRow("Face shape", ProfileStore.faceShape ?: "Not set"),
                         SettingsRow("Focus areas", ProfileStore.focusAreas.size.takeIf { it > 0 }?.let { "$it selected" } ?: "None"),
                     ),
@@ -180,11 +181,16 @@ fun SettingsScreen(navController: NavHostController) {
                 settingsSection(
                     "Privacy & data",
                     listOf(
+                        SettingsRow("Your data", "On this phone only"),
                         SettingsRow("Export my data"),
                         SettingsRow("Delete all my data", danger = true),
                     ),
                     onRowClick = { label ->
-                        if (label == "Export my data") exportData(context) else showDeleteConfirm = true
+                        when (label) {
+                            "Your data" -> navController.navigate("your_data")
+                            "Export my data" -> exportMyData(context)
+                            else -> showDeleteConfirm = true
+                        }
                     },
                 )
                 settingsSection(
@@ -221,6 +227,13 @@ fun SettingsScreen(navController: NavHostController) {
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                     )
                 },
+            )
+            "Age" -> PickerDialog(
+                title = "Your age",
+                options = ProfileStore.ageBands,
+                selected = ProfileStore.ageBand ?: "",
+                onSelect = { ProfileStore.updateAgeBand(it); dialog = null },
+                onDismiss = { dialog = null },
             )
             "Face shape" -> PickerDialog(
                 title = "Face shape",
@@ -293,37 +306,8 @@ fun SettingsScreen(navController: NavHostController) {
             )
         }
 
-        if (showDeleteConfirm) {
-            GlowUpDialog(
-                onDismissRequest = { showDeleteConfirm = false },
-                title = "Delete all your data?",
-                message = "This permanently deletes your profile, routines, notes, moods, wardrobe, reminders and progress from this phone. This can't be undone.",
-                secondaryText = "Cancel",
-                primaryText = "Delete",
-                primaryDestructive = true,
-                onPrimary = {
-                    showDeleteConfirm = false
-                    SleepSoundService.stop(context)
-                    Stores.deleteAll()
-                    Billing.refreshPurchases()
-                    navController.navigate("onboarding") { popUpTo(navController.graph.id) { inclusive = true } }
-                },
-            )
-        }
+        if (showDeleteConfirm) DeleteEverythingDialog(navController) { showDeleteConfirm = false }
     }
-}
-
-private fun exportData(context: Context) {
-    val dir = File(context.cacheDir, "exports").apply { mkdirs() }
-    val file = File(dir, "glowup-data-${LocalDate.now()}.json")
-    file.writeText(Storage.exportJson())
-    val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
-    val share = Intent(Intent.ACTION_SEND)
-        .setType("application/json")
-        .putExtra(Intent.EXTRA_STREAM, uri)
-        .putExtra(Intent.EXTRA_SUBJECT, "My Glow-Up data")
-        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    context.startActivity(Intent.createChooser(share, "Export my data"))
 }
 
 private fun openStoreListing(context: Context) {

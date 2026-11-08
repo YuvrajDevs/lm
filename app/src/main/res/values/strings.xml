@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Glow-Up</string>
+    <string name="widget_today_name">Today\'s routines</string>
+    <string name="widget_today_desc">Tick off today\'s routines without opening the app</string>
+    <string name="widget_streak_name">Streak &amp; mood</string>
+    <string name="widget_streak_desc">Your streak, freezes and a one-tap mood check-in</string>
+    <string name="widget_focus_name">Focus</string>
+    <string name="widget_focus_desc">Start a focus block in one tap and see today\'s minutes</string>
+    <string name="widget_sleep_name">Sleep</string>
+    <string name="widget_sleep_desc">Your sleep debt and last night at a glance</string>
 </resources>

@@ -60,8 +60,8 @@ class ProgressTest {
 
     @Test
     fun moodCheckInAwardsOnFirstLogOfTheDay() {
-        MoodStore.logToday("Calm", "slept well", today)
-        MoodStore.logToday("Happy", "", today)
+        MoodStore.logToday("Calm", "slept well", today = today)
+        MoodStore.logToday("Happy", "", today = today)
         assertEquals("Happy", MoodStore.moodOn(today))
         assertEquals(null, MoodStore.noteOn(today))
         assertEquals(MoodStore.POINTS_PER_CHECK_IN, ProgressStore.points)

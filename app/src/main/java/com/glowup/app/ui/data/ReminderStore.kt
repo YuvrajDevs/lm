@@ -59,6 +59,12 @@ object ReminderStore {
         Storage.onScheduleChanged()
     }
 
+    fun clearAll() {
+        items.clear()
+        save()
+        Storage.onScheduleChanged()
+    }
+
     fun load() {
         items.clear()
         val raw = Storage.read(KEY)

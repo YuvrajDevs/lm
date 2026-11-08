@@ -68,7 +68,7 @@ class PersistenceTest {
         NotesStore.add("Speak first in Monday's meeting")
         NotesStore.togglePinned(NotesStore.notes.first().id)
         NotesStore.toggleLiked(quoteLibrary.first().text)
-        MoodStore.logToday("Grateful", "Good day", today)
+        MoodStore.logToday("Grateful", "Good day", today = today)
         GroomingStore.markDone(2)
 
         restart()

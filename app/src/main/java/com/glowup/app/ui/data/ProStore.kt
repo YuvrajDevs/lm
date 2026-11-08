@@ -83,6 +83,8 @@ object ProGate {
     val proGroomingLessons = setOf(7, 12)
     val proSleepSounds = setOf("Crackling Fire", "Deep Space", "Soft Wind", "Brown Noise")
     val proMorningSessions = setOf(2, 3)
+    /** Free users see their strongest mood pattern; Pro shows every one. */
+    const val FREE_MOOD_INSIGHTS = 1
 
     private val locked: Boolean get() = !ProStore.isPro
 

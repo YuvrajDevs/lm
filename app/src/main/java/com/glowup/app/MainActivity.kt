@@ -23,6 +23,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.navArgument
 import com.glowup.app.ui.screens.addroutine.AddRoutineScreen
 import com.glowup.app.ui.screens.communication.CommunicationScreen
@@ -101,6 +103,9 @@ class MainActivity : ComponentActivity() {
                     composable("wardrobe") { WardrobeScreen(navController) }
                     composable("mood_checkin") { MoodCheckinScreen(navController) }
                     composable("streak_detail") { StreakDetailScreen(navController) }
+                    composable("mood_insights") { com.glowup.app.ui.screens.mood.MoodInsightsScreen(navController) }
+                    composable("sleep_log") { com.glowup.app.ui.screens.sleep.SleepLogScreen(navController) }
+                    composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
                     composable("ai_stylist") { AiStylistScreen(navController) }
                     composable("morning") { MorningScreen(navController) }
@@ -145,6 +150,13 @@ class MainActivity : ComponentActivity() {
                         RoutineDetailScreen(navController, backStackEntry.arguments?.getInt("id") ?: 0)
                     }
                 }
+                val backStack by navController.currentBackStackEntryAsState()
+                val currentRoute = backStack?.destination?.route
+                LaunchedEffect(currentRoute) {
+                    // Back on Home means the user has left the page the routine was opened on.
+                    if (currentRoute == "home") com.glowup.app.ui.data.RoutineSession.clear()
+                }
+                com.glowup.app.ui.components.RoutineDoneBar(currentRoute)
                 ProPaywall()
             }
         }
@@ -153,6 +165,8 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         com.glowup.app.billing.Billing.refreshPurchases()
+        // The date may have rolled over while the app was in the background.
+        com.glowup.app.ui.data.ProgressStore.applyFreezes()
     }
 
     override fun onNewIntent(intent: Intent) {

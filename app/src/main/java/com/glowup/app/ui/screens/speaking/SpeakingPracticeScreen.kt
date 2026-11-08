@@ -38,6 +38,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.rememberMicPermission
+import com.glowup.app.ui.components.ConsentSheet
+import com.glowup.app.ui.data.Consent
+import com.glowup.app.ui.data.ConsentStore
 import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.theme.Coral
 import com.glowup.app.ui.theme.Ink
@@ -107,6 +110,10 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
     val requestMic = rememberMicPermission { granted ->
         micDenied = !granted
         startRecording(withMic = granted)
+    }
+    var askConsent by remember { mutableStateOf(false) }
+    fun startPractice() {
+        if (ConsentStore.has(Consent.MICROPHONE)) requestMic() else askConsent = true
     }
 
     LaunchedEffect(phase) {
@@ -264,7 +271,7 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
 
             Column(modifier = Modifier.padding(24.dp, 0.dp, 24.dp, 40.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 when (phase) {
-                    Phase.READY -> WhiteButton("Start speaking") { requestMic() }
+                    Phase.READY -> WhiteButton("Start speaking") { startPractice() }
                     Phase.RECORDING -> WhiteButton("Stop") { stopRecording() }
                     Phase.REVIEW -> {
                         WhiteButton("Done") { finish() }
@@ -279,13 +286,22 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                                     player?.release()
                                     player = null
                                     isPlayingBack = false
-                                    requestMic()
+                                    startPractice()
                                 }
                                 .padding(8.dp),
                         )
                     }
                 }
             }
+        }
+
+        if (askConsent) {
+            ConsentSheet(
+                Consent.MICROPHONE,
+                androidx.compose.material.icons.Icons.Filled.Mic,
+                onAllow = { askConsent = false; requestMic() },
+                onDecline = { askConsent = false; micDenied = true; startRecording(withMic = false) },
+            )
         }
     }
 }

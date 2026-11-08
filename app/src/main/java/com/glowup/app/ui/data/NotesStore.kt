@@ -41,6 +41,12 @@ object NotesStore {
         Storage.write(LIKED_KEY, likedQuotes.toJsonArray().toString())
     }
 
+    fun clearAll() {
+        Storage.remove(NOTES_KEY)
+        Storage.remove(LIKED_KEY)
+        load()
+    }
+
     fun load() {
         notes.clear()
         likedQuotes.clear()
