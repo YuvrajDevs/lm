@@ -64,7 +64,7 @@ private val faqs = listOf(
     "How do mood patterns work?" to "When you check in, you can tag what's been going on. Glow-Up also knows which days you focused, did your routines, learned or slept well. Once there are at least 5 days with and 5 without something, it compares your average mood — all on your phone.",
     "Why didn't a reminder arrive?" to "Make sure notifications are allowed for Glow-Up. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time.",
     "Do sleep sounds need the internet?" to "No. They're generated on your phone and keep playing with the screen off until the sleep timer fades them out.",
-    "What do I get with Pro?" to "The full 12-week programme, every style guide and outfit breakdown, every lesson and guide, all sleep sounds and morning sessions, every mood pattern, and an extra streak freeze. Manage or cancel any time in Google Play.",
+    "What do I get with Pro?" to "The full 12-week programme, every fitness programme with auto-progression, strict focus and unlimited app blocking, an unlimited wardrobe with capsule and packing tools, every style guide, all speaking scenarios, every mood pattern, all sleep sounds and an extra streak freeze. Manage or cancel any time in Google Play.",
     "Is my speaking practice recorded?" to "No audio is ever saved. In Analyse mode your phone turns your words into text to measure pace and filler words, and only that text and the numbers are kept. Listen-back recordings are deleted as soon as you leave the screen.",
 )
 
@@ -159,6 +159,25 @@ fun SettingsScreen(navController: NavHostController) {
                             "Developer: simulate Pro" -> ProStore.updateDebugOverride(!ProStore.debugOverride)
                             else -> ProStore.showPaywall()
                         }
+                    },
+                )
+                settingsSection(
+                    "Your plans",
+                    listOf(
+                        SettingsRow("Glow-Up Check", com.glowup.app.ui.data.glow.GlowCheckStore.daysUntilRescan()?.let { if (it == 0) "Rescan due" else "Rescan in $it d" } ?: "Not taken"),
+                        SettingsRow("Fitness plan", if (com.glowup.app.ui.data.fitness.FitnessStore.setUp) com.glowup.app.ui.data.fitness.FitnessStore.goal?.label else "Not set up"),
+                        SettingsRow("App blocker", if (com.glowup.app.blocker.Blocker.ready(context)) "On" else "Off"),
+                        SettingsRow("My wardrobe", "${com.glowup.app.ui.data.WardrobeStore.items.size} items"),
+                    ),
+                    onRowClick = { label ->
+                        navController.navigate(
+                            when (label) {
+                                "Glow-Up Check" -> if (com.glowup.app.ui.data.glow.GlowCheckStore.latest == null) "glow_check" else "glow_results"
+                                "Fitness plan" -> if (com.glowup.app.ui.data.fitness.FitnessStore.setUp) "fitness_setup" else "fitness"
+                                "App blocker" -> "blocker"
+                                else -> "wardrobe"
+                            },
+                        )
                     },
                 )
                 settingsSection(

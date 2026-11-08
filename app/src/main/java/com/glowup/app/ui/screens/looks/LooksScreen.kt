@@ -60,6 +60,8 @@ fun LooksScreen(navController: NavHostController) {
                         }
                         Image(painterResource(R.drawable.ic_determined), contentDescription = null, modifier = Modifier.size(64.dp))
                     }
+                    Spacer(Modifier.height(14.dp))
+                    GlowToolkit(navController)
                     Spacer(Modifier.height(22.dp))
                 }
 
@@ -110,6 +112,30 @@ fun LooksScreen(navController: NavHostController) {
                 }
 
                 item { Spacer(Modifier.height(90.dp)) }
+            }
+        }
+    }
+}
+
+/** The personal tools: the check, face-shape advice, routines and photos. */
+@Composable
+private fun GlowToolkit(navController: NavHostController) {
+    val latest = com.glowup.app.ui.data.glow.GlowCheckStore.latest
+    data class Tool(val title: String, val sub: String, val tint: Color, val route: String)
+    val tools = listOf(
+        Tool(if (latest == null) "Glow-Up Check" else "Your map", if (latest == null) "3-min scan & plan" else latest.focus.firstOrNull()?.area?.title ?: "All good", Ink, if (latest == null) "glow_check" else "glow_results"),
+        Tool("Face shape", com.glowup.app.ui.data.ProfileStore.faceShape ?: "Cuts & beards", PurpleTint, "face_shape"),
+        Tool("Routines", "With evidence labels", GreenTint, "glow_routines"),
+        Tool("Progress photos", "Private & side-by-side", BlueTint, "progress_photos"),
+    )
+    tools.chunked(2).forEach { row ->
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 10.dp)) {
+            row.forEach { t ->
+                val dark = t.tint == Ink
+                Column(Modifier.weight(1f).clip(RoundedCornerShape(20.dp)).background(t.tint).clickable { navController.navigate(t.route) }.padding(16.dp, 14.dp)) {
+                    Text(t.title, color = if (dark) Color.White else Ink, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(t.sub, color = if (dark) Color.White.copy(alpha = 0.6f) else TextSecondary, fontSize = 12.sp, maxLines = 1)
+                }
             }
         }
     }

@@ -18,8 +18,12 @@ import androidx.compose.material.icons.filled.AccessibilityNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
+import kotlinx.coroutines.launch
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -106,16 +110,12 @@ fun NumberStepper(
     val buttonBg = if (onDark) Color.White.copy(alpha = 0.14f) else ChipNeutral
     val tint = if (onDark) Color.White else Ink
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-        Box(Modifier.size(if (big) 56.dp else 44.dp).clip(CircleShape).background(buttonBg).clickable(onClick = onMinus), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.Remove, contentDescription = "Less", tint = tint)
-        }
+        RepeatButton(Icons.Filled.Remove, "Less", buttonBg, tint, if (big) 56.dp else 44.dp, onMinus)
         Column(Modifier.widthIn(min = if (big) 120.dp else 90.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(value, color = tint, fontSize = if (big) 56.sp else 28.sp, fontWeight = FontWeight.Bold, lineHeight = if (big) 60.sp else 32.sp)
             unit?.let { Text(it, color = if (onDark) Color.White.copy(alpha = 0.6f) else TextSecondary, fontSize = 12.sp) }
         }
-        Box(Modifier.size(if (big) 56.dp else 44.dp).clip(CircleShape).background(buttonBg).clickable(onClick = onPlus), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.Add, contentDescription = "More", tint = tint)
-        }
+        RepeatButton(Icons.Filled.Add, "More", buttonBg, tint, if (big) 56.dp else 44.dp, onPlus)
     }
 }
 
@@ -133,5 +133,34 @@ fun ChoicePill(label: String, selected: Boolean, modifier: Modifier = Modifier, 
     ) {
         Text(label, color = if (selected) Color.White else Ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
         trailing?.let { Spacer(Modifier.width(6.dp)); it() }
+    }
+}
+
+/** Tap to step once; press and hold to keep stepping, faster the longer you hold. */
+@Composable
+private fun RepeatButton(icon: ImageVector, description: String, bg: Color, tint: Color, size: Dp, onStep: () -> Unit) {
+    val step by androidx.compose.runtime.rememberUpdatedState(onStep)
+    Box(
+        Modifier.size(size).clip(CircleShape).background(bg).pointerInput(Unit) {
+            kotlinx.coroutines.coroutineScope {
+                detectTapGestures(onPress = {
+                    step()
+                    val job = launch {
+                        kotlinx.coroutines.delay(400)
+                        var interval = 120L
+                        while (true) {
+                            step()
+                            kotlinx.coroutines.delay(interval)
+                            interval = (interval * 0.9).toLong().coerceAtLeast(35L)
+                        }
+                    }
+                    tryAwaitRelease()
+                    job.cancel()
+                })
+            }
+        },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription = description, tint = tint)
     }
 }

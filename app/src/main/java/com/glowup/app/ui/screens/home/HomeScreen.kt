@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -163,28 +164,11 @@ fun HomeScreen(navController: NavHostController) {
                 }
                 item { GlowCheckCard(navController) }
                 item { TodaySessionCard(navController) }
+                item { CheckInsRow(navController) }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         StreakTile(streak, Modifier.weight(1f)) { navController.navigate("streak_detail") }
                         FocusTile(Modifier.weight(1f)) { navController.navigate("focus") }
-                    }
-                }
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(MaroonTint)
-                            .clickable { navController.navigate("quotes_notes") }
-                            .padding(18.dp, 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("QUOTE OF THE DAY", color = Maroon, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                            Text(DailyContent.quoteOfTheDay().text, fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
-                        }
                     }
                 }
                 item {
@@ -336,6 +320,25 @@ fun HomeScreen(navController: NavHostController) {
                             contentAlignment = Alignment.Center,
                         ) {
                             Image(painterResource(routine.icon), contentDescription = null, modifier = Modifier.size(20.dp))
+                        }
+                    }
+                }
+                item {
+                    Spacer(Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(MaroonTint)
+                            .clickable { navController.navigate("quotes_notes") }
+                            .padding(18.dp, 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("QUOTE OF THE DAY", color = Maroon, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Text(DailyContent.quoteOfTheDay().text, fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
                         }
                     }
                 }
@@ -540,6 +543,43 @@ private fun GlowCheckCard(navController: NavHostController) {
                 color = if (due == 0) Color.White else Ink, fontSize = 11.5.sp, fontWeight = FontWeight.Bold,
                 modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(if (due == 0) Coral else Color.White).padding(10.dp, 5.dp),
             )
+        }
+    }
+}
+
+/** Today's quick check-ins across the app, each showing whether it's done. */
+@Composable
+private fun CheckInsRow(navController: NavHostController) {
+    val today = java.time.LocalDate.now()
+    val fitness = com.glowup.app.ui.data.fitness.FitnessStore
+    data class Chip(val label: String, val sub: String, val done: Boolean, val route: String, val tint: Color)
+    val chips = buildList {
+        add(Chip("Mood", com.glowup.app.ui.data.MoodStore.moodOn(today) ?: "Check in", com.glowup.app.ui.data.MoodStore.moodOn(today) != null, "mood_checkin", GreenTint))
+        val night = com.glowup.app.ui.data.SleepLogStore.on(today)
+        add(Chip("Sleep", night?.let { com.glowup.app.ui.data.formatDuration(it.minutes) } ?: "Log night", night != null, "sleep_log", PurpleTint))
+        if (fitness.setUp) {
+            val done = fitness.doneOn(today)
+            add(Chip("Workout", if (done) "Done" else if (fitness.isTrainingDay(today) || fitness.activeProgramme != null) "Today" else "Optional", done, "fitness", CoralTint))
+            if (fitness.weighInDue() && fitness.latestBody() != null) add(Chip("Weigh-in", "Due", false, "body_checkin", YellowTint))
+        } else {
+            add(Chip("Workout", "Set up", false, "fitness", CoralTint))
+        }
+    }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(chips) { c ->
+            Row(
+                Modifier.clip(RoundedCornerShape(18.dp)).background(c.tint).clickable { navController.navigate(c.route) }.padding(12.dp, 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.size(22.dp).clip(CircleShape).background(if (c.done) Ink else Color.White), contentAlignment = Alignment.Center) {
+                    if (c.done) Icon(androidx.compose.material.icons.Icons.Filled.Check, contentDescription = "Done", tint = Color.White, modifier = Modifier.size(14.dp))
+                }
+                Spacer(Modifier.width(8.dp))
+                Column {
+                    Text(c.label, fontSize = 13.5.sp, fontWeight = FontWeight.Bold)
+                    Text(c.sub, color = TextSecondary, fontSize = 11.5.sp, maxLines = 1)
+                }
+            }
         }
     }
 }

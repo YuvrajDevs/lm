@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -168,7 +169,7 @@ fun StylingScreen(navController: NavHostController) {
                         .clip(RoundedCornerShape(22.dp))
                         .background(Ink)
                         .clickable {
-                            if (ProGate.stylistLocked) ProStore.showPaywall("The AI stylist is part of Pro") else navController.navigate("ai_stylist")
+                            navController.navigate("wardrobe")
                         }
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -176,12 +177,14 @@ fun StylingScreen(navController: NavHostController) {
                 ) {
                     Image(painterResource(R.drawable.ic_style), contentDescription = null, modifier = Modifier.size(36.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Ask your AI stylist", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                        Text("Tell it what you own — get real answers", color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
+                        Text("Outfits from your wardrobe", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            if (com.glowup.app.ui.data.WardrobeStore.items.isEmpty()) "Add your clothes — we'll build looks from what you own"
+                            else "${com.glowup.app.ui.data.style.OutfitEngine.countOutfits(com.glowup.app.ui.data.WardrobeStore.items)} outfits from your ${com.glowup.app.ui.data.WardrobeStore.items.size} pieces",
+                            color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp,
+                        )
                     }
-                    Box(modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Yellow).padding(8.dp, 4.dp)) {
-                        Text("PRO", color = Ink, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                    }
+                    Icon(androidx.compose.material.icons.Icons.Filled.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.6f))
                 }
             }
 

@@ -42,6 +42,6 @@ object DailyContent {
         in 5..11 -> "Good morning"
         in 12..16 -> "Good afternoon"
         in 17..21 -> "Good evening"
-        else -> "Hey night owl"
+        else -> "Up late"
     }
 }

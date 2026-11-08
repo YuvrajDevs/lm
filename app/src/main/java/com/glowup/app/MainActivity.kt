@@ -46,7 +46,6 @@ import com.glowup.app.ui.screens.streak.StreakDetailScreen
 import com.glowup.app.ui.screens.styleguide.OutfitDetailScreen
 import com.glowup.app.ui.screens.styleguide.StyleGuideDetailScreen
 import com.glowup.app.ui.screens.styling.StylingScreen
-import com.glowup.app.ui.screens.stylist.AiStylistScreen
 import com.glowup.app.ui.screens.todo.TodoScreen
 import com.glowup.app.ui.screens.wardrobe.WardrobeScreen
 import com.glowup.app.ui.theme.GlowUpTheme
@@ -139,7 +138,8 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
-                    composable("ai_stylist") { AiStylistScreen(navController) }
+                    // The AI stylist is planned for a later phase; until then this goes to the real outfit builder.
+                    composable("ai_stylist") { WardrobeScreen(navController) }
                     composable("morning") { MorningScreen(navController) }
                     composable("speaking_practice") { SpeakingPracticeScreen(navController) }
                     composable(

@@ -48,10 +48,12 @@ private val Gold = Color(0xFFF5C542)
 
 private val benefits = listOf(
     "All ${Program.TOTAL} programme sessions — the full 12 weeks",
+    "Every 30-day fitness programme, 15–30 min sessions and targets that rise as you get stronger",
+    "Strict focus, unlimited app blocking and schedules",
+    "Unlimited wardrobe, capsule builder and packing lists",
     "Every style guide and all ${StyleLibrary.outfits.size} outfit breakdowns",
-    "Every Talk lesson and grooming guide",
-    "All 8 sleep sounds and every morning session",
-    "Every new session and look we add",
+    "All 30 speaking scenarios, every Talk lesson and grooming guide",
+    "Every mood pattern, all sleep sounds and an extra streak freeze",
 )
 
 /** Plans popup. Shown above every screen whenever [ProStore.paywallReason] is set. */
