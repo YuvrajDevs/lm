@@ -96,4 +96,9 @@ object ProGate {
     fun soundLocked(name: String) = locked && name in proSleepSounds
     fun morningSessionLocked(index: Int) = locked && index in proMorningSessions
     val stylistLocked: Boolean get() = locked
+
+    fun programmeLocked(id: String) = locked && com.glowup.app.ui.data.fitness.Programmes.get(id)?.free == false
+    fun quickLocked(minutes: Int) = locked && minutes > com.glowup.app.ui.data.fitness.QuickSessions.FREE_MAX_MINUTES
+    /** Auto-progression and per-exercise charts. */
+    val progressionLocked: Boolean get() = locked
 }

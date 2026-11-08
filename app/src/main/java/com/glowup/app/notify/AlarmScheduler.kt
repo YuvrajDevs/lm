@@ -23,6 +23,8 @@ object AlarmScheduler {
     const val KIND_FOCUS = "focus"
     const val KIND_LEARN = "learn"
     const val KIND_MIDNIGHT = "midnight"
+    const val KIND_WORKOUT = "workout"
+    const val KIND_WEIGH = "weigh"
     const val EXTRA_KIND = "kind"
     const val EXTRA_ID = "id"
 
@@ -38,6 +40,8 @@ object AlarmScheduler {
         KIND_FOCUS -> 9003
         KIND_LEARN -> 9004
         KIND_MIDNIGHT -> 9005
+        KIND_WORKOUT -> 9100 + id
+        KIND_WEIGH -> 9110
         else -> WAKE_CODE
     }
 
@@ -81,6 +85,11 @@ object AlarmScheduler {
         FocusStore.active?.endAtMillis?.let { scheduleAt(KIND_FOCUS, 0, it) }
         val learnTime = ProgramStore.reminderTime
         if (learnTime != null && !ProgramStore.isFinished) schedule(KIND_LEARN, 0, Schedule.Daily(learnTime))
+        val fitness = com.glowup.app.ui.data.fitness.FitnessStore
+        if (fitness.setUp) {
+            fitness.reminder?.let { time -> fitness.days.forEach { day -> schedule(KIND_WORKOUT, day.value, Schedule.Weekly(day, time)) } }
+            if (fitness.weighReminder) schedule(KIND_WEIGH, 0, Schedule.Weekly(fitness.weighDay, java.time.LocalTime.of(8, 0)))
+        }
         // Home-screen widgets show "today", so refresh them just after midnight.
         if (com.glowup.app.widget.Widgets.anyPlaced(context)) {
             schedule(KIND_MIDNIGHT, 0, Schedule.Daily(java.time.LocalTime.of(0, 1)))

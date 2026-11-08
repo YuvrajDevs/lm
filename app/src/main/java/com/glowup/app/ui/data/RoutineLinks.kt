@@ -18,11 +18,13 @@ object RoutineLinks {
         "bedtime" to "sleep", "sleep" to "sleep_log",
         "mood" to "mood_checkin",
         "learn" to "learn", "lesson" to "learn",
+        "workout" to "fitness", "exercise" to "fitness", "push-up" to "fitness", "pushup" to "fitness", "gym" to "fitness", "running" to "fitness", "jog" to "fitness", "walk" to "fitness",
         "to-do" to "todo", "todo" to "todo", "plan tomorrow" to "todo",
     )
 
     private val byCategory = mapOf(
         "Looks" to "looks",
+        "Fitness" to "fitness",
         "Social" to "communication",
         "Mind" to "quotes_notes",
         "Style" to "wardrobe",

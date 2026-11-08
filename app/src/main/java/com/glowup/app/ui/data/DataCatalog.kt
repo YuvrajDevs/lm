@@ -58,6 +58,16 @@ object DataCatalog {
             { SleepLogStore.clearAll() },
         ),
         DataCategory(
+            "fitness", "Workouts & body",
+            "Your fitness goal and schedule, every workout and set you log, and the weight and waist you enter — to plan sessions, adjust difficulty and show your progress.",
+            setOf("fitness"),
+            {
+                val f = com.glowup.app.ui.data.fitness.FitnessStore
+                plural(f.logs.size, "workout") + " · " + plural(f.body.size, "weigh-in")
+            },
+            { com.glowup.app.ui.data.fitness.FitnessStore.clearAll() },
+        ),
+        DataCategory(
             "focus", "Focus history",
             "Minutes focused each day, for your focus streak and weekly chart.",
             setOf("focus"),

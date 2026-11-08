@@ -105,6 +105,22 @@ class MainActivity : ComponentActivity() {
                     composable("streak_detail") { StreakDetailScreen(navController) }
                     composable("mood_insights") { com.glowup.app.ui.screens.mood.MoodInsightsScreen(navController) }
                     composable("sleep_log") { com.glowup.app.ui.screens.sleep.SleepLogScreen(navController) }
+                    composable("fitness") { com.glowup.app.ui.screens.fitness.FitnessScreen(navController) }
+                    composable("fitness_setup") { com.glowup.app.ui.screens.fitness.FitnessSetupScreen(navController) }
+                    composable("exercises") { com.glowup.app.ui.screens.fitness.ExerciseLibraryScreen(navController) }
+                    composable("body_checkin") { com.glowup.app.ui.screens.fitness.BodyCheckInScreen(navController) }
+                    composable("programme/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
+                        com.glowup.app.ui.screens.fitness.ProgrammeScreen(navController, it.arguments?.getString("id").orEmpty())
+                    }
+                    composable("exercise/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
+                        com.glowup.app.ui.screens.fitness.ExerciseDetailScreen(navController, it.arguments?.getString("id").orEmpty())
+                    }
+                    composable("workout/{key}", arguments = listOf(navArgument("key") { type = NavType.StringType })) {
+                        com.glowup.app.ui.screens.fitness.WorkoutPreviewScreen(navController, it.arguments?.getString("key").orEmpty())
+                    }
+                    composable("player/{key}", arguments = listOf(navArgument("key") { type = NavType.StringType })) {
+                        com.glowup.app.ui.screens.fitness.WorkoutPlayerScreen(navController, it.arguments?.getString("key").orEmpty())
+                    }
                     composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
                     composable("ai_stylist") { AiStylistScreen(navController) }

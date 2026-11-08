@@ -19,6 +19,7 @@ object Stores {
         FocusStore.load()
         com.glowup.app.ui.data.style.SavedLooksStore.load()
         SleepLogStore.load()
+        com.glowup.app.ui.data.fitness.FitnessStore.load()
         ConsentStore.load()
         ProgressStore.applyFreezes()
     }

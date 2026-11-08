@@ -25,6 +25,14 @@ enum class Consent(
         purpose = "So you can play your answer back and hear how you sound.",
         storage = "A temporary file on this phone, deleted as soon as you leave the practice screen. Never uploaded.",
     ),
+    BODY(
+        key = "body",
+        title = "Your body measurements",
+        summary = "Height, weight and waist you type in, used for your fitness trend and safety checks.",
+        collects = "Only what you type: height, weight and (optionally) waist. No photos, no health apps.",
+        purpose = "To show your weekly trend, warn you if you're losing weight too fast, and work out waist-to-height.",
+        storage = "On this phone only. Delete it any time from Settings → Your data → Workouts & body.",
+    ),
     ;
 
     companion object {

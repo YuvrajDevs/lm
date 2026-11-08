@@ -87,6 +87,13 @@ object MoodInsights {
                     moodDays, false,
                 ),
             )
+            add(
+                MoodFactor(
+                    "workout", "you worked out",
+                    com.glowup.app.ui.data.fitness.FitnessStore.workoutDates(),
+                    moodDays, false,
+                ),
+            )
             val nights = SleepLogStore.entries.values
             val logged = nights.mapTo(HashSet()) { it.date }
             add(MoodFactor("sleep7", "you slept 7+ hours", nights.filter { it.minutes >= 420 }.mapTo(HashSet()) { it.date }, logged, false))

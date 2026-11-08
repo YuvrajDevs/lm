@@ -49,6 +49,7 @@ private data class QuickAccess(val label: String, val icon: Int, val bg: Color, 
 private val quickAccessItems = listOf(
     QuickAccess("Learn", R.drawable.ic_mind, YellowTint, "learn"),
     QuickAccess("Focus", R.drawable.ic_goal, BlueTint, "focus"),
+    QuickAccess("Fitness", R.drawable.ic_determined, GreenTint, "fitness"),
     QuickAccess("Looks", R.drawable.ic_looks, CoralTint, "looks"),
     QuickAccess("Sleep", R.drawable.ic_moon, BlueTint, "sleep"),
     QuickAccess("Mood", R.drawable.ic_mood_peaceful, GreenTint, "mood_insights"),
@@ -63,7 +64,7 @@ fun HomeScreen(navController: NavHostController) {
     val focus = ProfileStore.focusAreas.toList()
     val orderedQuickAccess = quickAccessItems.sortedBy { item ->
         when (item.label) {
-            "Learn", "Focus" -> 0
+            "Learn", "Focus", "Fitness" -> 0
             in focus -> 1
             else -> 2
         }

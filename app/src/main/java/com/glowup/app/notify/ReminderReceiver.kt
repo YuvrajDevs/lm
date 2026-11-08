@@ -67,6 +67,23 @@ class ReminderReceiver : BroadcastReceiver() {
             }
         }
 
+        if (kind == AlarmScheduler.KIND_WORKOUT) {
+            val fitness = com.glowup.app.ui.data.fitness.FitnessStore
+            if (!fitness.doneOn(LocalDate.now())) {
+                val plan = fitness.todayPlan()
+                Notifications.post(
+                    context, code, Notifications.CHANNEL_REMINDERS,
+                    if (plan.restDay) "Rest day — nice work this week" else "Time to train: ${plan.title}",
+                    if (plan.restDay) "A 5-minute stretch keeps you loose." else "About ${plan.minutes} min · tap to start",
+                    "fitness",
+                )
+            }
+        }
+        if (kind == AlarmScheduler.KIND_WEIGH) {
+            if (com.glowup.app.ui.data.fitness.FitnessStore.weighInDue()) {
+                Notifications.post(context, code, Notifications.CHANNEL_REMINDERS, "Weekly check-in", "Weigh in before breakfast for the most accurate trend.", "body_checkin")
+            }
+        }
         if (kind == AlarmScheduler.KIND_MIDNIGHT) {
             com.glowup.app.ui.data.ProgressStore.applyFreezes()
             val pending = goAsync()
