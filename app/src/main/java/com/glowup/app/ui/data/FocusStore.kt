@@ -12,7 +12,16 @@ import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
 
 /** A focus block. Running when [endAtMillis] is set; paused when [remainingMillis] is set instead. */
-data class ActiveFocus(val label: String, val minutes: Int, val endAtMillis: Long?, val remainingMillis: Long?) {
+data class ActiveFocus(
+    val label: String,
+    val minutes: Int,
+    val endAtMillis: Long?,
+    val remainingMillis: Long?,
+    /** Block the user's chosen apps while this runs. */
+    val blockApps: Boolean = false,
+    /** Can't be paused or ended early except through the emergency exit. */
+    val strict: Boolean = false,
+) {
     val isRunning: Boolean get() = endAtMillis != null
 
     fun remaining(nowMillis: Long): Long = endAtMillis?.let { (it - nowMillis).coerceAtLeast(0) } ?: remainingMillis ?: 0
@@ -47,8 +56,8 @@ object FocusStore {
     val minutesByDay = mutableStateMapOf<String, Int>()
     val sessionsByDay = mutableStateMapOf<String, Int>()
 
-    fun start(minutes: Int, label: String, nowMillis: Long = System.currentTimeMillis()) {
-        active = ActiveFocus(label, minutes, nowMillis + minutes * 60_000L, null)
+    fun start(minutes: Int, label: String, nowMillis: Long = System.currentTimeMillis(), blockApps: Boolean = false, strict: Boolean = false) {
+        active = ActiveFocus(label, minutes, nowMillis + minutes * 60_000L, null, blockApps, strict && blockApps)
         lastLabel = label
         lastMinutes = minutes
         changed()
@@ -56,7 +65,7 @@ object FocusStore {
 
     fun pause(nowMillis: Long = System.currentTimeMillis()) {
         val current = active ?: return
-        if (!current.isRunning) return
+        if (!current.isRunning || current.strict) return
         active = current.copy(endAtMillis = null, remainingMillis = current.remaining(nowMillis))
         changed()
     }
@@ -129,6 +138,8 @@ object FocusStore {
                 it.getInt("minutes"),
                 if (it.isNull("endAt")) null else it.getLong("endAt"),
                 if (it.isNull("remaining")) null else it.getLong("remaining"),
+                it.optBoolean("block"),
+                it.optBoolean("strict"),
             )
         }
     }
@@ -147,6 +158,8 @@ object FocusStore {
                         .put("minutes", it.minutes)
                         .put("endAt", it.endAtMillis ?: JSONObject.NULL)
                         .put("remaining", it.remainingMillis ?: JSONObject.NULL)
+                        .put("block", it.blockApps)
+                        .put("strict", it.strict)
                 } ?: JSONObject.NULL,
             )
         Storage.write(KEY, json.toString())

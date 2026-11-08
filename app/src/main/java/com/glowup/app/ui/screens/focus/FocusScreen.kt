@@ -51,6 +51,10 @@ fun FocusScreen(navController: NavHostController) {
     var minutes by remember { mutableStateOf(FocusStore.lastMinutes) }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var confirmEnd by remember { mutableStateOf(false) }
+    var blockApps by remember { mutableStateOf(com.glowup.app.ui.data.BlockStore.focusApps.isNotEmpty()) }
+    var strict by remember { mutableStateOf(false) }
+    var emergency by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
     val active = FocusStore.active
     val askPermission = rememberNotificationPermission()
 
@@ -99,6 +103,8 @@ fun FocusScreen(navController: NavHostController) {
                 Spacer(Modifier.height(24.dp))
 
                 if (active == null) {
+                    BlockOptions(blockApps, strict, onBlock = { blockApps = it; if (!it) strict = false }, onStrict = { strict = it }, onSetup = { navController.navigate("blocker") })
+                    Spacer(Modifier.height(14.dp))
                     Text(
                         "Put your phone face down. The timer keeps running if you leave the app.",
                         color = TextSecondary,
@@ -115,7 +121,19 @@ fun FocusScreen(navController: NavHostController) {
                     )
                 }
 
-                Spacer(Modifier.height(28.dp))
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    Modifier.padding(horizontal = 24.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(BlueTint)
+                        .clickable { navController.navigate("blocker") }.padding(16.dp, 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("App blocker & mindful pause", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Block apps, set schedules, pause before scrolling", color = Navy, fontSize = 12.sp)
+                    }
+                    Text("›", fontSize = 22.sp, color = Navy)
+                }
+                Spacer(Modifier.height(16.dp))
                 StatsSection()
                 Spacer(Modifier.height(20.dp))
             }
@@ -126,9 +144,14 @@ fun FocusScreen(navController: NavHostController) {
             ) {
                 when {
                     active == null -> ActionButton("Start $minutes-minute focus", Ink, Color.White, Modifier.weight(1f)) {
-                        FocusStore.start(minutes, label)
+                        val canBlock = blockApps && com.glowup.app.ui.data.BlockStore.focusApps.isNotEmpty() && com.glowup.app.blocker.Blocker.ready(context)
+                        FocusStore.start(minutes, label, blockApps = canBlock, strict = strict && canBlock)
                         now = System.currentTimeMillis()
                         askPermission()
+                    }
+                    active.isRunning && active.strict -> {
+                        ActionButton("Strict focus · stay with it", Ink, Color.White, Modifier.weight(1f)) { }
+                        ActionButton("Emergency", ChipNeutral, Maroon, Modifier.weight(0.6f)) { emergency = true }
                     }
                     active.isRunning -> {
                         ActionButton("Pause", Ink, Color.White, Modifier.weight(1f)) { FocusStore.pause() }
@@ -144,6 +167,8 @@ fun FocusScreen(navController: NavHostController) {
                 }
             }
         }
+
+        if (emergency) EmergencyExit(onCancel = { emergency = false }, onEnd = { FocusStore.cancel(); emergency = false })
 
         if (confirmEnd) {
             GlowUpDialog(
@@ -300,4 +325,62 @@ private fun formatRemaining(millis: Long): String {
     val minutes = totalSeconds % 3600 / 60
     val seconds = totalSeconds % 60
     return if (hours > 0) "%d:%02d:%02d".format(hours, minutes, seconds) else "%02d:%02d".format(minutes, seconds)
+}
+
+@Composable
+private fun BlockOptions(block: Boolean, strict: Boolean, onBlock: (Boolean) -> Unit, onStrict: (Boolean) -> Unit, onSetup: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val ready = com.glowup.app.blocker.Blocker.ready(context) && com.glowup.app.ui.data.BlockStore.focusApps.isNotEmpty()
+    Column(Modifier.padding(horizontal = 24.dp).fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(CardNeutral).padding(16.dp, 12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Block distracting apps", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (ready) com.glowup.app.ui.data.BlockStore.focusApps.size.let { n -> "$n app${if (n == 1) "" else "s"} blocked until the timer ends" } else "Set up the app blocker first",
+                    color = TextSecondary, fontSize = 12.sp,
+                )
+            }
+            if (ready) androidx.compose.material3.Switch(block, onBlock, colors = androidx.compose.material3.SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+            else Text("Set up", color = Purple, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clip(RoundedCornerShape(999.dp)).clickable(onClick = onSetup).padding(10.dp, 6.dp))
+        }
+        if (ready && block) {
+            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Strict mode", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text("No pausing or ending early", color = TextSecondary, fontSize = 12.sp)
+                }
+                if (com.glowup.app.ui.data.ProStore.isPro) {
+                    androidx.compose.material3.Switch(strict, onStrict, colors = androidx.compose.material3.SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+                } else {
+                    com.glowup.app.ui.components.ProBadge(Modifier.clickable { com.glowup.app.ui.data.ProStore.showPaywall("Strict focus is part of Pro") })
+                }
+            }
+        }
+    }
+}
+
+/** The only way out of strict focus: type a sentence and wait 30 seconds. Doesn't count the session. */
+@Composable
+private fun EmergencyExit(onCancel: () -> Unit, onEnd: () -> Unit) {
+    val phrase = "I choose to stop focusing"
+    var typed by remember { mutableStateOf("") }
+    var wait by remember { mutableStateOf(30) }
+    LaunchedEffect(Unit) { while (wait > 0) { delay(1000); wait-- } }
+    GlowUpDialog(
+        onDismissRequest = onCancel,
+        title = "Emergency exit",
+        message = "Type \"$phrase\" to end strict focus. This session won't count.",
+        secondaryText = "Keep focusing",
+        primaryText = if (wait > 0) "Wait ${wait}s" else "End focus",
+        primaryEnabled = wait == 0 && typed.trim().equals(phrase, ignoreCase = true),
+        primaryDestructive = true,
+        onPrimary = onEnd,
+        content = {
+            androidx.compose.material3.OutlinedTextField(
+                value = typed, onValueChange = { typed = it.take(40) }, singleLine = true, placeholder = { Text(phrase) },
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+    )
 }

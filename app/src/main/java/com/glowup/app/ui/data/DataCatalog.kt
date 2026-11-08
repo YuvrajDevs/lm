@@ -75,6 +75,13 @@ object DataCatalog {
             { com.glowup.app.ui.data.fitness.FitnessStore.clearAll() },
         ),
         DataCategory(
+            "blocker", "App blocker",
+            "The apps you chose to block or pause, your schedules, and daily counts of blocks and pauses for the last 30 days. Never what you do inside apps.",
+            setOf("blocker"),
+            { plural(BlockStore.focusApps.size + BlockStore.pauseApps.size + BlockStore.scheduleApps.size, "app") + " · " + plural(BlockStore.schedules.size, "schedule") },
+            { BlockStore.clearAll() },
+        ),
+        DataCategory(
             "focus", "Focus history",
             "Minutes focused each day, for your focus streak and weekly chart.",
             setOf("focus"),

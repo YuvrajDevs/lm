@@ -16,8 +16,12 @@ class GlowUpApp : Application() {
         FocusStore.finishIfDue()
         com.glowup.app.billing.Billing.start(this)
         Notifications.createChannels(this)
-        Storage.onScheduleChanged = { AlarmScheduler.syncAll(this) }
+        Storage.onScheduleChanged = {
+            AlarmScheduler.syncAll(this)
+            com.glowup.app.blocker.Blocker.sync(this)
+        }
         Storage.onDataChanged = { com.glowup.app.widget.Widgets.requestUpdate(this) }
         AlarmScheduler.syncAll(this)
+        com.glowup.app.blocker.Blocker.sync(this)
     }
 }

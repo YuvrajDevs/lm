@@ -21,6 +21,7 @@ object Stores {
         SleepLogStore.load()
         com.glowup.app.ui.data.fitness.FitnessStore.load()
         com.glowup.app.ui.data.glow.GlowCheckStore.load()
+        BlockStore.load()
         ConsentStore.load()
         ProgressStore.applyFreezes()
     }

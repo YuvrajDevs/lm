@@ -41,6 +41,14 @@ enum class Consent(
         purpose = "So you can compare how you look week to week, side by side.",
         storage = "Inside the app only: never in your gallery, never backed up, never uploaded. Delete any photo, or all of them, any time.",
     ),
+    APP_USAGE(
+        key = "usage",
+        title = "App blocker",
+        summary = "Checks which app is open, only to compare it with your block list. Nothing about what you do in apps is kept.",
+        collects = "The name of the app on screen, checked about once a second while blocking is on. No content, messages or history.",
+        purpose = "To show the block or pause screen when you open an app you chose.",
+        storage = "Only your lists and daily counts (like \"3 blocks\") are saved, on this phone, for 30 days.",
+    ),
     BODY(
         key = "body",
         title = "Your body measurements",

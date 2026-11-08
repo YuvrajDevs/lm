@@ -103,5 +103,6 @@ class ReminderReceiver : BroadcastReceiver() {
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         AlarmScheduler.syncAll(context)
+        com.glowup.app.blocker.Blocker.sync(context)
     }
 }

@@ -129,6 +129,7 @@ class MainActivity : ComponentActivity() {
                     composable("glow_routine/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
                         com.glowup.app.ui.screens.glow.LooksRoutineDetailScreen(navController, it.arguments?.getString("id").orEmpty())
                     }
+                    composable("blocker") { com.glowup.app.ui.screens.focus.BlockerScreen(navController) }
                     composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
                     composable("ai_stylist") { AiStylistScreen(navController) }
