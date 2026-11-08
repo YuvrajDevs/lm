@@ -65,7 +65,7 @@ private val faqs = listOf(
     "Why didn't a reminder arrive?" to "Make sure notifications are allowed for Glow-Up. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time.",
     "Do sleep sounds need the internet?" to "No. They're generated on your phone and keep playing with the screen off until the sleep timer fades them out.",
     "What do I get with Pro?" to "The full 12-week programme, every style guide and outfit breakdown, every lesson and guide, all sleep sounds and morning sessions, every mood pattern, and an extra streak freeze. Manage or cancel any time in Google Play.",
-    "Is my speaking practice recorded?" to "Only while you practise, so you can listen back. The recording is deleted as soon as you leave the screen.",
+    "Is my speaking practice recorded?" to "No audio is ever saved. In Analyse mode your phone turns your words into text to measure pace and filler words, and only that text and the numbers are kept. Listen-back recordings are deleted as soon as you leave the screen.",
 )
 
 @Composable

@@ -52,7 +52,7 @@ fun CommunicationScreen(navController: NavHostController) {
                     ) {
                         Text("SPEAKING PRACTICE", color = Color.White.copy(alpha = 0.55f), fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(3.dp))
-                        Text("Talk for 1 minute on a random word", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
+                        Text("Talk for 1 minute — get your pace, fillers and pauses", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
                         Spacer(Modifier.height(14.dp))
                         Row(
                             modifier = Modifier
@@ -69,13 +69,16 @@ fun CommunicationScreen(navController: NavHostController) {
                             Text("Start practice", color = Ink, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            "Recordings stay on your phone and are deleted when you leave.",
-                            color = Color.White.copy(alpha = 0.45f),
-                            fontSize = 11.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                "30 scenarios", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
+                                modifier = Modifier.weight(1f).clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.12f)).clickable { navController.navigate("scenarios") }.padding(vertical = 11.dp),
+                            )
+                            Text(
+                                "Your progress", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
+                                modifier = Modifier.weight(1f).clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.12f)).clickable { navController.navigate("speech_history") }.padding(vertical = 11.dp),
+                            )
+                        }
                     }
                     Spacer(Modifier.height(22.dp))
                 }

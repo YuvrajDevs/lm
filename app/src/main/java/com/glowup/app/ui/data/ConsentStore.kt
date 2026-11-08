@@ -20,10 +20,10 @@ enum class Consent(
     MICROPHONE(
         key = "mic",
         title = "Microphone for speaking practice",
-        summary = "Records only while you practise so you can play it back. Deleted when you leave the screen.",
-        collects = "Audio from your microphone, only while the practice timer is running.",
-        purpose = "So you can play your answer back and hear how you sound.",
-        storage = "A temporary file on this phone, deleted as soon as you leave the practice screen. Never uploaded.",
+        summary = "Listens only while you practise, to analyse your pace and filler words or let you play it back. No audio is kept.",
+        collects = "Audio from your microphone, only while the practice timer is running. In Analyse mode it's turned into text by your phone's speech recogniser.",
+        purpose = "To measure your pace, filler words and pauses, or let you play your answer back.",
+        storage = "Audio is never saved — the listen-back file is deleted when you leave. Only the text and numbers from Analyse mode are kept, on this phone.",
     ),
     FACE_SCAN(
         key = "face",

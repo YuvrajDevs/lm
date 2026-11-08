@@ -132,6 +132,11 @@ class MainActivity : ComponentActivity() {
                     composable("blocker") { com.glowup.app.ui.screens.focus.BlockerScreen(navController) }
                     composable("capsule") { com.glowup.app.ui.screens.wardrobe.CapsuleScreen(navController) }
                     composable("packing") { com.glowup.app.ui.screens.wardrobe.PackingScreen(navController) }
+                    composable("scenarios") { com.glowup.app.ui.screens.speaking.ScenariosScreen(navController) }
+                    composable("speech_history") { com.glowup.app.ui.screens.speaking.SpeechHistoryScreen(navController) }
+                    composable("scenario/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
+                        SpeakingPracticeScreen(navController, scenario = com.glowup.app.ui.data.Scenarios.get(it.arguments?.getString("id").orEmpty()))
+                    }
                     composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
                     composable("ai_stylist") { AiStylistScreen(navController) }

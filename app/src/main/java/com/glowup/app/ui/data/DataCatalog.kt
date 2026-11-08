@@ -82,6 +82,13 @@ object DataCatalog {
             { BlockStore.clearAll() },
         ),
         DataCategory(
+            "speech", "Speaking practice",
+            "Your last ${SpeechStore.KEEP} practice reports — pace, filler words, pauses — and their transcripts, so you can see yourself improve. Never any audio.",
+            setOf("speech"),
+            { plural(SpeechStore.sessions.size, "session") },
+            { SpeechStore.clearAll() },
+        ),
+        DataCategory(
             "focus", "Focus history",
             "Minutes focused each day, for your focus streak and weekly chart.",
             setOf("focus"),
