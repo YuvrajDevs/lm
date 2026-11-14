@@ -13,8 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.glowup.app.notify.Notifications
 
-fun hasPermission(context: Context, permission: String) =
-    ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+fun hasPermission(context: Context, permission: String) = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 
 /** Returns a function that asks for notification permission if needed, then reports whether it's granted. */
 @Composable
@@ -24,8 +23,11 @@ fun rememberNotificationPermission(onResult: (Boolean) -> Unit = {}): () -> Unit
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { callback(it) }
     return remember(launcher) {
         {
-            if (Notifications.canPost(context)) callback(true)
-            else launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            if (Notifications.canPost(context)) {
+                callback(true)
+            } else {
+                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 }
@@ -38,8 +40,11 @@ fun rememberMicPermission(onResult: (Boolean) -> Unit): () -> Unit {
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { callback(it) }
     return remember(launcher) {
         {
-            if (hasPermission(context, Manifest.permission.RECORD_AUDIO)) callback(true)
-            else launcher.launch(Manifest.permission.RECORD_AUDIO)
+            if (hasPermission(context, Manifest.permission.RECORD_AUDIO)) {
+                callback(true)
+            } else {
+                launcher.launch(Manifest.permission.RECORD_AUDIO)
+            }
         }
     }
 }

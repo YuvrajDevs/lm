@@ -11,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +31,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,11 +44,11 @@ import com.glowup.app.ui.data.PlanType
 import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.program.Program
 import com.glowup.app.ui.data.style.StyleLibrary
-import com.glowup.app.ui.theme.*
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
-
+import com.glowup.app.ui.theme.*
 
 private val benefits = listOf(
     "All ${Program.TOTAL} programme sessions — the full 12 weeks",
@@ -54,7 +57,7 @@ private val benefits = listOf(
     "Unlimited wardrobe, capsule builder and packing lists",
     "Every style guide and all ${StyleLibrary.outfits.size} outfit breakdowns",
     "All 30 speaking scenarios, every Talk lesson and grooming guide",
-    "Every mood pattern, all sleep sounds and an extra streak freeze",
+    "Every mood pattern, all sleep sounds and an extra streak freeze"
 )
 
 /** Plans popup. Shown above every screen whenever [ProStore.paywallReason] is set. */
@@ -66,64 +69,83 @@ fun ProPaywall() {
     var message by remember { mutableStateOf<String?>(null) }
 
     Dialog(onDismissRequest = { ProStore.dismissPaywall() }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Box(modifier = Modifier.fillMaxSize().padding(top = 40.dp), contentAlignment = Alignment.BottomCenter) {
+        Box(modifier = Modifier.fillMaxSize().padding(top = Space.Huge), contentAlignment = Alignment.BottomCenter) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                     .background(Surface)
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
             ) {
                 Column(modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(Ink)
-                            .padding(24.dp, 26.dp, 24.dp, 24.dp),
+                            .padding(Space.Gutter, Space.Gutter, Space.Gutter, Space.Gutter)
                     ) {
                         Icon(
                             Icons.Filled.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.common_close),
                             tint = Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.align(Alignment.TopEnd).size(36.dp).clip(CircleShape).clickable { ProStore.dismissPaywall() }.padding(6.dp),
+                            modifier = Modifier.align(Alignment.TopEnd).size(36.dp).clip(CircleShape).clickable { ProStore.dismissPaywall() }.padding(Space.S)
                         )
                         Column {
                             Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Gold), contentAlignment = Alignment.Center) {
                                 Image(painterResource(R.drawable.ic_crown), contentDescription = null, modifier = Modifier.size(28.dp))
                             }
-                            Spacer(Modifier.height(14.dp))
-                            Text(if (ProStore.isPro) "You're on Re:MakeU Pro" else "Re:MakeU Pro", color = Color.White, fontSize = TextSize.Display, fontWeight = FontWeight.Bold)
-                            Spacer(Modifier.height(4.dp))
-                            Text(if (ProStore.isPro) "Everything is unlocked. Thanks for supporting Re:MakeU." else reason, color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.Body, lineHeight = LineHeight.Body)
+                            Spacer(Modifier.height(Space.M))
+                            Text(
+                                if (ProStore.isPro) {
+                                    stringResource(
+                                        R.string.pro_paywall_you_re_on_re_makeu
+                                    )
+                                } else {
+                                    stringResource(R.string.common_pro_locked_re_makeu_pro)
+                                },
+                                color = Color.White,
+                                fontSize = TextSize.Display,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.height(Space.Xs))
+                            Text(
+                                if (ProStore.isPro) stringResource(R.string.pro_paywall_everything_is_unlocked_thanks_for) else reason,
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = TextSize.Body,
+                                lineHeight = LineHeight.Body
+                            )
                         }
                     }
 
-                    Column(modifier = Modifier.padding(24.dp, 20.dp, 24.dp, 0.dp)) {
+                    Column(modifier = Modifier.padding(Space.Gutter, Space.Xl, Space.Gutter, 0.dp)) {
                         benefits.forEach { benefit ->
-                            Row(modifier = Modifier.padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Row(modifier = Modifier.padding(bottom = Space.S), verticalAlignment = Alignment.CenterVertically) {
                                 Box(modifier = Modifier.size(22.dp).clip(CircleShape).background(GreenTint), contentAlignment = Alignment.Center) {
                                     Icon(Icons.Filled.Check, contentDescription = null, tint = Green, modifier = Modifier.size(14.dp))
                                 }
-                                Spacer(Modifier.width(12.dp))
+                                Spacer(Modifier.width(Space.M))
                                 Text(benefit, fontSize = TextSize.Body, fontWeight = FontWeight.Medium, lineHeight = LineHeight.Body)
                             }
                         }
 
                         if (!ProStore.isPro) {
-                            Spacer(Modifier.height(10.dp))
+                            Spacer(Modifier.height(Space.S))
                             ProStore.plans.forEach { plan ->
                                 val isSelected = plan == selected
                                 val trial = Billing.trialDays(plan)
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 10.dp)
+                                        .padding(bottom = Space.S)
                                         .clip(Shapes.Medium)
                                         .background(if (isSelected) YellowTint else CardNeutral)
                                         .border(2.dp, if (isSelected) Ink else Color.Transparent, Shapes.Medium)
-                                        .clickable { selected = plan; message = null }
-                                        .padding(16.dp, 14.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
+                                        .selectable(selected = isSelected, role = Role.RadioButton) {
+                                            selected = plan
+                                            message = null
+                                        }
+                                        .padding(Space.L, Space.M),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Box(
                                         modifier = Modifier
@@ -131,22 +153,32 @@ fun ProPaywall() {
                                             .clip(CircleShape)
                                             .background(if (isSelected) Ink else Color.Transparent)
                                             .border(2.dp, if (isSelected) Ink else TextMuted, CircleShape),
-                                        contentAlignment = Alignment.Center,
+                                        contentAlignment = Alignment.Center
                                     ) {
                                         if (isSelected) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
                                     }
-                                    Spacer(Modifier.width(12.dp))
+                                    Spacer(Modifier.width(Space.M))
                                     Column(modifier = Modifier.weight(1f)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(plan.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
                                             plan.badge?.let {
-                                                Spacer(Modifier.width(8.dp))
-                                                Box(modifier = Modifier.clip(Shapes.Pill).background(Ink).padding(8.dp, 3.dp)) {
+                                                Spacer(Modifier.width(Space.S))
+                                                Box(modifier = Modifier.clip(Shapes.Pill).background(Ink).padding(Space.S, Space.Xs)) {
                                                     Text(it, color = Color.White, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold)
                                                 }
                                             }
                                         }
-                                        Text(if (trial != null) "$trial-day free trial · ${plan.note}" else plan.note, color = TextSecondary, fontSize = TextSize.Caption)
+                                        Text(
+                                            if (trial !=
+                                                null
+                                            ) {
+                                                stringResource(R.string.pro_paywall_1_s_day_free_trial, trial, plan.note)
+                                            } else {
+                                                plan.note
+                                            },
+                                            color = TextSecondary,
+                                            fontSize = TextSize.Caption
+                                        )
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(Billing.price(plan) ?: plan.fallbackPrice, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
@@ -158,14 +190,20 @@ fun ProPaywall() {
                     }
                 }
 
-                Column(modifier = Modifier.padding(24.dp, 8.dp, 24.dp, 18.dp)) {
+                Column(modifier = Modifier.padding(Space.Gutter, Space.S, Space.Gutter, Space.L)) {
                     (message ?: Billing.lastError)?.let {
-                        Text(it, color = Maroon, fontSize = TextSize.BodySmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                        Text(
+                            it,
+                            color = Maroon,
+                            fontSize = TextSize.BodySmall,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = Space.S)
+                        )
                     }
                     if (ProStore.isPro) {
                         CtaButton("Manage subscription") {
                             context.startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/account/subscriptions?package=${context.packageName}")),
+                                Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/account/subscriptions?package=${context.packageName}"))
                             )
                         }
                     } else {
@@ -175,19 +213,25 @@ fun ProPaywall() {
                             val activity = context.findActivity()
                             message = when {
                                 activity == null -> "Something went wrong. Please try again."
-                                Billing.status != Billing.Status.READY -> { Billing.retry(); "Google Play isn't available right now. Check you're signed in to the Play Store and try again." }
-                                !Billing.isLoaded(selected) -> { Billing.retry(); "This plan isn't available yet. Please try again shortly." }
+                                Billing.status != Billing.Status.READY -> {
+                                    Billing.retry()
+                                    "Google Play isn't available right now. Check you're signed in to the Play Store and try again."
+                                }
+                                !Billing.isLoaded(selected) -> {
+                                    Billing.retry()
+                                    "This plan isn't available yet. Please try again shortly."
+                                }
                                 !Billing.purchase(activity, selected) -> "Couldn't open Google Play. Please try again."
                                 else -> null
                             }
                         }
                     }
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = Space.M),
+                        horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            "Restore purchases",
+                            stringResource(R.string.pro_paywall_restore_purchases),
                             color = TextSecondary,
                             fontSize = TextSize.BodySmall,
                             fontWeight = FontWeight.SemiBold,
@@ -196,16 +240,16 @@ fun ProPaywall() {
                                 Billing.refreshPurchases { found ->
                                     message = if (found) null else "No Pro purchase found on this Google account."
                                 }
-                            }.padding(10.dp, 4.dp),
+                            }.padding(Space.S, Space.Xs)
                         )
                     }
                     if (!ProStore.isPro && selected.type == PlanType.SUBSCRIPTION) {
                         Text(
-                            "Renews automatically until you cancel in Google Play. Cancel anytime.",
+                            stringResource(R.string.pro_paywall_renews_automatically_until_you_cancel),
                             color = TextMuted,
                             fontSize = TextSize.Micro,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                            modifier = Modifier.fillMaxWidth().padding(top = Space.Xs)
                         )
                     }
                 }
@@ -223,7 +267,7 @@ private fun CtaButton(label: String, onClick: () -> Unit) {
             .clip(Shapes.Pill)
             .background(Ink)
             .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Text(label, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
@@ -233,12 +277,12 @@ private fun CtaButton(label: String, onClick: () -> Unit) {
 @Composable
 fun ProBadge(modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.clip(Shapes.Pill).background(Gold).padding(7.dp, 3.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.clip(Shapes.Pill).background(Gold).padding(Space.S, Space.Xs),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Image(painterResource(R.drawable.ic_crown), contentDescription = null, modifier = Modifier.size(11.dp))
-        Spacer(Modifier.width(3.dp))
-        Text("PRO", color = Ink, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.width(Space.Xs))
+        Text(stringResource(R.string.common_pro), color = Ink, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -251,9 +295,13 @@ fun ProCrownButton(onClick: () -> Unit) {
             .clip(CircleShape)
             .background(Gold)
             .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
-        Image(painterResource(R.drawable.ic_crown), contentDescription = if (ProStore.isPro) "Re:MakeU Pro" else "Upgrade to Pro", modifier = Modifier.size(24.dp))
+        Image(
+            painterResource(R.drawable.ic_crown),
+            contentDescription = if (ProStore.isPro) "Re:MakeU Pro" else "Upgrade to Pro",
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 

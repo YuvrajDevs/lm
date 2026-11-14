@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<baseline version="1.0">
+    <file name="src/main/java/com/glowup/app/ui/components/PrivacyActions.kt">
+        <error line="37" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/ConsentStore.kt">
+        <error line="17" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/fitness/Programmes.kt">
+        <error line="63" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/glow/GlowCheck.kt">
+        <error line="196" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/program/CommunicationTrack.kt">
+        <error line="16" column="161" source="standard:max-line-length" />
+        <error line="38" column="161" source="standard:max-line-length" />
+        <error line="60" column="161" source="standard:max-line-length" />
+        <error line="191" column="161" source="standard:max-line-length" />
+        <error line="213" column="161" source="standard:max-line-length" />
+        <error line="235" column="161" source="standard:max-line-length" />
+        <error line="256" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/program/ConfidenceTrack.kt">
+        <error line="33" column="161" source="standard:max-line-length" />
+        <error line="102" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/program/GroomingTrack.kt">
+        <error line="168" column="161" source="standard:max-line-length" />
+        <error line="190" column="161" source="standard:max-line-length" />
+        <error line="256" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/program/HabitsTrack.kt">
+        <error line="53" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/program/MindTrack.kt">
+        <error line="51" column="161" source="standard:max-line-length" />
+        <error line="97" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/program/SocialTrack.kt">
+        <error line="72" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/data/program/StyleTrack.kt">
+        <error line="16" column="161" source="standard:max-line-length" />
+        <error line="124" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/screens/data/YourDataScreen.kt">
+        <error line="130" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/screens/fitness/WorkoutPlayerScreen.kt">
+        <error line="466" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/screens/focus/BlockerScreen.kt">
+        <error line="355" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/screens/glow/GlowCheckScreen.kt">
+        <error line="161" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/screens/home/HomeScreen.kt">
+        <error line="129" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/main/java/com/glowup/app/ui/screens/sleep/SleepLogScreen.kt">
+        <error line="189" column="161" source="standard:max-line-length" />
+    </file>
+</baseline>

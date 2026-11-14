@@ -9,6 +9,7 @@ import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -33,18 +34,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.glowup.app.R
 import com.glowup.app.ui.components.hasPermission
 import com.glowup.app.ui.data.glow.FaceAnalysis
 import com.glowup.app.ui.data.glow.FaceGeometry
 import com.glowup.app.ui.data.glow.FaceMetrics
 import com.glowup.app.ui.data.glow.PostureAnalysis
 import com.glowup.app.ui.data.glow.Pt
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.Mint
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
@@ -54,10 +61,6 @@ import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import java.util.concurrent.Executors
 import kotlin.math.abs
-import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.theme.Mint
-import androidx.camera.core.ImageProxy
 
 enum class ScanMode { FACE, POSTURE }
 
@@ -74,7 +77,7 @@ fun CameraScanner(
     onFace: (FaceMetrics) -> Unit = {},
     onPosture: (Int) -> Unit = {},
     onPermissionDenied: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -101,7 +104,7 @@ fun CameraScanner(
                     FaceDetectorOptions.Builder()
                         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                         .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
-                        .build(),
+                        .build()
                 )
                 val poseDetector = PoseDetection.getClient(PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptions.STREAM_MODE).build())
                 val faceFrames = mutableListOf<FaceMetrics>()
@@ -113,7 +116,10 @@ fun CameraScanner(
                 @OptIn(ExperimentalGetImage::class)
                 fun analyze(proxy: ImageProxy) {
                     val media = proxy.image
-                    if (media == null || done) { proxy.close(); return }
+                    if (media == null || done) {
+                        proxy.close()
+                        return
+                    }
                     val rotation = proxy.imageInfo.rotationDegrees
                     val image = InputImage.fromMediaImage(media, rotation)
                     val width = if (rotation % 180 == 0) proxy.width else proxy.height
@@ -121,20 +127,37 @@ fun CameraScanner(
                         faceDetector.process(image).addOnSuccessListener { faces ->
                             val face = faces.maxByOrNull { it.boundingBox.width() }
                             when {
-                                face == null -> { hint = "Look straight at the camera"; faceFrames.clear() }
+                                face == null -> {
+                                    hint = "Look straight at the camera"
+                                    faceFrames.clear()
+                                }
                                 face.boundingBox.width() < width * 0.32 -> hint = "Move a little closer"
                                 face.boundingBox.width() > width * 0.85 -> hint = "Move back a little"
-                                abs(face.headEulerAngleY) > 7 -> { hint = "Turn to face the camera straight on"; faceFrames.clear() }
-                                abs(face.headEulerAngleX) > 10 -> { hint = "Keep your chin level"; faceFrames.clear() }
-                                abs(face.headEulerAngleZ) > 8 -> { hint = "Straighten your head"; faceFrames.clear() }
+                                abs(face.headEulerAngleY) > 7 -> {
+                                    hint = "Turn to face the camera straight on"
+                                    faceFrames.clear()
+                                }
+                                abs(face.headEulerAngleX) > 10 -> {
+                                    hint = "Keep your chin level"
+                                    faceFrames.clear()
+                                }
+                                abs(face.headEulerAngleZ) > 8 -> {
+                                    hint = "Straighten your head"
+                                    faceFrames.clear()
+                                }
                                 else -> {
                                     fun c(type: Int) = face.getContour(type)?.points.orEmpty().map { Pt(it.x, it.y) }
                                     FaceAnalysis.measure(
                                         FaceGeometry(
-                                            c(FaceContour.FACE), c(FaceContour.LEFT_EYE), c(FaceContour.RIGHT_EYE),
-                                            c(FaceContour.LEFT_EYEBROW_TOP), c(FaceContour.RIGHT_EYEBROW_TOP),
-                                            c(FaceContour.NOSE_BRIDGE), c(FaceContour.NOSE_BOTTOM), c(FaceContour.UPPER_LIP_TOP),
-                                        ),
+                                            c(FaceContour.FACE),
+                                            c(FaceContour.LEFT_EYE),
+                                            c(FaceContour.RIGHT_EYE),
+                                            c(FaceContour.LEFT_EYEBROW_TOP),
+                                            c(FaceContour.RIGHT_EYEBROW_TOP),
+                                            c(FaceContour.NOSE_BRIDGE),
+                                            c(FaceContour.NOSE_BOTTOM),
+                                            c(FaceContour.UPPER_LIP_TOP)
+                                        )
                                     )?.let { faceFrames += it }
                                     hint = "Hold still…"
                                     progress = faceFrames.size / FACE_FRAMES.toFloat()
@@ -157,8 +180,14 @@ fun CameraScanner(
                             val rs = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
                             val shoulderSpread = if (ls != null && rs != null) abs(ls.position.x - rs.position.x) else 0f
                             when {
-                                pair == null -> { hint = "Step back until your head and shoulders are in view"; angles.clear() }
-                                shoulderSpread > width * 0.12f -> { hint = "Turn side-on to the camera"; angles.clear() }
+                                pair == null -> {
+                                    hint = "Step back until your head and shoulders are in view"
+                                    angles.clear()
+                                }
+                                shoulderSpread > width * 0.12f -> {
+                                    hint = "Turn side-on to the camera"
+                                    angles.clear()
+                                }
                                 else -> {
                                     val ear = pair.first!!.position
                                     val shoulder = pair.second!!.position
@@ -185,7 +214,14 @@ fun CameraScanner(
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
                         .also { it.setAnalyzer(executor, ::analyze) }
-                    val selector = if (p.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
+                    val selector = if (p.hasCamera(
+                            CameraSelector.DEFAULT_FRONT_CAMERA
+                        )
+                    ) {
+                        CameraSelector.DEFAULT_FRONT_CAMERA
+                    } else {
+                        CameraSelector.DEFAULT_BACK_CAMERA
+                    }
                     runCatching {
                         p.unbindAll()
                         p.bindToLifecycle(lifecycleOwner, selector, preview, analysis)
@@ -214,15 +250,44 @@ fun CameraScanner(
                     if (progress > 0f) drawArc(Mint, -90f, 360f * progress.coerceAtMost(1f), false, topLeft, Size(w, h), style = Stroke(7.dp.toPx()))
                 } else {
                     val x = size.width / 2
-                    drawLine(color, Offset(x, size.height * 0.12f), Offset(x, size.height * 0.88f), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(18f, 14f)))
-                    if (progress > 0f) drawArc(Mint, -90f, 360f * progress.coerceAtMost(1f), false, Offset(x - 40.dp.toPx(), 24.dp.toPx()), Size(80.dp.toPx(), 80.dp.toPx()), style = Stroke(6.dp.toPx()))
+                    drawLine(
+                        color,
+                        Offset(x, size.height * 0.12f),
+                        Offset(x, size.height * 0.88f),
+                        2.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(18f, 14f))
+                    )
+                    if (progress >
+                        0f
+                    ) {
+                        drawArc(
+                            Mint,
+                            -90f,
+                            360f * progress.coerceAtMost(1f),
+                            false,
+                            Offset(x - 40.dp.toPx(), 24.dp.toPx()),
+                            Size(80.dp.toPx(), 80.dp.toPx()),
+                            style = Stroke(6.dp.toPx())
+                        )
+                    }
                 }
             }
         }
         Text(
-            if (!granted) "Camera permission is needed for the scan" else if (done) "Got it" else hint,
-            color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).clip(Shapes.Pill).background(Color.Black.copy(alpha = 0.55f)).padding(16.dp, 10.dp),
+            if (!granted) {
+                stringResource(R.string.camera_scanner_camera_permission_is_needed_for)
+            } else if (done) {
+                stringResource(R.string.camera_scanner_got_it)
+            } else {
+                hint
+            },
+            color = Color.White,
+            fontSize = TextSize.BodyLarge,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(
+                Alignment.BottomCenter
+            ).padding(Space.L).clip(Shapes.Pill).background(Color.Black.copy(alpha = 0.55f)).padding(Space.L, Space.S)
         )
     }
 }

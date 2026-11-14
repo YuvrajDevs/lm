@@ -12,12 +12,12 @@ import com.glowup.app.ui.theme.Navy
 import com.glowup.app.ui.theme.NavyTint
 import com.glowup.app.ui.theme.Purple
 import com.glowup.app.ui.theme.PurpleTint
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.temporal.TemporalAdjusters
+import org.json.JSONArray
+import org.json.JSONObject
 
 data class RoutineEntry(
     val id: Int,
@@ -25,7 +25,7 @@ data class RoutineEntry(
     val frequency: String,
     val title: String,
     val doneDates: Set<LocalDate> = emptySet(),
-    val reminderTime: LocalTime? = null,
+    val reminderTime: LocalTime? = null
 ) {
     val area: String get() = "${category.uppercase()} · $frequency"
     val tint: Color get() = RoutineStore.styleFor(category).first
@@ -56,7 +56,7 @@ object RoutineStore {
         RoutineEntry(2, "Life admin", "DAILY", "Make your bed"),
         RoutineEntry(3, "Social", "DAILY", "2-minute eye contact practice"),
         RoutineEntry(4, "Mind", "DAILY", "Journaling — 5 minutes"),
-        RoutineEntry(5, "Style", "WEEKLY", "Wardrobe refresh"),
+        RoutineEntry(5, "Style", "WEEKLY", "Wardrobe refresh")
     )
 
     fun find(id: Int) = items.firstOrNull { it.id == id }
@@ -132,8 +132,8 @@ object RoutineStore {
                     frequency = json.getString("frequency"),
                     title = json.getString("title"),
                     doneDates = json.getJSONArray("done").strings().mapTo(HashSet()) { LocalDate.parse(it) },
-                    reminderTime = json.optStringOrNull("reminder")?.let { LocalTime.parse(it) },
-                ),
+                    reminderTime = json.optStringOrNull("reminder")?.let { LocalTime.parse(it) }
+                )
             )
         }
     }
@@ -148,7 +148,7 @@ object RoutineStore {
                     .put("frequency", entry.frequency)
                     .put("title", entry.title)
                     .put("done", entry.doneDates.map { it.toString() }.sorted().toJsonArray())
-                    .put("reminder", entry.reminderTime?.toString() ?: JSONObject.NULL),
+                    .put("reminder", entry.reminderTime?.toString() ?: JSONObject.NULL)
             )
         }
         Storage.write(KEY, array.toString())

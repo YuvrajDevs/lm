@@ -54,6 +54,7 @@ class SleepSoundService : Service() {
     }
 
     @Volatile private var session = 0
+
     @Volatile private var stopRequested = false
     private val running get() = playing.value != null
     private var focusRequest: AudioFocusRequest? = null
@@ -76,8 +77,10 @@ class SleepSoundService : Service() {
 
     private fun startInForeground(sound: String, minutes: Int) {
         val stopIntent = PendingIntent.getService(
-            this, 1, Intent(this, SleepSoundService::class.java).setAction(ACTION_STOP),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            this,
+            1,
+            Intent(this, SleepSoundService::class.java).setAction(ACTION_STOP),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val notification = NotificationCompat.Builder(this, Notifications.CHANNEL_PLAYBACK)
             .setSmallIcon(R.drawable.ic_notification)
@@ -89,8 +92,10 @@ class SleepSoundService : Service() {
             .setSilent(true)
             .build()
         ServiceCompat.startForeground(
-            this, NOTIFICATION_ID, notification,
-            if (Build.VERSION.SDK_INT >= 29) ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK else 0,
+            this,
+            NOTIFICATION_ID,
+            notification,
+            if (Build.VERSION.SDK_INT >= 29) ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK else 0
         )
     }
 
@@ -110,7 +115,11 @@ class SleepSoundService : Service() {
         val minBuffer = AudioTrack.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_FLOAT)
         val track = AudioTrack.Builder()
             .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-            .setAudioFormat(AudioFormat.Builder().setSampleRate(SAMPLE_RATE).setEncoding(AudioFormat.ENCODING_PCM_FLOAT).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+            .setAudioFormat(
+                AudioFormat.Builder().setSampleRate(
+                    SAMPLE_RATE
+                ).setEncoding(AudioFormat.ENCODING_PCM_FLOAT).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build()
+            )
             .setBufferSizeInBytes(maxOf(minBuffer, SAMPLE_RATE))
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()

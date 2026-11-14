@@ -1,0 +1,30 @@
+# Overrides on top of detekt's defaults (buildUponDefaultConfig = true), tuned for Jetpack Compose.
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+  MatchingDeclarationName:
+    active: false
+complexity:
+  LongMethod:
+    threshold: 120
+    ignoreAnnotated: ['Preview']
+  LongParameterList:
+    functionThreshold: 8
+    ignoreDefaultParameters: true
+  TooManyFunctions:
+    active: false
+  CyclomaticComplexMethod:
+    threshold: 25
+    ignoreSimpleWhenEntries: true
+style:
+  MagicNumber:
+    # UI code is full of sizes and durations; tokens cover the ones that matter.
+    active: false
+  MaxLineLength:
+    maxLineLength: 160
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview']
+  ReturnCount:
+    max: 4
+  WildcardImport:
+    active: false

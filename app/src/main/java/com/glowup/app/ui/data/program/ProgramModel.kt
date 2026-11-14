@@ -24,7 +24,7 @@ enum class ProgramArea(val label: String, val tagline: String, val tint: Color, 
     CONFIDENCE("Confidence", "Presence and body language", GreenTint, Green, R.drawable.ic_determined),
     MIND("Mind", "Think, learn and decide better", YellowTint, Color(0xFF8A6A00), R.drawable.ic_mind),
     SOCIAL("Social", "Connect and keep people close", TealTint, Teal, R.drawable.ic_social),
-    HABITS("Habits & body", "Energy, discipline, systems", MaroonTint, Maroon, R.drawable.ic_lifeadmin),
+    HABITS("Habits & body", "Energy, discipline, systems", MaroonTint, Maroon, R.drawable.ic_lifeadmin)
 }
 
 data class Quiz(val question: String, val options: List<String>, val answer: Int, val why: String)
@@ -39,7 +39,7 @@ data class ProgramSession(
     val hook: String,
     val ideas: List<KeyIdea>,
     val drill: String,
-    val quiz: Quiz,
+    val quiz: Quiz
 ) {
     val week: Int get() = index / Program.DAYS_PER_WEEK + 1
     val day: Int get() = index + 1
@@ -51,26 +51,12 @@ data class ProgramSession(
 }
 
 /** One authored session before it's placed in the programme. */
-data class TrackSession(
-    val title: String,
-    val minutes: Int,
-    val hook: String,
-    val ideas: List<KeyIdea>,
-    val drill: String,
-    val quiz: Quiz,
-)
+data class TrackSession(val title: String, val minutes: Int, val hook: String, val ideas: List<KeyIdea>, val drill: String, val quiz: Quiz)
 
-internal fun lesson(
-    title: String,
-    minutes: Int,
-    hook: String,
-    ideas: List<Pair<String, String>>,
-    drill: String,
-    quiz: Quiz,
-) = TrackSession(title, minutes, hook, ideas.map { (heading, body) -> KeyIdea(heading, body) }, drill, quiz)
+internal fun lesson(title: String, minutes: Int, hook: String, ideas: List<Pair<String, String>>, drill: String, quiz: Quiz) =
+    TrackSession(title, minutes, hook, ideas.map { (heading, body) -> KeyIdea(heading, body) }, drill, quiz)
 
-internal fun quiz(question: String, vararg options: String, answer: Int, why: String) =
-    Quiz(question, options.toList(), answer, why)
+internal fun quiz(question: String, vararg options: String, answer: Int, why: String) = Quiz(question, options.toList(), answer, why)
 
 object Program {
     const val WEEKS = 12
@@ -84,7 +70,7 @@ object Program {
         ProgramArea.CONFIDENCE to confidenceTrack,
         ProgramArea.MIND to mindTrack,
         ProgramArea.SOCIAL to socialTrack,
-        ProgramArea.HABITS to habitsTrack,
+        ProgramArea.HABITS to habitsTrack
     )
 
     val sessions: List<ProgramSession> by lazy {

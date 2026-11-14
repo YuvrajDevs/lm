@@ -81,7 +81,7 @@ object ProfileStore {
                 .put("onboarded", onboarded)
                 .put("age", ageBand ?: JSONObject.NULL)
                 .put("focus", JSONArray(focusAreas.toList()))
-                .toString(),
+                .toString()
         )
     }
 }

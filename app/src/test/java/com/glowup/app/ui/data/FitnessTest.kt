@@ -12,6 +12,8 @@ import com.glowup.app.ui.data.fitness.QuickFocus
 import com.glowup.app.ui.data.fitness.QuickSessions
 import com.glowup.app.ui.data.fitness.SetLog
 import com.glowup.app.ui.data.fitness.TrendTone
+import java.time.DayOfWeek
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -19,8 +21,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 class FitnessTest {
     private val today = LocalDate.of(2026, 6, 1)
@@ -83,7 +83,7 @@ class FitnessTest {
         }
         assertEquals(
             QuickSessions.build(QuickFocus.ABS, 10, FitnessLevel.BEGINNER, 5).blocks,
-            QuickSessions.build(QuickFocus.ABS, 10, FitnessLevel.BEGINNER, 5).blocks,
+            QuickSessions.build(QuickFocus.ABS, 10, FitnessLevel.BEGINNER, 5).blocks
         )
     }
 
@@ -146,7 +146,8 @@ class FitnessTest {
         assertEquals("first30", FitnessStore.activeProgramme)
         assertEquals("p.first30.2", FitnessStore.todayPlan(today).key)
         assertEquals(1, FitnessStore.logs.size)
-        FitnessStore.completeDay("first30", 2, today); FitnessStore.completeDay("first30", 3, today)
+        FitnessStore.completeDay("first30", 2, today)
+        FitnessStore.completeDay("first30", 3, today)
         assertTrue(FitnessStore.todayPlan(today).restDay) // day 4
     }
 

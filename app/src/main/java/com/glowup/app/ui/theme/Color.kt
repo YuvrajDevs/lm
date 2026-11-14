@@ -7,8 +7,12 @@ val Surface = Color(0xFFFFFFFF)
 val PageBackground = Color(0xFFEDEDED)
 val CardNeutral = Color(0xFFF7F6F3)
 val ChipNeutral = Color(0xFFF3F2EF)
-val TextSecondary = Color(0xFF8C8C8C)
-val TextMuted = Color(0xFFB5B2AA)
+
+/** 5.3:1 on white, 4.9:1 on CardNeutral — passes WCAG AA for body text. */
+val TextSecondary = Color(0xFF6B6B6B)
+
+/** 3.2:1 on white — for borders, icons and disabled/decorative text only (WCAG 1.4.11), never body copy. */
+val TextMuted = Color(0xFF949089)
 
 val Coral = Color(0xFFF2754A)
 val CoralTint = Color(0xFFFFF2EB)

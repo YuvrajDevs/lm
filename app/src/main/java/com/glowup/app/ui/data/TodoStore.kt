@@ -13,14 +13,7 @@ import org.json.JSONObject
 
 enum class TodoBucket(val label: String) { TODAY("Today"), WEEK("This week") }
 
-data class TodoEntry(
-    val id: Int,
-    val title: String,
-    val meta: String?,
-    val done: Boolean,
-    val bucket: TodoBucket,
-    val category: String? = null,
-) {
+data class TodoEntry(val id: Int, val title: String, val meta: String?, val done: Boolean, val bucket: TodoBucket, val category: String? = null) {
     val tint: Color get() = when (category) {
         "Looks", "Style" -> CoralTint
         "Confidence" -> GreenTint
@@ -53,7 +46,7 @@ object TodoStore {
         TodoEntry(4, "Plan tomorrow's top 3", "Evening · Life admin", false, TodoBucket.TODAY, "Life admin"),
         TodoEntry(5, "Book a haircut", "This week · Looks", false, TodoBucket.WEEK, "Looks"),
         TodoEntry(6, "Clean your everyday shoes", "This week · Style", false, TodoBucket.WEEK, "Style"),
-        TodoEntry(7, "Try a look from a style guide", "This week", false, TodoBucket.WEEK, "Style"),
+        TodoEntry(7, "Try a look from a style guide", "This week", false, TodoBucket.WEEK, "Style")
     )
 
     fun toggle(id: Int) {
@@ -105,8 +98,8 @@ object TodoStore {
                     meta = json.optStringOrNull("meta"),
                     done = json.getBoolean("done"),
                     bucket = TodoBucket.valueOf(json.getString("bucket")),
-                    category = json.optStringOrNull("category"),
-                ),
+                    category = json.optStringOrNull("category")
+                )
             )
         }
     }
@@ -121,7 +114,7 @@ object TodoStore {
                     .put("meta", item.meta ?: JSONObject.NULL)
                     .put("done", item.done)
                     .put("bucket", item.bucket.name)
-                    .put("category", item.category ?: JSONObject.NULL),
+                    .put("category", item.category ?: JSONObject.NULL)
             )
         }
         Storage.write(KEY, array.toString())

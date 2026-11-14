@@ -1,13 +1,13 @@
 package com.glowup.app.ui.data
 
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalTime
 
 /** Every store must come back exactly as it was after a simulated app restart. */
 class PersistenceTest {

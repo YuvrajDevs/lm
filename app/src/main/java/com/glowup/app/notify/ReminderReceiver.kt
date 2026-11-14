@@ -3,18 +3,18 @@ package com.glowup.app.notify
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.glowup.app.blocker.Blocker
 import com.glowup.app.ui.data.FocusStore
+import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.data.ReminderStore
-import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.SleepStore
+import com.glowup.app.ui.data.fitness.FitnessStore
 import com.glowup.app.ui.data.formatClock
+import com.glowup.app.ui.data.program.ProgramStore
+import com.glowup.app.widget.Widgets
 import java.time.LocalDate
 import kotlinx.coroutines.launch
-import com.glowup.app.blocker.Blocker
-import com.glowup.app.ui.data.ProgressStore
-import com.glowup.app.ui.data.fitness.FitnessStore
-import com.glowup.app.widget.Widgets
 
 /** Posts the notification for a fired alarm, then schedules the next occurrence. */
 class ReminderReceiver : BroadcastReceiver() {
@@ -30,31 +30,44 @@ class ReminderReceiver : BroadcastReceiver() {
             AlarmScheduler.KIND_ROUTINE -> RoutineStore.find(id)
                 ?.takeIf { !it.isDoneOn(LocalDate.now()) }
                 ?.let {
-                    Notifications.post(context, code, Notifications.CHANNEL_REMINDERS, "Time for: ${it.title}", "Tap to check it off and keep your streak going.", "routine_detail/${it.id}")
+                    Notifications.post(
+                        context,
+                        code,
+                        Notifications.CHANNEL_REMINDERS,
+                        "Time for: ${it.title}",
+                        "Tap to check it off and keep your streak going.",
+                        "routine_detail/${it.id}"
+                    )
                 }
             AlarmScheduler.KIND_BEDTIME -> if (SleepStore.bedtimeAlarmOn) {
                 Notifications.post(
-                    context, code, Notifications.CHANNEL_ALARMS,
+                    context,
+                    code,
+                    Notifications.CHANNEL_ALARMS,
                     "It's ${formatClock(SleepStore.bedtime)} — time for bed",
                     "Screens off, lights low. A sleep sound can help you drift off.",
-                    "sleep",
+                    "sleep"
                 )
             }
             AlarmScheduler.KIND_WAKE -> if (SleepStore.wakeAlarmOn) {
                 Notifications.post(
-                    context, code, Notifications.CHANNEL_ALARMS,
+                    context,
+                    code,
+                    Notifications.CHANNEL_ALARMS,
                     "Good morning — it's ${formatClock(SleepStore.wakeTime)}",
                     "Tap to log how you slept in one tap, then start your morning routine.",
-                    "sleep_log",
+                    "sleep_log"
                 )
             }
             AlarmScheduler.KIND_FOCUS -> FocusStore.finishIfDue()?.let { minutes ->
                 val streak = FocusStore.streakDays()
                 Notifications.post(
-                    context, code, Notifications.CHANNEL_REMINDERS,
+                    context,
+                    code,
+                    Notifications.CHANNEL_REMINDERS,
                     "Focus complete — $minutes minutes",
                     "+${minutes / FocusStore.MINUTES_PER_POINT} points · ${if (streak == 1) "1-day" else "$streak-day"} focus streak. Take a short break.",
-                    "focus",
+                    "focus"
                 )
             }
             AlarmScheduler.KIND_LEARN -> {
@@ -62,10 +75,12 @@ class ReminderReceiver : BroadcastReceiver() {
                 if (next != null && !ProgramStore.doneToday()) {
                     val streak = ProgramStore.streakDays()
                     Notifications.post(
-                        context, code, Notifications.CHANNEL_REMINDERS,
+                        context,
+                        code,
+                        Notifications.CHANNEL_REMINDERS,
                         if (streak > 0) "Keep your $streak-day streak alive" else "Day ${next.day} is ready",
                         "${next.area.label}: ${next.title} · ${next.minutes} min",
-                        "session/${next.index}",
+                        "session/${next.index}"
                     )
                 }
             }
@@ -76,16 +91,25 @@ class ReminderReceiver : BroadcastReceiver() {
             if (!fitness.doneOn(LocalDate.now())) {
                 val plan = fitness.todayPlan()
                 Notifications.post(
-                    context, code, Notifications.CHANNEL_REMINDERS,
+                    context,
+                    code,
+                    Notifications.CHANNEL_REMINDERS,
                     if (plan.restDay) "Rest day — nice work this week" else "Time to train: ${plan.title}",
                     if (plan.restDay) "A 5-minute stretch keeps you loose." else "About ${plan.minutes} min · tap to start",
-                    "fitness",
+                    "fitness"
                 )
             }
         }
         if (kind == AlarmScheduler.KIND_WEIGH) {
             if (FitnessStore.weighInDue()) {
-                Notifications.post(context, code, Notifications.CHANNEL_REMINDERS, "Weekly check-in", "Weigh in before breakfast for the most accurate trend.", "body_checkin")
+                Notifications.post(
+                    context,
+                    code,
+                    Notifications.CHANNEL_REMINDERS,
+                    "Weekly check-in",
+                    "Weigh in before breakfast for the most accurate trend.",
+                    "body_checkin"
+                )
             }
         }
         if (kind == AlarmScheduler.KIND_MIDNIGHT) {
@@ -110,7 +134,7 @@ class BootReceiver : BroadcastReceiver() {
         Intent.ACTION_MY_PACKAGE_REPLACED,
         Intent.ACTION_TIME_CHANGED,
         Intent.ACTION_TIMEZONE_CHANGED,
-        "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED",
+        "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"
     )
 
     override fun onReceive(context: Context, intent: Intent) {

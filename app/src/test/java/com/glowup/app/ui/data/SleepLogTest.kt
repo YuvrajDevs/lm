@@ -1,11 +1,11 @@
 package com.glowup.app.ui.data
 
+import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class SleepLogTest {
     private val today = LocalDate.of(2026, 5, 20)

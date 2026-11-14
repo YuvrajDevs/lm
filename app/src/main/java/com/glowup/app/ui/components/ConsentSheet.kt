@@ -1,7 +1,6 @@
 package com.glowup.app.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,24 +25,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.glowup.app.R
 import com.glowup.app.ui.data.Consent
 import com.glowup.app.ui.data.ConsentStore
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.CardNeutral
-import com.glowup.app.ui.theme.ChipNeutral
+import com.glowup.app.ui.theme.DialogSurface
 import com.glowup.app.ui.theme.Green
+import com.glowup.app.ui.theme.GreenDeep
 import com.glowup.app.ui.theme.GreenTint
 import com.glowup.app.ui.theme.Ink
 import com.glowup.app.ui.theme.TextSecondary
-import com.glowup.app.ui.design.LineHeight
-import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.theme.DialogSurface
-import com.glowup.app.ui.theme.GreenDeep
-import com.glowup.app.ui.design.Sizes
 
 /**
  * Shown once before a feature first uses something sensitive (microphone, camera, body data,
@@ -59,46 +61,45 @@ fun ConsentSheet(consent: Consent, icon: ImageVector, onAllow: () -> Unit, onDec
                 .fillMaxWidth()
                 .clip(Shapes.Hero)
                 .background(DialogSurface)
-                .padding(24.dp, 24.dp, 24.dp, 20.dp),
+                .padding(Space.Gutter, Space.Gutter, Space.Gutter, Space.Xl)
         ) {
             Box(Modifier.size(52.dp).clip(CircleShape).background(Ink), contentAlignment = Alignment.Center) {
                 Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
             }
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(Space.M))
             Text(consent.title, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Title)
-            Spacer(Modifier.height(4.dp))
-            Text("Here's exactly what happens before you say yes.", color = TextSecondary, fontSize = TextSize.Body)
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(Space.Xs))
+            Text(stringResource(R.string.consent_sheet_here_s_exactly_what_happens), color = TextSecondary, fontSize = TextSize.Body)
+            Spacer(Modifier.height(Space.L))
             Column(
-                modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(16.dp, 14.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(Space.L, Space.M),
+                verticalArrangement = Arrangement.spacedBy(Space.M)
             ) {
                 ConsentLine(Icons.Outlined.Info, "What we collect", consent.collects)
                 ConsentLine(Icons.Outlined.TaskAlt, "What it's for", consent.purpose)
                 ConsentLine(Icons.Outlined.PhoneAndroid, "Where it stays", consent.storage)
             }
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Space.M))
             Row(
-                modifier = Modifier.fillMaxWidth().clip(Shapes.Small).background(GreenTint).padding(12.dp, 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().clip(Shapes.Small).background(GreenTint).padding(Space.M, Space.S),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(Icons.Filled.Lock, contentDescription = null, tint = Green, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Change your mind any time in Settings → Your data.", color = GreenDeep, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.width(Space.S))
+                Text(
+                    stringResource(R.string.consent_sheet_change_your_mind_any_time),
+                    color = GreenDeep,
+                    fontSize = TextSize.Caption,
+                    fontWeight = FontWeight.Medium
+                )
             }
-            Spacer(Modifier.height(20.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(
-                    modifier = Modifier.weight(1f).height(Sizes.Button).clip(Shapes.Pill).background(ChipNeutral).clickable(onClick = onDecline),
-                    contentAlignment = Alignment.Center,
-                ) { Text("Not now", color = Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold) }
-                Box(
-                    modifier = Modifier.weight(1f).height(Sizes.Button).clip(Shapes.Pill).background(Ink).clickable {
-                        ConsentStore.grant(consent)
-                        onAllow()
-                    },
-                    contentAlignment = Alignment.Center,
-                ) { Text("Allow", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold) }
+            Spacer(Modifier.height(Space.Xl))
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
+                AppButton(stringResource(R.string.common_not_now), variant = ButtonVariant.Secondary, modifier = Modifier.weight(1f), onClick = onDecline)
+                AppButton(stringResource(R.string.consent_sheet_allow), variant = ButtonVariant.Primary, modifier = Modifier.weight(1f)) {
+                    ConsentStore.grant(consent)
+                    onAllow()
+                }
             }
         }
     }
@@ -108,7 +109,7 @@ fun ConsentSheet(consent: Consent, icon: ImageVector, onAllow: () -> Unit, onDec
 private fun ConsentLine(icon: ImageVector, label: String, text: String) {
     Row {
         Icon(icon, contentDescription = null, tint = Ink, modifier = Modifier.padding(top = 1.dp).size(18.dp))
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(Space.M))
         Column {
             Text(label.uppercase(), color = TextSecondary, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
             Spacer(Modifier.height(2.dp))

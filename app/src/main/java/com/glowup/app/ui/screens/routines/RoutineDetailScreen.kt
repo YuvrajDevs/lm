@@ -9,36 +9,39 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.components.goBack
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.ReMakeUOptionRow
 import com.glowup.app.ui.components.StreakChip
 import com.glowup.app.ui.components.WeekStreakDots
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.formatClock
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.*
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
-import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
-import androidx.compose.ui.text.style.TextAlign
-import java.time.LocalTime
 
 @Composable
 fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
@@ -57,46 +60,58 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
         Column(modifier = Modifier.fillMaxSize()) {
             DetailHeader(routine.title) { navController.goBack() }
 
-            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 18.dp, 24.dp, 24.dp)) {
+            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(Space.Gutter, Space.L, Space.Gutter, Space.Gutter)) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(Shapes.Large)
                         .background(routine.tint)
-                        .padding(20.dp, 18.dp),
+                        .padding(Space.Xl, Space.L)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth(0.7f)) {
                         Text(routine.area, color = routine.accent, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
-                        Text(routine.title, fontSize = TextSize.Title, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
+                        Text(
+                            routine.title,
+                            fontSize = TextSize.Title,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = Space.Xs, bottom = Space.M)
+                        )
                         StreakChip(routine.streakDays(today), routine.accent)
-                        Spacer(Modifier.height(10.dp))
+                        Spacer(Modifier.height(Space.S))
                         WeekStreakDots(routine.week(today), routine.accent)
                     }
                     Image(
                         painterResource(routine.icon),
                         contentDescription = null,
-                        modifier = Modifier.align(Alignment.TopEnd).size(56.dp),
+                        modifier = Modifier.align(Alignment.TopEnd).size(56.dp)
                     )
                 }
 
-                Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.height(Space.Xl))
 
                 Text(monthLabel, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(Space.M))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     listOf("M", "T", "W", "T", "F", "S", "S").forEach {
-                        Text(it, color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                        Text(
+                            it,
+                            color = TextSecondary,
+                            fontSize = TextSize.Caption,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(Space.S))
 
                 val cells = buildList {
                     repeat(leadingBlanks) { add(0) }
                     for (day in 1..daysInMonth) add(day)
                 }
                 cells.chunked(7).forEach { week ->
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = Space.Xs), horizontalArrangement = Arrangement.SpaceBetween) {
                         week.forEach { day ->
                             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                                 if (day == 0) {
@@ -110,13 +125,19 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                                             .clip(CircleShape)
                                             .background(if (isCompleted) routine.accent else Color.Transparent)
                                             .let { m -> if (isToday && !isCompleted) m.background(ChipNeutral, CircleShape) else m },
-                                        contentAlignment = Alignment.Center,
+                                        contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             day.toString(),
-                                            color = if (isCompleted) Color.White else if (day > today.dayOfMonth) TextMuted else Ink,
+                                            color = if (isCompleted) {
+                                                Color.White
+                                            } else if (day > today.dayOfMonth) {
+                                                TextMuted
+                                            } else {
+                                                Ink
+                                            },
                                             fontSize = TextSize.BodySmall,
-                                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
+                                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium
                                         )
                                     }
                                 }
@@ -125,7 +146,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                     }
                 }
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(Space.Gutter))
 
                 Row(
                     modifier = Modifier
@@ -133,22 +154,23 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                         .clip(Shapes.Medium)
                         .background(CardNeutral)
                         .clickable { showReminderPicker = true }
-                        .padding(16.dp, 14.dp),
+                        .padding(Space.L, Space.M),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Daily reminder", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.routine_detail_daily_reminder), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                         Text(
-                            routine.reminderTime?.let { "Every day at ${formatClock(it)} · skipped once you're done" } ?: "Off",
+                            routine.reminderTime?.let { "Every day at ${formatClock(it)} · skipped once you're done" }
+                                ?: stringResource(R.string.common_setup_off),
                             color = TextSecondary,
-                            fontSize = TextSize.Caption,
+                            fontSize = TextSize.Caption
                         )
                     }
-                    Text("Change", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.common_setup_change), color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(Space.M))
 
                 val doneToday = routine.isDoneOn(today)
                 Box(
@@ -157,29 +179,35 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                         .clip(Shapes.Pill)
                         .background(if (doneToday) ChipNeutral else Ink)
                         .clickable { RoutineStore.toggleToday(routine.id) }
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center,
+                        .padding(vertical = Space.L),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        if (doneToday) "Mark as not done today" else "Mark today as done",
+                        if (doneToday) {
+                            stringResource(
+                                R.string.routine_detail_mark_as_not_done_today
+                            )
+                        } else {
+                            stringResource(R.string.routine_detail_mark_today_as_done)
+                        },
                         color = if (doneToday) Ink else Color.White,
                         fontSize = TextSize.BodyLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
 
                 Text(
-                    "Delete routine",
+                    stringResource(R.string.routine_detail_delete_routine),
                     color = Maroon,
                     fontSize = TextSize.Body,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(top = 18.dp)
-                        .clickable { showDeleteConfirm = true },
+                        .padding(top = Space.L)
+                        .clickable { showDeleteConfirm = true }
                 )
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(Space.L))
             }
         }
 
@@ -199,7 +227,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                             }
                         }
                     }
-                },
+                }
             )
         }
 
@@ -215,7 +243,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                     showDeleteConfirm = false
                     navController.goBack()
                     RoutineStore.remove(routine.id)
-                },
+                }
             )
         }
     }

@@ -7,11 +7,11 @@ import androidx.compose.runtime.setValue
 import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.data.Storage
 import com.glowup.app.ui.data.optStringOrNull
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.temporal.TemporalAdjusters
+import org.json.JSONObject
 
 enum class SessionState { DONE, AVAILABLE, LOCKED }
 
@@ -38,7 +38,7 @@ object ProgramStore {
 
     fun doneToday(today: LocalDate = LocalDate.now()) = completions.values.any { it == today.toString() }
 
-    fun state(index: Int, today: LocalDate = LocalDate.now()): SessionState = when {
+    fun state(index: Int): SessionState = when {
         index in completions -> SessionState.DONE
         index == completedCount -> SessionState.AVAILABLE
         else -> SessionState.LOCKED
@@ -46,7 +46,7 @@ object ProgramStore {
 
     /** Returns the points earned, or null if this session isn't the next one in order. */
     fun complete(index: Int, today: LocalDate = LocalDate.now()): Int? {
-        if (state(index, today) != SessionState.AVAILABLE) return null
+        if (state(index) != SessionState.AVAILABLE) return null
         val session = Program.sessions[index]
         completions[index] = today.toString()
         ProgressStore.award(session.points, today)
@@ -121,7 +121,7 @@ object ProgramStore {
                 .put("done", done)
                 .put("reminder", reminderTime?.toString() ?: JSONObject.NULL)
                 .put("prompted", reminderPrompted)
-                .toString(),
+                .toString()
         )
     }
 

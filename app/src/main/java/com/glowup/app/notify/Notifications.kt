@@ -27,29 +27,28 @@ object Notifications {
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL_REMINDERS, "Reminders", NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = "Your routine and habit reminders"
-            },
+            }
         )
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL_ALARMS, "Sleep alarms", NotificationManager.IMPORTANCE_HIGH).apply {
                 description = "Bedtime and wake-up alarms"
                 setSound(
                     RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
-                    AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build(),
+                    AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
                 )
                 enableVibration(true)
-            },
+            }
         )
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL_PLAYBACK, "Sleep sounds", NotificationManager.IMPORTANCE_LOW).apply {
                 description = "Shown while a sleep sound is playing"
                 setSound(null, null)
-            },
+            }
         )
     }
 
-    fun canPost(context: Context): Boolean =
-        Build.VERSION.SDK_INT < 33 ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    fun canPost(context: Context): Boolean = Build.VERSION.SDK_INT < 33 ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
     fun openAppIntent(context: Context, route: String?, requestCode: Int): PendingIntent {
         val intent = Intent(context, MainActivity::class.java)

@@ -4,14 +4,14 @@ import com.glowup.app.ui.data.program.Program
 import com.glowup.app.ui.data.program.ProgramArea
 import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.program.SessionState
+import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class ProgramTest {
     // Monday 2 Nov 2026.
@@ -54,12 +54,12 @@ class ProgramTest {
 
     @Test
     fun sessionsUnlockInOrderAtAnyPace() {
-        assertEquals(SessionState.AVAILABLE, ProgramStore.state(0, monday))
-        assertEquals(SessionState.LOCKED, ProgramStore.state(1, monday))
+        assertEquals(SessionState.AVAILABLE, ProgramStore.state(0))
+        assertEquals(SessionState.LOCKED, ProgramStore.state(1))
 
         assertEquals(10, ProgramStore.complete(0, monday))
-        assertEquals(SessionState.DONE, ProgramStore.state(0, monday))
-        assertEquals(SessionState.AVAILABLE, ProgramStore.state(1, monday))
+        assertEquals(SessionState.DONE, ProgramStore.state(0))
+        assertEquals(SessionState.AVAILABLE, ProgramStore.state(1))
         assertNull(ProgramStore.complete(0, monday))
         assertNull(ProgramStore.complete(5, monday))
 
@@ -106,7 +106,7 @@ class ProgramTest {
         assertEquals(2, ProgramStore.completedCount)
         assertEquals(LocalTime.of(20, 0), ProgramStore.reminderTime)
         assertTrue(ProgramStore.reminderPrompted)
-        assertEquals(SessionState.DONE, ProgramStore.state(1, monday.plusDays(1)))
+        assertEquals(SessionState.DONE, ProgramStore.state(1))
 
         Stores.deleteAll()
         assertEquals(0, ProgramStore.completedCount)

@@ -18,22 +18,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.components.goBack
+import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
+import com.glowup.app.ui.components.ProLockedScreen
 import com.glowup.app.ui.components.ReMakeUDialog
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.GroomingStore
+import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.RoutineStore
-import com.glowup.app.ui.theme.*
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.components.ProLockedScreen
-import com.glowup.app.ui.data.ProGate
+import com.glowup.app.ui.theme.*
 
 private const val FACE_SHAPE_LESSON_ID = 5
 
@@ -52,26 +55,31 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
         Column(modifier = Modifier.fillMaxSize()) {
             DetailHeader(lesson.track) { navController.goBack() }
 
-            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 16.dp, 24.dp, 24.dp)) {
+            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(Space.Gutter, Space.L, Space.Gutter, Space.Gutter)) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(Shapes.Hero)
                         .background(lesson.tint)
-                        .padding(22.dp),
+                        .padding(Space.Xl)
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S), verticalAlignment = Alignment.CenterVertically) {
                         Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(34.dp))
                     }
-                    Spacer(Modifier.height(14.dp))
+                    Spacer(Modifier.height(Space.M))
                     Text(lesson.title, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(Space.S))
                     Text(lesson.tagline, color = TextSecondary, fontSize = TextSize.Body, lineHeight = LineHeight.Body)
-                    Spacer(Modifier.height(14.dp))
-                    Text("${lesson.minutes} min read · +${lesson.points} points", color = lesson.accent, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(Space.M))
+                    Text(
+                        stringResource(R.string.grooming_detail_1_s_min_read_2, lesson.minutes, lesson.points),
+                        color = lesson.accent,
+                        fontSize = TextSize.BodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
 
-                Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.height(Space.Xl))
                 if (lesson.id == FACE_SHAPE_LESSON_ID) {
                     val shape = ProfileStore.faceShape
                     Column(
@@ -80,35 +88,51 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                             .clip(Shapes.Card)
                             .background(if (shape != null) Ink else CardNeutral)
                             .clickable(enabled = shape == null) { navController.navigate("settings") }
-                            .padding(18.dp, 16.dp),
+                            .padding(Space.L, Space.L)
                     ) {
                         if (shape != null) {
-                            Text("FOR YOUR ${shape.uppercase()} FACE", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                            Spacer(Modifier.height(6.dp))
-                            Text(GroomingStore.faceShapeTips[shape].orEmpty(), color = Color.White, fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed, fontWeight = FontWeight.Medium)
+                            Text(
+                                stringResource(R.string.grooming_detail_for_your_1_s_face, shape.uppercase()),
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontSize = TextSize.Micro,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 0.4.sp
+                            )
+                            Spacer(Modifier.height(Space.S))
+                            Text(
+                                GroomingStore.faceShapeTips[shape].orEmpty(),
+                                color = Color.White,
+                                fontSize = TextSize.BodyLarge,
+                                lineHeight = LineHeight.Relaxed,
+                                fontWeight = FontWeight.Medium
+                            )
                         } else {
-                            Text("Get advice for your face shape", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-                            Text("Set your face shape in Settings → Profile", color = TextSecondary, fontSize = TextSize.BodySmall)
+                            Text(
+                                stringResource(R.string.grooming_detail_get_advice_for_your_face),
+                                fontSize = TextSize.BodyLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(stringResource(R.string.grooming_detail_set_your_face_shape_in), color = TextSecondary, fontSize = TextSize.BodySmall)
                         }
                     }
-                    Spacer(Modifier.height(18.dp))
+                    Spacer(Modifier.height(Space.L))
                 }
-                Text("How to do it", fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(10.dp))
+                Text(stringResource(R.string.common_routine_how_to_do_it), fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(Space.S))
 
                 lesson.steps.forEachIndexed { index, point ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = Space.S)
                             .clip(Shapes.Medium)
                             .background(CardNeutral)
-                            .padding(16.dp, 14.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            .padding(Space.L, Space.M),
+                        horizontalArrangement = Arrangement.spacedBy(Space.M)
                     ) {
                         Box(
                             modifier = Modifier.size(24.dp).clip(CircleShape).background(lesson.tint),
-                            contentAlignment = Alignment.Center,
+                            contentAlignment = Alignment.Center
                         ) {
                             Text("${index + 1}", color = lesson.accent, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold)
                         }
@@ -116,7 +140,7 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                     }
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(Space.M))
 
                 Row(
                     modifier = Modifier
@@ -128,17 +152,26 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                             RoutineStore.add(routineCategory, lesson.title)
                             showAddedToRoutine = true
                         }
-                        .padding(18.dp, 16.dp),
+                        .padding(Space.L, Space.L),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Space.M)
                 ) {
                     Text("+", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Turn into a routine", color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
-                        Text("Track it daily from your Routines tab", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Caption)
+                        Text(
+                            stringResource(R.string.grooming_detail_turn_into_a_routine),
+                            color = Color.White,
+                            fontSize = TextSize.Body,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            stringResource(R.string.grooming_detail_track_it_daily_from_your),
+                            color = Color.White.copy(alpha = 0.55f),
+                            fontSize = TextSize.Caption
+                        )
                     }
                 }
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(Space.Xl))
 
                 Box(
                     modifier = Modifier
@@ -150,13 +183,13 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                             GroomingStore.markDone(lesson.id)
                             showDone = true
                         },
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        if (done) "Marked as read" else "Mark as read",
+                        if (done) stringResource(R.string.grooming_detail_marked_as_read) else stringResource(R.string.grooming_detail_mark_as_read),
                         color = if (done) Ink else Color.White,
                         fontSize = TextSize.BodyLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -168,7 +201,7 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                 title = "${lesson.title} · Read",
                 message = "Nice work. Keep building your ${lesson.track.lowercase()} habits.",
                 primaryText = "Nice",
-                secondaryText = null,
+                secondaryText = null
             )
         }
 
@@ -178,7 +211,7 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                 title = "Added to routines",
                 message = "\"${lesson.title}\" is now in your Routines tab.",
                 primaryText = "Nice",
-                secondaryText = null,
+                secondaryText = null
             )
         }
     }

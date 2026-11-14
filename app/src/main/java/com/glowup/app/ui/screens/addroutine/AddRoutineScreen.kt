@@ -28,21 +28,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.ReMakeUOptionRow
+import com.glowup.app.ui.components.goBack
+import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.parseClock
-import com.glowup.app.ui.theme.*
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.components.rememberNotificationPermission
+import com.glowup.app.ui.theme.*
 
 private const val NO_REMINDER = "No reminder"
 
@@ -50,41 +52,61 @@ private data class TemplateGroup(val label: String, val icon: Int, val tint: Col
 
 private val templateGroups = listOf(
     TemplateGroup(
-        "Looks", R.drawable.ic_looks, CoralTint,
+        "Looks",
+        R.drawable.ic_looks,
+        CoralTint,
         listOf(
             "Skincare — AM & PM", "Posture check", "Drink 2L of water", "Cold shower",
             "Stretch your neck & shoulders", "Eyebrow check", "Beard trim & shape",
-            "Apply SPF before leaving", "Change your pillowcase",
-        ),
+            "Apply SPF before leaving", "Change your pillowcase"
+        )
     ),
     TemplateGroup(
-        "Fitness", R.drawable.ic_determined, GreenTint,
+        "Fitness",
+        R.drawable.ic_determined,
+        GreenTint,
         listOf(
-            "10-minute morning walk", "20 push-ups", "Stretch before bed",
-            "Posture-fix exercises", "Jaw & neck mobility", "Take the stairs today",
-        ),
+            "10-minute morning walk",
+            "20 push-ups",
+            "Stretch before bed",
+            "Posture-fix exercises",
+            "Jaw & neck mobility",
+            "Take the stairs today"
+        )
     ),
     TemplateGroup(
-        "Mind", R.drawable.ic_reflective, PurpleTint,
-        listOf("Journaling or gratitude", "Phone-free first 30 min", "5-minute meditation", "Read 10 pages", "No social media before noon"),
+        "Mind",
+        R.drawable.ic_reflective,
+        PurpleTint,
+        listOf("Journaling or gratitude", "Phone-free first 30 min", "5-minute meditation", "Read 10 pages", "No social media before noon")
     ),
     TemplateGroup(
-        "Social", R.drawable.ic_social, GreenTint,
-        listOf("2-minute eye contact practice", "Message a friend first", "Compliment someone genuinely", "Start one new conversation"),
+        "Social",
+        R.drawable.ic_social,
+        GreenTint,
+        listOf("2-minute eye contact practice", "Message a friend first", "Compliment someone genuinely", "Start one new conversation")
     ),
     TemplateGroup(
-        "Style", R.drawable.ic_style, BlueTint,
-        listOf("Lay out tomorrow's outfit", "Polish your shoes", "Iron a shirt for the week", "Declutter one wardrobe shelf"),
+        "Style",
+        R.drawable.ic_style,
+        BlueTint,
+        listOf("Lay out tomorrow's outfit", "Polish your shoes", "Iron a shirt for the week", "Declutter one wardrobe shelf")
     ),
     TemplateGroup(
-        "Sleep", R.drawable.ic_sleep, BlueTint,
-        listOf("Screens off 30 min before bed", "Same bedtime every night", "No caffeine after 4 PM", "Wind-down stretch routine"),
+        "Sleep",
+        R.drawable.ic_sleep,
+        BlueTint,
+        listOf("Screens off 30 min before bed", "Same bedtime every night", "No caffeine after 4 PM", "Wind-down stretch routine")
     ),
     TemplateGroup(
-        "Life admin", R.drawable.ic_lifeadmin, NavyTint,
-        listOf("Tidy your desk", "Plan tomorrow's top 3", "Inbox zero for 10 minutes", "Review your budget"),
-    ),
+        "Life admin",
+        R.drawable.ic_lifeadmin,
+        NavyTint,
+        listOf("Tidy your desk", "Plan tomorrow's top 3", "Inbox zero for 10 minutes", "Review your budget")
+    )
 )
+
+private val reminderTimes = listOf(NO_REMINDER, "6:00 AM", "7:00 AM", "8:00 AM", "12:00 PM", "6:00 PM", "8:00 PM", "9:00 PM", "9:30 PM", "10:00 PM")
 
 @Composable
 fun AddRoutineScreen(navController: NavHostController) {
@@ -101,11 +123,11 @@ fun AddRoutineScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("Add a routine") { navController.goBack() }
+            DetailHeader(stringResource(R.string.add_routine_add_a_routine)) { navController.goBack() }
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(24.dp, 16.dp, 24.dp, 0.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(Space.Gutter, Space.L, Space.Gutter, 0.dp),
+                horizontalArrangement = Arrangement.spacedBy(Space.S)
             ) {
                 listOf("Templates" to true, "Custom" to false).forEach { (label, isTemplates) ->
                     val selected = showTemplates == isTemplates
@@ -115,23 +137,34 @@ fun AddRoutineScreen(navController: NavHostController) {
                             .clip(Shapes.Pill)
                             .background(if (selected) Ink else ChipNeutral)
                             .clickable { showTemplates = isTemplates }
-                            .padding(vertical = 12.dp),
-                        contentAlignment = Alignment.Center,
+                            .padding(vertical = Space.M),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(label, color = if (selected) Color.White else Ink, fontSize = TextSize.Body, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                        Text(
+                            label,
+                            color = if (selected) Color.White else Ink,
+                            fontSize = TextSize.Body,
+                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
+                        )
                     }
                 }
             }
 
-            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 18.dp, 24.dp, 24.dp)) {
+            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(Space.Gutter, Space.L, Space.Gutter, Space.Gutter)) {
                 if (showTemplates) {
                     templateGroups.forEach { group ->
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                             Image(painterResource(group.icon), contentDescription = null, modifier = Modifier.size(26.dp))
-                            Text(group.label.uppercase(), color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Text(
+                                group.label.uppercase(),
+                                color = TextSecondary,
+                                fontSize = TextSize.BodySmall,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 0.4.sp
+                            )
                         }
-                        Spacer(Modifier.height(10.dp))
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Spacer(Modifier.height(Space.S))
+                        Column(verticalArrangement = Arrangement.spacedBy(Space.S)) {
                             group.items.forEach { item ->
                                 val isAdded = item in addedItems
                                 Row(
@@ -142,57 +175,64 @@ fun AddRoutineScreen(navController: NavHostController) {
                                         .clickable {
                                             addedItems = if (isAdded) addedItems - item else addedItems + item
                                         }
-                                        .padding(16.dp, 13.dp),
+                                        .padding(Space.L, Space.M),
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(item, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                                     Box(
                                         modifier = Modifier.size(26.dp).clip(CircleShape).background(if (isAdded) Green else Ink),
-                                        contentAlignment = Alignment.Center,
+                                        contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             if (isAdded) Icons.Filled.Check else Icons.Filled.Add,
                                             contentDescription = if (isAdded) "Added" else "Add",
                                             tint = Color.White,
-                                            modifier = Modifier.size(12.dp),
+                                            modifier = Modifier.size(12.dp)
                                         )
                                     }
                                 }
                             }
                         }
-                        Spacer(Modifier.height(20.dp))
+                        Spacer(Modifier.height(Space.Xl))
                     }
                 } else {
                     val selectedDays = remember { mutableStateListOf(true, true, true, true, true, false, false) }
 
-                    Text("What do you want to do?", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.add_routine_what_do_you_want_to),
+                        color = TextSecondary,
+                        fontSize = TextSize.BodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(Modifier.height(Space.S))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(Shapes.Medium)
                             .background(CardNeutral)
-                            .padding(16.dp, 2.dp),
+                            .padding(Space.L, 2.dp)
                     ) {
                         OutlinedTextField(
                             value = customText,
                             onValueChange = { customText = it },
-                            placeholder = { Text("e.g. Stretch before bed", color = TextSecondary, fontSize = TextSize.BodyLarge) },
+                            placeholder = {
+                                Text(stringResource(R.string.add_routine_e_g_stretch_before_bed), color = TextSecondary, fontSize = TextSize.BodyLarge)
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color.Transparent,
                                 unfocusedBorderColor = Color.Transparent,
                                 focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                            ),
+                                unfocusedContainerColor = Color.Transparent
+                            )
                         )
                     }
 
-                    Spacer(Modifier.height(20.dp))
-                    Text("Repeat on", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Spacer(Modifier.height(Space.Xl))
+                    Text(stringResource(R.string.add_routine_repeat_on), color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(Space.S))
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         listOf("M", "T", "W", "T", "F", "S", "S").forEachIndexed { i, day ->
                             val on = selectedDays[i]
                             Box(
@@ -201,36 +241,41 @@ fun AddRoutineScreen(navController: NavHostController) {
                                     .clip(CircleShape)
                                     .background(if (on) Ink else ChipNeutral)
                                     .clickable { selectedDays[i] = !selectedDays[i] },
-                                contentAlignment = Alignment.Center,
+                                contentAlignment = Alignment.Center
                             ) {
                                 Text(day, color = if (on) Color.White else Ink, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
 
-                    Spacer(Modifier.height(20.dp))
-                    Text("Time & alarm", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(Space.Xl))
+                    Text(
+                        stringResource(R.string.add_routine_time_amp_alarm),
+                        color = TextSecondary,
+                        fontSize = TextSize.BodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(Modifier.height(Space.S))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(Shapes.Medium)
                             .background(CardNeutral)
                             .clickable { showTimeDialog = true }
-                            .padding(16.dp, 14.dp),
+                            .padding(Space.L, Space.M),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(selectedTime, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                         Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Text("A daily notification at this time, skipped on days you've already done it.", color = TextMuted, fontSize = TextSize.Caption)
+                    Spacer(Modifier.height(Space.S))
+                    Text(stringResource(R.string.add_routine_a_daily_notification_at_this), color = TextSecondary, fontSize = TextSize.Caption)
 
-                    Spacer(Modifier.height(20.dp))
-                    Text("Area", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(10.dp))
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Spacer(Modifier.height(Space.Xl))
+                    Text(stringResource(R.string.add_routine_area), color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(Space.S))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         items(listOf("Looks", "Fitness", "Sleep", "Mind", "Social", "Style", "Life admin")) { area ->
                             val selected = area == selectedArea
                             Box(
@@ -238,16 +283,21 @@ fun AddRoutineScreen(navController: NavHostController) {
                                     .clip(Shapes.Pill)
                                     .background(if (selected) Ink else ChipNeutral)
                                     .clickable { selectedArea = area }
-                                    .padding(16.dp, 9.dp),
+                                    .padding(Space.L, Space.S)
                             ) {
-                                Text(area, color = if (selected) Color.White else Ink, fontSize = TextSize.BodySmall, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                                Text(
+                                    area,
+                                    color = if (selected) Color.White else Ink,
+                                    fontSize = TextSize.BodySmall,
+                                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
+                                )
                             }
                         }
                     }
                 }
             }
 
-            Box(modifier = Modifier.padding(24.dp, 14.dp, 24.dp, 28.dp)) {
+            Box(modifier = Modifier.padding(Space.Gutter, Space.M, Space.Gutter, Space.Section)) {
                 val canSave = if (showTemplates) addedItems.isNotEmpty() else customText.isNotBlank()
                 Box(
                     modifier = Modifier
@@ -265,9 +315,14 @@ fun AddRoutineScreen(navController: NavHostController) {
                             }
                             showSaved = true
                         },
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Save routine", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        stringResource(R.string.add_routine_save_routine),
+                        color = Color.White,
+                        fontSize = TextSize.BodyLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
@@ -279,7 +334,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                 message = "It's been added to your routines list.",
                 primaryText = "Done",
                 secondaryText = null,
-                onPrimary = { navController.goBack() },
+                onPrimary = { navController.goBack() }
             )
         }
 
@@ -291,11 +346,11 @@ fun AddRoutineScreen(navController: NavHostController) {
                 secondaryText = null,
                 content = {
                     Column {
-                        listOf(NO_REMINDER, "6:00 AM", "7:00 AM", "8:00 AM", "12:00 PM", "6:00 PM", "8:00 PM", "9:00 PM", "9:30 PM", "10:00 PM").forEach { time ->
+                        reminderTimes.forEach { time ->
                             ReMakeUOptionRow(time, selected = time == selectedTime) { selectedTime = time }
                         }
                     }
-                },
+                }
             )
         }
     }

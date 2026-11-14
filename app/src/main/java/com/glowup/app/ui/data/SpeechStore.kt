@@ -1,11 +1,11 @@
 package com.glowup.app.ui.data
 
 import androidx.compose.runtime.mutableStateListOf
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.LocalDate
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import org.json.JSONArray
+import org.json.JSONObject
 
 /** Loudness sample from the recogniser: [ms] since start, [db] its RMS level. */
 data class LevelSample(val ms: Long, val db: Float)
@@ -21,7 +21,7 @@ data class SpeechReport(
     val longestPauseSeconds: Double,
     /** 0–100: how much the volume moves while speaking. Low = monotone. */
     val variety: Int,
-    val repeats: Int,
+    val repeats: Int
 ) {
     val fillerTotal: Int get() = fillers.sumOf { it.count }
     val fillersPerMinute: Double get() = if (seconds == 0) 0.0 else fillerTotal * 60.0 / seconds
@@ -75,7 +75,12 @@ object SpeechAnalysis {
                 else -> true
             }
             if (counted) {
-                val key = when (word) { "umm" -> "um"; "uhh" -> "uh"; "erm" -> "er"; else -> word }
+                val key = when (word) {
+                    "umm" -> "um"
+                    "uhh" -> "uh"
+                    "erm" -> "er"
+                    else -> word
+                }
                 counts[key] = (counts[key] ?: 0) + 1
             }
         }
@@ -105,13 +110,19 @@ object SpeechAnalysis {
             silentStart = null
         }
         levels.forEach { s ->
-            if (s.db <= threshold) { if (silentStart == null) silentStart = s.ms } else closeRun(s.ms)
+            if (s.db <= threshold) {
+                if (silentStart == null) silentStart = s.ms
+            } else {
+                closeRun(s.ms)
+            }
         }
         levels.lastOrNull()?.let { closeRun(it.ms) }
         val speaking = levels.filter { it.db > threshold }
         val speakingSeconds = (seconds - silentMs / 1000.0).coerceAtLeast(seconds * 0.4)
         val wpm = if (speakingSeconds <= 0) 0 else (w.size * 60 / speakingSeconds).roundToInt()
-        val variety = if (speaking.size < 5) 0 else {
+        val variety = if (speaking.size < 5) {
+            0
+        } else {
             val mean = speaking.map { it.db }.average()
             val sd = sqrt(speaking.sumOf { (it.db - mean) * (it.db - mean) } / speaking.size)
             (sd * 18).roundToInt().coerceIn(0, 100)
@@ -150,10 +161,12 @@ object SpeechStore {
             val fillers = r.getJSONObject("f").let { f -> f.keys().asSequence().map { FillerCount(it, f.getInt(it)) }.sortedByDescending { it.count }.toList() }
             sessions.add(
                 SpeechSession(
-                    j.getLong("id"), LocalDate.parse(j.getString("date")), j.getString("topic"),
+                    j.getLong("id"),
+                    LocalDate.parse(j.getString("date")),
+                    j.getString("topic"),
                     SpeechReport(r.getInt("w"), r.getInt("s"), r.getInt("wpm"), fillers, r.getInt("p"), r.getDouble("lp"), r.getInt("v"), r.getInt("rep")),
-                    j.optString("t"),
-                ),
+                    j.optString("t")
+                )
             )
         }
     }
@@ -167,8 +180,8 @@ object SpeechStore {
                     .put(
                         "r",
                         JSONObject().put("w", r.words).put("s", r.seconds).put("wpm", r.wpm).put("p", r.longPauses).put("lp", r.longestPauseSeconds)
-                            .put("v", r.variety).put("rep", r.repeats).put("f", JSONObject(r.fillers.associate { it.word to it.count })),
-                    ),
+                            .put("v", r.variety).put("rep", r.repeats).put("f", JSONObject(r.fillers.associate { it.word to it.count }))
+                    )
             )
         }
         Storage.write(KEY, arr.toString())
@@ -180,36 +193,276 @@ data class Scenario(val id: String, val category: String, val title: String, val
 /** Real situations to practise, with a short think time first — like the moment itself. */
 object Scenarios {
     val all: List<Scenario> = listOf(
-        Scenario("intro-30", "Introductions", "Introduce yourself", "You've just joined a new team. Introduce yourself in 30 seconds.", "Name, what you do, one interesting detail, a question back.", 10, 30),
-        Scenario("intro-party", "Introductions", "Party small talk", "Someone at a party asks, \"So how do you know the host?\" Keep it going.", "Answer, add a short story, then ask them something.", 5, 45),
-        Scenario("intro-elevator", "Introductions", "Elevator pitch", "Pitch yourself or your idea before the lift doors open.", "Problem → what you do → why it matters → ask.", 15, 45),
-        Scenario("job-about", "Job interview", "Tell me about yourself", "The classic opener. You have one minute.", "Present → past → future. End with why this role.", 20, 60),
-        Scenario("job-strength", "Job interview", "Your biggest strength", "\"What's your biggest strength?\"", "Name it, prove it with a short story, link it to the job.", 15, 60),
-        Scenario("job-weakness", "Job interview", "Your weakness", "\"What's a weakness you're working on?\"", "A real one, what you're doing about it, progress so far.", 20, 60),
-        Scenario("job-conflict", "Job interview", "A conflict at work", "\"Tell me about a time you disagreed with someone.\"", "Situation, what you did, the result. Stay generous to the other person.", 20, 75),
-        Scenario("job-why", "Job interview", "Why should we hire you?", "Close the interview with a strong answer.", "Three reasons, each tied to what they need.", 15, 45),
-        Scenario("date-first", "Dating", "First-date opener", "You've just sat down. Get the conversation flowing.", "Comment on the place, ask an open question, share something light.", 5, 45),
-        Scenario("date-passion", "Dating", "Something you love", "\"What are you into at the moment?\" Make it interesting.", "Show energy, give a detail they can ask about.", 10, 60),
-        Scenario("date-story", "Dating", "Tell a funny story", "Share a short story that makes them laugh.", "Set the scene in one line, build up, land the ending.", 15, 60),
-        Scenario("story-trip", "Storytelling", "Your best trip", "Describe the best trip you've taken so someone wants to go.", "Use the senses — what you saw, heard, ate.", 15, 60),
-        Scenario("story-lesson", "Storytelling", "A lesson you learned", "Tell a story about something that changed how you think.", "Before, the moment, after.", 20, 75),
-        Scenario("story-fail", "Storytelling", "A time you failed", "Share a failure and what it taught you.", "Be honest, keep it short, end on the lesson.", 20, 60),
-        Scenario("opinion-agree", "Opinions", "Disagree politely", "A friend says social media is all bad. Give your view respectfully.", "Acknowledge their point, add yours, give an example.", 15, 60),
-        Scenario("opinion-defend", "Opinions", "Defend a choice", "Explain a decision you made that others questioned.", "Your reasoning, what you considered, what you'd do again.", 15, 60),
-        Scenario("opinion-recommend", "Opinions", "Recommend something", "Convince a friend to read a book or watch a show you love.", "Hook, why it's good, who it's for.", 10, 45),
-        Scenario("work-update", "Work & study", "Give a quick update", "Your manager asks, \"Where are we on this?\"", "Status, blockers, next step. Under 40 seconds.", 10, 40),
-        Scenario("work-explain", "Work & study", "Explain something tricky", "Explain how something works (the internet, a recipe, your job) to a 10-year-old.", "One analogy, three steps, no jargon.", 20, 60),
-        Scenario("work-ask", "Work & study", "Ask for something", "Ask your boss for a day off or a raise.", "What you want, why it's fair, make it easy to say yes.", 20, 45),
-        Scenario("work-feedback", "Work & study", "Give feedback", "Tell a teammate their presentation ran too long — kindly.", "Something good, the issue, a specific suggestion.", 15, 45),
-        Scenario("work-present", "Work & study", "Open a presentation", "Give the first 45 seconds of a talk on any topic.", "Start with a question or surprising fact. No \"um, so…\".", 20, 45),
-        Scenario("phone-call", "Everyday", "Make a phone call", "Call a restaurant to book a table for six on Friday with a special request.", "Who you are, what you need, confirm the details.", 10, 40),
-        Scenario("everyday-complaint", "Everyday", "Return an item", "Your new headphones broke after a week. Ask for a refund.", "Calm, clear, what you'd like them to do.", 10, 45),
-        Scenario("everyday-directions", "Everyday", "Give directions", "A tourist asks how to get to the nearest station.", "Landmarks, left/right, check they've got it.", 10, 30),
-        Scenario("social-toast", "Social", "Give a toast", "Raise a glass at a friend's birthday dinner.", "A short memory, what you admire, the toast.", 20, 60),
-        Scenario("social-comfort", "Social", "Comfort a friend", "A friend just failed an exam. Say something helpful.", "Listen-first tone: acknowledge, empathise, offer help.", 10, 45),
-        Scenario("social-group", "Social", "Join a group conversation", "You walk up to friends talking about weekend plans. Jump in.", "React to what's being said, then add your piece.", 5, 30),
-        Scenario("random-object", "Quick fire", "Sell this object", "Pick up the nearest object and sell it to me.", "Benefits, not features. End with a call to action.", 10, 45),
-        Scenario("random-hottake", "Quick fire", "Hot take", "Argue that breakfast is the most overrated meal — or the opposite.", "Pick a side and commit. Three reasons.", 10, 45),
+        Scenario(
+            "intro-30",
+            "Introductions",
+            "Introduce yourself",
+            "You've just joined a new team. Introduce yourself in 30 seconds.",
+            "Name, what you do, one interesting detail, a question back.",
+            10,
+            30
+        ),
+        Scenario(
+            "intro-party",
+            "Introductions",
+            "Party small talk",
+            "Someone at a party asks, \"So how do you know the host?\" Keep it going.",
+            "Answer, add a short story, then ask them something.",
+            5,
+            45
+        ),
+        Scenario(
+            "intro-elevator",
+            "Introductions",
+            "Elevator pitch",
+            "Pitch yourself or your idea before the lift doors open.",
+            "Problem → what you do → why it matters → ask.",
+            15,
+            45
+        ),
+        Scenario(
+            "job-about",
+            "Job interview",
+            "Tell me about yourself",
+            "The classic opener. You have one minute.",
+            "Present → past → future. End with why this role.",
+            20,
+            60
+        ),
+        Scenario(
+            "job-strength",
+            "Job interview",
+            "Your biggest strength",
+            "\"What's your biggest strength?\"",
+            "Name it, prove it with a short story, link it to the job.",
+            15,
+            60
+        ),
+        Scenario(
+            "job-weakness",
+            "Job interview",
+            "Your weakness",
+            "\"What's a weakness you're working on?\"",
+            "A real one, what you're doing about it, progress so far.",
+            20,
+            60
+        ),
+        Scenario(
+            "job-conflict",
+            "Job interview",
+            "A conflict at work",
+            "\"Tell me about a time you disagreed with someone.\"",
+            "Situation, what you did, the result. Stay generous to the other person.",
+            20,
+            75
+        ),
+        Scenario(
+            "job-why",
+            "Job interview",
+            "Why should we hire you?",
+            "Close the interview with a strong answer.",
+            "Three reasons, each tied to what they need.",
+            15,
+            45
+        ),
+        Scenario(
+            "date-first",
+            "Dating",
+            "First-date opener",
+            "You've just sat down. Get the conversation flowing.",
+            "Comment on the place, ask an open question, share something light.",
+            5,
+            45
+        ),
+        Scenario(
+            "date-passion",
+            "Dating",
+            "Something you love",
+            "\"What are you into at the moment?\" Make it interesting.",
+            "Show energy, give a detail they can ask about.",
+            10,
+            60
+        ),
+        Scenario(
+            "date-story",
+            "Dating",
+            "Tell a funny story",
+            "Share a short story that makes them laugh.",
+            "Set the scene in one line, build up, land the ending.",
+            15,
+            60
+        ),
+        Scenario(
+            "story-trip",
+            "Storytelling",
+            "Your best trip",
+            "Describe the best trip you've taken so someone wants to go.",
+            "Use the senses — what you saw, heard, ate.",
+            15,
+            60
+        ),
+        Scenario(
+            "story-lesson",
+            "Storytelling",
+            "A lesson you learned",
+            "Tell a story about something that changed how you think.",
+            "Before, the moment, after.",
+            20,
+            75
+        ),
+        Scenario(
+            "story-fail",
+            "Storytelling",
+            "A time you failed",
+            "Share a failure and what it taught you.",
+            "Be honest, keep it short, end on the lesson.",
+            20,
+            60
+        ),
+        Scenario(
+            "opinion-agree",
+            "Opinions",
+            "Disagree politely",
+            "A friend says social media is all bad. Give your view respectfully.",
+            "Acknowledge their point, add yours, give an example.",
+            15,
+            60
+        ),
+        Scenario(
+            "opinion-defend",
+            "Opinions",
+            "Defend a choice",
+            "Explain a decision you made that others questioned.",
+            "Your reasoning, what you considered, what you'd do again.",
+            15,
+            60
+        ),
+        Scenario(
+            "opinion-recommend",
+            "Opinions",
+            "Recommend something",
+            "Convince a friend to read a book or watch a show you love.",
+            "Hook, why it's good, who it's for.",
+            10,
+            45
+        ),
+        Scenario(
+            "work-update",
+            "Work & study",
+            "Give a quick update",
+            "Your manager asks, \"Where are we on this?\"",
+            "Status, blockers, next step. Under 40 seconds.",
+            10,
+            40
+        ),
+        Scenario(
+            "work-explain",
+            "Work & study",
+            "Explain something tricky",
+            "Explain how something works (the internet, a recipe, your job) to a 10-year-old.",
+            "One analogy, three steps, no jargon.",
+            20,
+            60
+        ),
+        Scenario(
+            "work-ask",
+            "Work & study",
+            "Ask for something",
+            "Ask your boss for a day off or a raise.",
+            "What you want, why it's fair, make it easy to say yes.",
+            20,
+            45
+        ),
+        Scenario(
+            "work-feedback",
+            "Work & study",
+            "Give feedback",
+            "Tell a teammate their presentation ran too long — kindly.",
+            "Something good, the issue, a specific suggestion.",
+            15,
+            45
+        ),
+        Scenario(
+            "work-present",
+            "Work & study",
+            "Open a presentation",
+            "Give the first 45 seconds of a talk on any topic.",
+            "Start with a question or surprising fact. No \"um, so…\".",
+            20,
+            45
+        ),
+        Scenario(
+            "phone-call",
+            "Everyday",
+            "Make a phone call",
+            "Call a restaurant to book a table for six on Friday with a special request.",
+            "Who you are, what you need, confirm the details.",
+            10,
+            40
+        ),
+        Scenario(
+            "everyday-complaint",
+            "Everyday",
+            "Return an item",
+            "Your new headphones broke after a week. Ask for a refund.",
+            "Calm, clear, what you'd like them to do.",
+            10,
+            45
+        ),
+        Scenario(
+            "everyday-directions",
+            "Everyday",
+            "Give directions",
+            "A tourist asks how to get to the nearest station.",
+            "Landmarks, left/right, check they've got it.",
+            10,
+            30
+        ),
+        Scenario(
+            "social-toast",
+            "Social",
+            "Give a toast",
+            "Raise a glass at a friend's birthday dinner.",
+            "A short memory, what you admire, the toast.",
+            20,
+            60
+        ),
+        Scenario(
+            "social-comfort",
+            "Social",
+            "Comfort a friend",
+            "A friend just failed an exam. Say something helpful.",
+            "Listen-first tone: acknowledge, empathise, offer help.",
+            10,
+            45
+        ),
+        Scenario(
+            "social-group",
+            "Social",
+            "Join a group conversation",
+            "You walk up to friends talking about weekend plans. Jump in.",
+            "React to what's being said, then add your piece.",
+            5,
+            30
+        ),
+        Scenario(
+            "random-object",
+            "Quick fire",
+            "Sell this object",
+            "Pick up the nearest object and sell it to me.",
+            "Benefits, not features. End with a call to action.",
+            10,
+            45
+        ),
+        Scenario(
+            "random-hottake",
+            "Quick fire",
+            "Hot take",
+            "Argue that breakfast is the most overrated meal — or the opposite.",
+            "Pick a side and commit. Three reasons.",
+            10,
+            45
+        )
     )
 
     val categories: List<String> get() = all.map { it.category }.distinct()

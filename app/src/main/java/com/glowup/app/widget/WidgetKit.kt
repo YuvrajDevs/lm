@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 /** Colours shared by every widget. Pairs are (light, dark) so widgets follow the launcher's theme. */
 internal object WidgetColors {
     val ink = ColorProvider(day = Color(0xFF121212), night = Color(0xFFF5F5F5))
-    val secondary = ColorProvider(day = Color(0xFF8C8C8C), night = Color(0xFFA0A0A0))
+    val secondary = ColorProvider(day = Color(0xFF6B6B6B), night = Color(0xFFB0B0B0))
     val onDark = ColorProvider(Color.White)
     val onDarkMuted = ColorProvider(Color.White.copy(alpha = 0.6f))
     val navy = ColorProvider(day = Color(0xFF2C4E8E), night = Color(0xFFA9C4F5))
@@ -58,7 +58,7 @@ object Widgets {
         TodayWidgetReceiver::class.java,
         StreakWidgetReceiver::class.java,
         FocusWidgetReceiver::class.java,
-        SleepWidgetReceiver::class.java,
+        SleepWidgetReceiver::class.java
     )
 
     fun anyPlaced(context: Context): Boolean {

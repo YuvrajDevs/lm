@@ -4,12 +4,12 @@ import com.glowup.app.ui.data.style.Garment
 import com.glowup.app.ui.data.style.SavedLooksStore
 import com.glowup.app.ui.data.style.Slot
 import com.glowup.app.ui.data.style.StyleLibrary
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
 
 class StyleLibraryTest {
     @Before

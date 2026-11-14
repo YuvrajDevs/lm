@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -26,22 +27,23 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.ReMakeUDialog
+import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoEntry
 import com.glowup.app.ui.data.TodoStore
-import com.glowup.app.ui.theme.*
-import androidx.compose.material.icons.filled.Close
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.*
 
 @Composable
 fun TodoScreen(navController: NavHostController) {
@@ -60,60 +62,86 @@ fun TodoScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("To-do") { navController.goBack() }
+            DetailHeader(stringResource(R.string.todo_to_do)) { navController.goBack() }
 
             Row(
                 modifier = Modifier
-                    .padding(24.dp, 14.dp, 24.dp, 0.dp)
+                    .padding(Space.Gutter, Space.M, Space.Gutter, 0.dp)
                     .fillMaxWidth()
                     .clip(Shapes.Card)
                     .background(ChipNeutral)
                     .clickable { openAddDialog(TodoBucket.TODAY) }
-                    .padding(18.dp, 14.dp),
+                    .padding(Space.L, Space.M),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(Space.M)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
-                Text("Add a to-do...", color = TextSecondary, fontSize = TextSize.Body)
+                Text(stringResource(R.string.todo_add_a_to_do), color = TextSecondary, fontSize = TextSize.Body)
             }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(24.dp, 16.dp, 24.dp, 24.dp),
+                contentPadding = PaddingValues(Space.Gutter, Space.L, Space.Gutter, Space.Gutter)
             ) {
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("TODAY", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                        Text(
+                            stringResource(R.string.common_today),
+                            color = TextSecondary,
+                            fontSize = TextSize.BodySmall,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.4.sp
+                        )
                         if (TodoStore.items.any { it.done }) {
                             Text(
-                                "Clear completed",
+                                stringResource(R.string.todo_clear_completed),
                                 color = TextSecondary,
                                 fontSize = TextSize.BodySmall,
                                 fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.clickable { TodoStore.clearDone() },
+                                modifier = Modifier.clickable { TodoStore.clearDone() }
                             )
                         }
                     }
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(Space.S))
                 }
                 if (todayItems.isEmpty()) {
-                    item { Text("Nothing for today yet.", color = TextMuted, fontSize = TextSize.BodySmall, modifier = Modifier.padding(bottom = 8.dp)) }
+                    item {
+                        Text(
+                            stringResource(R.string.todo_nothing_for_today_yet),
+                            color = TextSecondary,
+                            fontSize = TextSize.BodySmall,
+                            modifier = Modifier.padding(bottom = Space.S)
+                        )
+                    }
                 }
                 items(todayItems, key = { it.id }) { item ->
                     TodoRow(item, onDelete = { TodoStore.remove(item.id) }) { TodoStore.toggle(item.id) }
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(Space.S))
                 }
-                item { Spacer(Modifier.height(10.dp)) }
+                item { Spacer(Modifier.height(Space.S)) }
                 item {
-                    Text("THIS WEEK", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        stringResource(R.string.common_this_week),
+                        color = TextSecondary,
+                        fontSize = TextSize.BodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.4.sp
+                    )
+                    Spacer(Modifier.height(Space.S))
                 }
                 if (weekItems.isEmpty()) {
-                    item { Text("Nothing for this week yet.", color = TextMuted, fontSize = TextSize.BodySmall, modifier = Modifier.padding(bottom = 8.dp)) }
+                    item {
+                        Text(
+                            stringResource(R.string.todo_nothing_for_this_week_yet),
+                            color = TextSecondary,
+                            fontSize = TextSize.BodySmall,
+                            modifier = Modifier.padding(bottom = Space.S)
+                        )
+                    }
                 }
                 items(weekItems, key = { it.id }) { item ->
                     TodoRow(item, onDelete = { TodoStore.remove(item.id) }) { TodoStore.toggle(item.id) }
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(Space.S))
                 }
                 item { Spacer(Modifier.height(80.dp)) }
             }
@@ -122,19 +150,23 @@ fun TodoScreen(navController: NavHostController) {
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(24.dp, 0.dp, 24.dp, 26.dp)
+                .padding(Space.Gutter, 0.dp, Space.Gutter, Space.Gutter)
                 .size(62.dp)
                 .clip(CircleShape)
                 .background(Ink)
                 .clickable { openAddDialog(TodoBucket.TODAY) },
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add to-do", tint = Color.White, modifier = Modifier.size(22.dp))
+            Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.todo_add_to_do), tint = Color.White, modifier = Modifier.size(22.dp))
         }
 
         if (showAddDialog) {
             ReMakeUDialog(
-                onDismissRequest = { showAddDialog = false; newTodoText = ""; newTodoMeta = "" },
+                onDismissRequest = {
+                    showAddDialog = false
+                    newTodoText = ""
+                    newTodoMeta = ""
+                },
                 title = "Add a to-do",
                 secondaryText = "Cancel",
                 primaryText = "Add",
@@ -150,28 +182,28 @@ fun TodoScreen(navController: NavHostController) {
                         OutlinedTextField(
                             value = newTodoText,
                             onValueChange = { newTodoText = it },
-                            placeholder = { Text("e.g. Pick up dry cleaning") },
+                            placeholder = { Text(stringResource(R.string.todo_e_g_pick_up_dry)) },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Ink,
-                                unfocusedBorderColor = TextMuted,
-                            ),
+                                unfocusedBorderColor = TextMuted
+                            )
                         )
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(Space.M))
                         OutlinedTextField(
                             value = newTodoMeta,
                             onValueChange = { newTodoMeta = it },
-                            placeholder = { Text("Due time (optional)") },
+                            placeholder = { Text(stringResource(R.string.todo_due_time_optional)) },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Ink,
-                                unfocusedBorderColor = TextMuted,
-                            ),
+                                unfocusedBorderColor = TextMuted
+                            )
                         )
-                        Spacer(Modifier.height(14.dp))
-                        Text("When?", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Spacer(Modifier.height(Space.M))
+                        Text(stringResource(R.string.todo_when), color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(Space.S))
+                        Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                             TodoBucket.entries.forEach { bucket ->
                                 val selected = newTodoBucket == bucket
                                 Box(
@@ -179,19 +211,19 @@ fun TodoScreen(navController: NavHostController) {
                                         .clip(Shapes.Pill)
                                         .background(if (selected) Ink else ChipNeutral)
                                         .clickable { newTodoBucket = bucket }
-                                        .padding(16.dp, 9.dp),
+                                        .padding(Space.L, Space.S)
                                 ) {
                                     Text(
                                         bucket.label,
                                         color = if (selected) Color.White else Ink,
                                         fontSize = TextSize.BodySmall,
-                                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
                                     )
                                 }
                             }
                         }
                     }
-                },
+                }
             )
         }
     }
@@ -205,10 +237,10 @@ private fun TodoRow(item: TodoEntry, onDelete: () -> Unit, onToggle: () -> Unit)
             .clip(Shapes.Medium)
             .background(CardNeutral)
             .clickable { onToggle() }
-            .padding(14.dp, 12.dp)
+            .padding(Space.M, Space.M)
             .alpha(if (item.done) 0.5f else 1f),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(Space.M)
     ) {
         if (item.done) {
             Image(painterResource(R.drawable.ic_check), contentDescription = null, modifier = Modifier.size(24.dp))
@@ -217,7 +249,7 @@ private fun TodoRow(item: TodoEntry, onDelete: () -> Unit, onToggle: () -> Unit)
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .border(2.dp, Ink, CircleShape),
+                    .border(2.dp, Ink, CircleShape)
             )
         }
         Column(modifier = Modifier.weight(1f)) {
@@ -225,7 +257,7 @@ private fun TodoRow(item: TodoEntry, onDelete: () -> Unit, onToggle: () -> Unit)
                 item.title,
                 fontSize = TextSize.BodyLarge,
                 fontWeight = FontWeight.SemiBold,
-                textDecoration = if (item.done) TextDecoration.LineThrough else null,
+                textDecoration = if (item.done) TextDecoration.LineThrough else null
             )
             item.meta?.let {
                 Text(it, color = TextSecondary, fontSize = TextSize.Caption)
@@ -233,9 +265,9 @@ private fun TodoRow(item: TodoEntry, onDelete: () -> Unit, onToggle: () -> Unit)
         }
         Icon(
             Icons.Filled.Close,
-            contentDescription = "Delete",
+            contentDescription = stringResource(R.string.common_delete),
             tint = TextMuted,
-            modifier = Modifier.size(28.dp).clip(CircleShape).clickable(onClick = onDelete).padding(6.dp),
+            modifier = Modifier.size(28.dp).clip(CircleShape).clickable(onClick = onDelete).padding(Space.S)
         )
     }
 }

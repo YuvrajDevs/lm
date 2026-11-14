@@ -29,16 +29,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.glowup.app.R
 import com.glowup.app.ui.data.RoutineSession
 import com.glowup.app.ui.data.RoutineStore
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.Green
 import com.glowup.app.ui.theme.Ink
-import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
 import java.time.LocalDate
 
 /**
@@ -48,35 +51,54 @@ import java.time.LocalDate
 @Composable
 fun RoutineDoneBar(currentRoute: String?) {
     val routine = RoutineSession.activeId?.let(RoutineStore::find)
-    val visible = routine != null && currentRoute !in setOf("home", "routines", "onboarding", null) &&
+    val visible = routine != null &&
+        currentRoute !in setOf("home", "routines", "onboarding", null) &&
         !routine.isDoneOn(LocalDate.now())
     Box(Modifier.fillMaxSize().navigationBarsPadding(), contentAlignment = Alignment.BottomCenter) {
         AnimatedVisibility(
             visible = visible,
             enter = slideInVertically { it } + fadeIn(),
-            exit = slideOutVertically { it } + fadeOut(),
+            exit = slideOutVertically { it } + fadeOut()
         ) {
             Row(
                 modifier = Modifier
-                    .padding(16.dp, 0.dp, 16.dp, 104.dp)
+                    .padding(Space.L, 0.dp, Space.L, 104.dp)
                     .fillMaxWidth()
                     .shadow(12.dp, Shapes.Pill)
                     .clip(Shapes.Pill)
                     .background(Ink)
-                    .padding(start = 18.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                    .padding(start = Space.L, end = Space.S, top = Space.S, bottom = Space.S),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("ROUTINE", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
-                    Text(routine?.title.orEmpty(), color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        stringResource(R.string.routine_done_bar_routine),
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontSize = TextSize.Micro,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.5.sp
+                    )
+                    Text(
+                        routine?.title.orEmpty(),
+                        color = Color.White,
+                        fontSize = TextSize.Body,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
                 Box(
                     Modifier.size(34.dp).clip(CircleShape).clickable { RoutineSession.clear() },
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Filled.Close, contentDescription = "Hide", tint = Color.White.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.routine_done_bar_hide),
+                        tint = Color.White.copy(alpha = 0.6f),
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(Space.Xs))
                 Row(
                     modifier = Modifier
                         .clip(Shapes.Pill)
@@ -85,12 +107,12 @@ fun RoutineDoneBar(currentRoute: String?) {
                             routine?.let { RoutineStore.toggleToday(it.id) }
                             RoutineSession.clear()
                         }
-                        .padding(14.dp, 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .padding(Space.M, Space.S),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Mark done", color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(Space.S))
+                    Text(stringResource(R.string.routine_done_bar_mark_done), color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
                 }
             }
         }

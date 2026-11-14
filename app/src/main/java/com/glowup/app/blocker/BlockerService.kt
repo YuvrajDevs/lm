@@ -40,11 +40,16 @@ object Blocker {
 
     fun hasUsageAccess(context: Context): Boolean {
         val ops = context.getSystemService(AppOpsManager::class.java)
+
         // unsafeCheckOpNoThrow is the documented call for API 29+; the "unsafe" deprecation only flags
         // that it can't be used for another app's uid, which we never do.
         @Suppress("DEPRECATION")
-        val mode = if (Build.VERSION.SDK_INT >= 29) ops.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
-        else @Suppress("DEPRECATION") ops.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
+        val mode = if (Build.VERSION.SDK_INT >= 29) {
+            ops.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
+        } else {
+            @Suppress("DEPRECATION")
+            ops.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
+        }
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
@@ -57,8 +62,11 @@ object Blocker {
         val app = context.applicationContext
         val needed = BlockStore.needsWatcher(FocusStore.active) && ready(app)
         val intent = Intent(app, BlockerService::class.java)
-        if (needed) runCatching { ContextCompat.startForegroundService(app, intent) }
-        else if (BlockerService.running) app.stopService(intent)
+        if (needed) {
+            runCatching { ContextCompat.startForegroundService(app, intent) }
+        } else if (BlockerService.running) {
+            app.stopService(intent)
+        }
     }
 
     /** Launchable apps the user can choose from (no special "all packages" permission needed). */
@@ -75,8 +83,7 @@ object Blocker {
     fun label(context: Context, pkg: String): String =
         runCatching { context.packageManager.getApplicationLabel(context.packageManager.getApplicationInfo(pkg, 0)).toString() }.getOrDefault(pkg)
 
-    fun icon(context: Context, pkg: String): Bitmap? =
-        runCatching { context.packageManager.getApplicationIcon(pkg).toBitmap(96, 96) }.getOrNull()
+    fun icon(context: Context, pkg: String): Bitmap? = runCatching { context.packageManager.getApplicationIcon(pkg).toBitmap(96, 96) }.getOrNull()
 
     fun goHome(context: Context) {
         context.startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -128,16 +135,27 @@ class BlockerService : Service() {
         running = true
         homePackage = packageManager.resolveActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)?.activityInfo?.packageName
         val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(Blocker.CHANNEL, "App blocker", NotificationManager.IMPORTANCE_MIN).apply {
-            description = "Shown while Re:MakeU is blocking or pausing apps"
-            setShowBadge(false)
-        })
-        registerReceiver(screenReceiver, IntentFilter().apply { addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF) })
+        manager.createNotificationChannel(
+            NotificationChannel(Blocker.CHANNEL, "App blocker", NotificationManager.IMPORTANCE_MIN).apply {
+                description = "Shown while Re:MakeU is blocking or pausing apps"
+                setShowBadge(false)
+            }
+        )
+        registerReceiver(
+            screenReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            }
+        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val type = if (Build.VERSION.SDK_INT >= 34) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
-        runCatching { ServiceCompat.startForeground(this, NOTIFICATION_ID, notification(), type) }.onFailure { stopSelf(); return START_NOT_STICKY }
+        runCatching { ServiceCompat.startForeground(this, NOTIFICATION_ID, notification(), type) }.onFailure {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         lastQuery = System.currentTimeMillis() - 10_000
         handler.removeCallbacks(tick)
         if (getSystemService(PowerManager::class.java).isInteractive) handler.post(tick)
@@ -156,7 +174,7 @@ class BlockerService : Service() {
         .setContentTitle(
             FocusStore.active?.takeIf { it.blockApps && it.isRunning }?.endAtMillis?.let {
                 "Focusing until " + formatClock(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime())
-            } ?: "Mindful mode is on",
+            } ?: "Mindful mode is on"
         )
         .setContentText("Re:MakeU will step in when you open an app on your list.")
         .setOngoing(true)
@@ -178,7 +196,10 @@ class BlockerService : Service() {
                 UsageEvents.Event.ACTIVITY_PAUSED, UsageEvents.Event.ACTIVITY_STOPPED -> if (e.packageName == foreground) foreground = null
             }
         }
-        val pkg = foreground ?: run { handled = null; return }
+        val pkg = foreground ?: run {
+            handled = null
+            return
+        }
         if (pkg == packageName || pkg == homePackage || isSystemSurface(pkg)) {
             handled = null
             return
@@ -200,9 +221,14 @@ class BlockerService : Service() {
     }
 
     /** Screens that belong to Android itself (pickers, permission prompts) are never blocked. */
-    private fun isSystemSurface(pkg: String) =
-        pkg == "android" || pkg == "com.android.systemui" || pkg.contains("permissioncontroller") || pkg.contains("photopicker") ||
-            pkg.contains("documentsui") || pkg.contains("providers.media") || pkg.contains("packageinstaller") || pkg == "com.android.settings"
+    private fun isSystemSurface(pkg: String) = pkg == "android" ||
+        pkg == "com.android.systemui" ||
+        pkg.contains("permissioncontroller") ||
+        pkg.contains("photopicker") ||
+        pkg.contains("documentsui") ||
+        pkg.contains("providers.media") ||
+        pkg.contains("packageinstaller") ||
+        pkg == "com.android.settings"
 
     private fun show(pkg: String, mode: String, detail: String?) {
         val intent = Intent(this, InterventionActivity::class.java)

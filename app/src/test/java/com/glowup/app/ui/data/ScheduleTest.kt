@@ -1,10 +1,10 @@
 package com.glowup.app.ui.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class ScheduleTest {
     private fun at(day: Int, hour: Int, minute: Int = 0) = LocalDateTime.of(2026, 11, day, hour, minute)

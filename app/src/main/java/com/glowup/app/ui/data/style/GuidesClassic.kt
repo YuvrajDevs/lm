@@ -2,6 +2,7 @@ package com.glowup.app.ui.data.style
 
 import androidx.compose.ui.graphics.Color
 import com.glowup.app.ui.data.style.Garment.*
+import com.glowup.app.ui.data.style.Palette as P
 import com.glowup.app.ui.theme.BlueTint
 import com.glowup.app.ui.theme.Coral
 import com.glowup.app.ui.theme.CoralTint
@@ -10,7 +11,6 @@ import com.glowup.app.ui.theme.GreenTint
 import com.glowup.app.ui.theme.Navy
 import com.glowup.app.ui.theme.Purple
 import com.glowup.app.ui.theme.PurpleTint
-import com.glowup.app.ui.data.style.Palette as P
 
 internal val oldMoney = StyleGuide(
     key = "old-money",
@@ -26,24 +26,24 @@ internal val oldMoney = StyleGuide(
         "Leather or suede loafers, well kept",
         "A cable-knit or merino sweater",
         "A navy blazer that fits the shoulders",
-        "A brown leather belt and a simple watch",
+        "A brown leather belt and a simple watch"
     ),
     stylingTips = listOf(
         "Invest in fabric quality over quantity — wool, cotton, linen, cashmere",
         "Tuck your shirt in for a cleaner, longer silhouette",
         "Roll sleeves neatly twice rather than pushing them up",
-        "Pair textures like knit and wool for depth without colour",
+        "Pair textures like knit and wool for depth without colour"
     ),
     keepInMind = listOf(
         "Skip visible logos and branding",
         "Avoid anything too shiny or synthetic",
         "Stick to muted, earthy colours",
-        "Iron everything — crisp always beats trendy",
+        "Iron everything — crisp always beats trendy"
     ),
     pairings = listOf(
         Pairing("Navy blazer", listOf("Grey trousers", "White Oxford shirt", "Brown loafers"), "Black jeans and chunky trainers"),
         Pairing("Cream knit", listOf("Stone chinos", "Camel coat", "Suede loafers"), "Neon colours or sporty fabrics"),
-        Pairing("Brown loafers", listOf("Chinos", "Linen trousers", "Grey flannel"), "Black suits"),
+        Pairing("Brown loafers", listOf("Chinos", "Linen trousers", "Grey flannel"), "Black suits")
     ),
     outfits = outfits("old-money") {
         outfit(
@@ -53,7 +53,7 @@ internal val oldMoney = StyleGuide(
             dressDown = "Lose the blazer and roll the sleeves for weekend lunch.",
             piece("White Oxford shirt", SHIRT, P.White), piece("Navy blazer", BLAZER, P.Navy),
             piece("Grey wool trousers", TROUSERS, P.Grey), piece("Penny loafers", LOAFERS, P.DarkBrown),
-            piece("Brown leather belt", BELT, P.Brown), piece("Gold watch", WATCH, P.Gold),
+            piece("Brown leather belt", BELT, P.Brown), piece("Gold watch", WATCH, P.Gold)
         )
         outfit(
             "Weekend at the club", listOf("Weekend", "Date"),
@@ -61,7 +61,7 @@ internal val oldMoney = StyleGuide(
             dressUp = "Throw a navy blazer over the knit.",
             dressDown = "Swap loafers for white leather sneakers.",
             piece("Cable-knit sweater", KNIT, P.Cream), piece("Stone chinos", TROUSERS, P.Stone),
-            piece("Suede loafers", LOAFERS, P.Brown), piece("Leather watch", WATCH, P.Brown),
+            piece("Suede loafers", LOAFERS, P.Brown), piece("Leather watch", WATCH, P.Brown)
         )
         outfit(
             "Linen summer", listOf("Weekend", "Travel", "Wedding"),
@@ -69,7 +69,7 @@ internal val oldMoney = StyleGuide(
             dressUp = "Add a light beige blazer for a daytime wedding.",
             dressDown = "Roll the trousers once and switch to sandals.",
             piece("Linen shirt", SHIRT, P.Ivory), piece("Linen trousers", TROUSERS, P.Beige),
-            piece("Tan loafers", LOAFERS, P.Tan), piece("Tortoiseshell sunglasses", SUNGLASSES, P.Brown),
+            piece("Tan loafers", LOAFERS, P.Tan), piece("Tortoiseshell sunglasses", SUNGLASSES, P.Brown)
         )
         outfit(
             "Quiet layers", listOf("Office", "Date"),
@@ -77,7 +77,7 @@ internal val oldMoney = StyleGuide(
             dressUp = "Swap the polo for a white shirt and add grey flannels.",
             dressDown = "Wear the polo with dark jeans and skip the coat.",
             piece("Knit polo", POLO, P.Forest), piece("Camel coat", JACKET, P.Camel),
-            piece("Cream trousers", TROUSERS, P.Cream), piece("Suede boots", BOOTS, P.DarkBrown),
+            piece("Cream trousers", TROUSERS, P.Cream), piece("Suede boots", BOOTS, P.DarkBrown)
         )
         outfit(
             "Sunday lunch", listOf("Weekend", "College"),
@@ -85,9 +85,9 @@ internal val oldMoney = StyleGuide(
             dressUp = "Swap sneakers for loafers and add a belt that matches.",
             dressDown = "Try tailored shorts in the same khaki for summer.",
             piece("Navy polo", POLO, P.Navy), piece("Khaki chinos", TROUSERS, P.Khaki),
-            piece("White leather sneakers", SNEAKERS, P.White), piece("Brown belt", BELT, P.Brown), piece("Silver watch", WATCH, P.Silver),
+            piece("White leather sneakers", SNEAKERS, P.White), piece("Brown belt", BELT, P.Brown), piece("Silver watch", WATCH, P.Silver)
         )
-    },
+    }
 )
 
 internal val smartCasual = StyleGuide(
@@ -104,24 +104,24 @@ internal val smartCasual = StyleGuide(
         "Chinos in stone, navy or olive",
         "An unstructured blazer",
         "A merino crewneck",
-        "Clean white sneakers or suede loafers",
+        "Clean white sneakers or suede loafers"
     ),
     stylingTips = listOf(
         "Pair one smart piece with one casual piece — blazer with jeans, shirt with sneakers",
         "Tuck in shirts when you wear a blazer; untucked works without one",
         "Roll sleeves twice, just below the elbow",
-        "Match your belt to your shoes",
+        "Match your belt to your shoes"
     ),
     keepInMind = listOf(
         "No graphic tees under a blazer",
         "Avoid running shoes with tailoring",
         "Ironed beats expensive",
-        "Fit matters more than brand",
+        "Fit matters more than brand"
     ),
     pairings = listOf(
         Pairing("Dark jeans", listOf("White tee", "Navy blazer", "Oxford shirt", "Brown boots"), "Ripped or faded washes at work"),
         Pairing("White sneakers", listOf("Chinos", "Dark jeans", "Tailored shorts"), "Suits at formal events"),
-        Pairing("Olive overshirt", listOf("White or grey tee", "Dark denim", "Tan boots"), "Other shades of green"),
+        Pairing("Olive overshirt", listOf("White or grey tee", "Dark denim", "Tan boots"), "Other shades of green")
     ),
     outfits = outfits("smart-casual") {
         outfit(
@@ -130,7 +130,7 @@ internal val smartCasual = StyleGuide(
             dressUp = "Swap the tee for a white Oxford shirt and the sneakers for loafers.",
             dressDown = "Drop the blazer for a bomber or overshirt.",
             piece("White tee", TEE, P.White), piece("Unstructured navy blazer", BLAZER, P.Navy),
-            piece("Dark jeans", JEANS, P.DarkDenim), piece("White sneakers", SNEAKERS, P.White), piece("Silver watch", WATCH, P.Silver),
+            piece("Dark jeans", JEANS, P.DarkDenim), piece("White sneakers", SNEAKERS, P.White), piece("Silver watch", WATCH, P.Silver)
         )
         outfit(
             "Oxford and chinos", listOf("Office", "Interview", "Date"),
@@ -138,7 +138,7 @@ internal val smartCasual = StyleGuide(
             dressUp = "Add a navy blazer.",
             dressDown = "Leave the shirt untucked with white sneakers.",
             piece("Light-blue Oxford shirt", SHIRT, P.LightBlue), piece("Stone chinos", TROUSERS, P.Stone),
-            piece("Suede loafers", LOAFERS, P.Tan), piece("Tan belt", BELT, P.Tan),
+            piece("Suede loafers", LOAFERS, P.Tan), piece("Tan belt", BELT, P.Tan)
         )
         outfit(
             "Merino and olive", listOf("Office", "Weekend"),
@@ -146,7 +146,7 @@ internal val smartCasual = StyleGuide(
             dressUp = "Wear a white collar peeking out under the crewneck.",
             dressDown = "Switch derbies for clean sneakers.",
             piece("Merino crewneck", KNIT, P.Navy), piece("Olive chinos", TROUSERS, P.Olive),
-            piece("Brown derbies", DERBIES, P.Brown), piece("Leather watch", WATCH, P.Brown),
+            piece("Brown derbies", DERBIES, P.Brown), piece("Leather watch", WATCH, P.Brown)
         )
         outfit(
             "Overshirt layer", listOf("Weekend", "College", "Travel"),
@@ -154,7 +154,7 @@ internal val smartCasual = StyleGuide(
             dressUp = "Swap the tee for a fine black knit.",
             dressDown = "Wear it open over a tee with joggers on travel days.",
             piece("Light-grey tee", TEE, P.LightGrey), piece("Olive overshirt", OVERSHIRT, P.Olive),
-            piece("Dark jeans", JEANS, P.DarkDenim), piece("Brown boots", BOOTS, P.Brown),
+            piece("Dark jeans", JEANS, P.DarkDenim), piece("Brown boots", BOOTS, P.Brown)
         )
         outfit(
             "Dinner polo", listOf("Date", "Party"),
@@ -162,9 +162,9 @@ internal val smartCasual = StyleGuide(
             dressUp = "Add a charcoal blazer.",
             dressDown = "Swap trousers for black jeans.",
             piece("Black knit polo", POLO, P.Black), piece("Charcoal trousers", TROUSERS, P.Charcoal),
-            piece("Black loafers", LOAFERS, P.Black), piece("Silver watch", WATCH, P.Silver),
+            piece("Black loafers", LOAFERS, P.Black), piece("Silver watch", WATCH, P.Silver)
         )
-    },
+    }
 )
 
 internal val minimal = StyleGuide(
@@ -181,24 +181,24 @@ internal val minimal = StyleGuide(
         "Clean white or black sneakers",
         "A structured crewneck sweater",
         "A single-colour overshirt or coach jacket",
-        "One quiet accessory, max",
+        "One quiet accessory, max"
     ),
     stylingTips = listOf(
         "Stick to a tonal palette — black, white, grey, beige",
         "Let silhouette do the talking, not colour",
         "Invest in one genuinely great pair of trousers",
-        "Steam or iron — wrinkles show more on plain fabric",
+        "Steam or iron — wrinkles show more on plain fabric"
     ),
     keepInMind = listOf(
         "Avoid busy prints and logos",
         "Don't mix more than two neutral tones in one outfit",
         "Fit is everything when there's no pattern to distract",
-        "Keep shoes clean — scuffs stand out more here",
+        "Keep shoes clean — scuffs stand out more here"
     ),
     pairings = listOf(
         Pairing("Black tee", listOf("Black, grey or stone trousers", "Silver watch", "White sneakers"), "Colourful logos"),
         Pairing("Stone trousers", listOf("White, black or navy tops", "White sneakers"), "Busy patterns"),
-        Pairing("White sneakers", listOf("Almost everything in this guide"), "Scuffs and grey laces"),
+        Pairing("White sneakers", listOf("Almost everything in this guide"), "Scuffs and grey laces")
     ),
     outfits = outfits("minimal") {
         outfit(
@@ -207,15 +207,17 @@ internal val minimal = StyleGuide(
             dressUp = "Add a black blazer and swap to leather derbies.",
             dressDown = "Switch to black jeans.",
             piece("Black tee", TEE, P.Black), piece("Black trousers", TROUSERS, P.Black),
-            piece("Black leather sneakers", SNEAKERS, P.Black), piece("Silver watch", WATCH, P.Silver),
+            piece("Black leather sneakers", SNEAKERS, P.Black), piece("Silver watch", WATCH, P.Silver)
         )
         outfit(
-            "Tonal greys", listOf("Office", "Travel"),
+            "Tonal greys",
+            listOf("Office", "Travel"),
             why = "Several shades of one colour is the minimalist's favourite trick — it looks considered and makes you look taller.",
             dressUp = "Add a charcoal overcoat.",
             dressDown = "Swap the knit for a grey hoodie.",
-            piece("Grey knit", KNIT, P.Grey), piece("Charcoal trousers", TROUSERS, P.Charcoal),
-            piece("White sneakers", SNEAKERS, P.White),
+            piece("Grey knit", KNIT, P.Grey),
+            piece("Charcoal trousers", TROUSERS, P.Charcoal),
+            piece("White sneakers", SNEAKERS, P.White)
         )
         outfit(
             "White on stone", listOf("Weekend", "Travel", "College"),
@@ -223,7 +225,7 @@ internal val minimal = StyleGuide(
             dressUp = "Swap the tee for a white linen shirt.",
             dressDown = "Try stone shorts in summer.",
             piece("White tee", TEE, P.White), piece("Stone trousers", TROUSERS, P.Stone),
-            piece("White sneakers", SNEAKERS, P.White), piece("Black sunglasses", SUNGLASSES, P.Black),
+            piece("White sneakers", SNEAKERS, P.White), piece("Black sunglasses", SUNGLASSES, P.Black)
         )
         outfit(
             "Clean layers", listOf("College", "Weekend"),
@@ -231,7 +233,7 @@ internal val minimal = StyleGuide(
             dressUp = "Swap the jacket for a black overshirt.",
             dressDown = "Wear it with black joggers.",
             piece("Black tee", TEE, P.Black), piece("Charcoal coach jacket", JACKET, P.Charcoal),
-            piece("Grey trousers", TROUSERS, P.Grey), piece("Black boots", BOOTS, P.Black),
+            piece("Grey trousers", TROUSERS, P.Grey), piece("Black boots", BOOTS, P.Black)
         )
         outfit(
             "Minimal office", listOf("Office", "Interview"),
@@ -239,9 +241,9 @@ internal val minimal = StyleGuide(
             dressUp = "Add a black blazer.",
             dressDown = "Swap derbies for black sneakers.",
             piece("White shirt", SHIRT, P.White), piece("Black trousers", TROUSERS, P.Black),
-            piece("Black derbies", DERBIES, P.Black), piece("Silver watch", WATCH, P.Silver),
+            piece("Black derbies", DERBIES, P.Black), piece("Silver watch", WATCH, P.Silver)
         )
-    },
+    }
 )
 
 internal val streetwear = StyleGuide(
@@ -258,24 +260,24 @@ internal val streetwear = StyleGuide(
         "Statement sneakers",
         "A bomber or varsity jacket",
         "A cap or beanie",
-        "A crossbody bag",
+        "A crossbody bag"
     ),
     stylingTips = listOf(
         "Let one bold sneaker colour anchor the fit",
         "Balance oversized tops with straight or tapered bottoms",
         "Layer a plain tee under an open shirt or jacket",
-        "Mix high and low — one hype piece, the rest basics",
+        "Mix high and low — one hype piece, the rest basics"
     ),
     keepInMind = listOf(
         "Don't over-layer in hot weather",
         "Keep one statement piece, not five",
         "Avoid clashing graphics",
-        "Oversized isn't the same as shapeless — shoulders should still sit right",
+        "Oversized isn't the same as shapeless — shoulders should still sit right"
     ),
     pairings = listOf(
         Pairing("Oversized hoodie", listOf("Cargos", "Tapered joggers", "Chunky sneakers"), "Baggy trousers that pool at the ankle"),
         Pairing("Cargo pants", listOf("Plain or graphic tees", "Hoodies", "White sneakers"), "Formal shirts and loafers"),
-        Pairing("Cap", listOf("Hoodies", "Tees", "Bombers"), "Blazers"),
+        Pairing("Cap", listOf("Hoodies", "Tees", "Bombers"), "Blazers")
     ),
     outfits = outfits("streetwear") {
         outfit(
@@ -284,7 +286,7 @@ internal val streetwear = StyleGuide(
             dressUp = "Swap the hoodie for an olive bomber over a white tee.",
             dressDown = "Change cargos for black joggers.",
             piece("Oversized hoodie", HOODIE, P.Grey), piece("Cargo pants", TROUSERS, P.Olive),
-            piece("White sneakers", SNEAKERS, P.White), piece("Black cap", CAP, P.Black),
+            piece("White sneakers", SNEAKERS, P.White), piece("Black cap", CAP, P.Black)
         )
         outfit(
             "Graphic tee and denim", listOf("College", "Party"),
@@ -292,7 +294,7 @@ internal val streetwear = StyleGuide(
             dressUp = "Layer a black bomber on top.",
             dressDown = "Swap jeans for black shorts.",
             piece("Black graphic tee", TEE, P.Black), piece("Relaxed jeans", JEANS, P.Denim),
-            piece("White sneakers", SNEAKERS, P.White), piece("Silver chain", CHAIN, P.Silver),
+            piece("White sneakers", SNEAKERS, P.White), piece("Silver chain", CHAIN, P.Silver)
         )
         outfit(
             "Bomber season", listOf("Weekend", "Party", "Travel"),
@@ -300,7 +302,7 @@ internal val streetwear = StyleGuide(
             dressUp = "Swap the tee for a black knit.",
             dressDown = "Wear it with grey joggers.",
             piece("White tee", TEE, P.White), piece("Olive bomber", JACKET, P.Olive),
-            piece("Black jeans", JEANS, P.Black), piece("Black sneakers", SNEAKERS, P.Black),
+            piece("Black jeans", JEANS, P.Black), piece("Black sneakers", SNEAKERS, P.Black)
         )
         outfit(
             "Varsity energy", listOf("College", "Weekend"),
@@ -308,7 +310,7 @@ internal val streetwear = StyleGuide(
             dressUp = "Wear it over a white Oxford shirt.",
             dressDown = "Pair with grey joggers and a cap.",
             piece("White tee", TEE, P.White), piece("Burgundy varsity jacket", JACKET, P.Burgundy),
-            piece("Dark jeans", JEANS, P.DarkDenim), piece("White sneakers", SNEAKERS, P.White), piece("Burgundy cap", CAP, P.Burgundy),
+            piece("Dark jeans", JEANS, P.DarkDenim), piece("White sneakers", SNEAKERS, P.White), piece("Burgundy cap", CAP, P.Burgundy)
         )
         outfit(
             "Summer shorts fit", listOf("Weekend", "Travel"),
@@ -316,7 +318,7 @@ internal val streetwear = StyleGuide(
             dressUp = "Swap shorts for black cargos in the evening.",
             dressDown = "Add slides instead of sneakers at the beach.",
             piece("Rust tee", TEE, P.Rust), piece("Black shorts", SHORTS, P.Black),
-            piece("White sneakers", SNEAKERS, P.White), piece("Black sunglasses", SUNGLASSES, P.Black), piece("Crossbody bag", BAG, P.Black),
+            piece("White sneakers", SNEAKERS, P.White), piece("Black sunglasses", SUNGLASSES, P.Black), piece("Crossbody bag", BAG, P.Black)
         )
-    },
+    }
 )

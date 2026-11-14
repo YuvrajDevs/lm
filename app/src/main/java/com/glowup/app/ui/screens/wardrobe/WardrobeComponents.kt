@@ -1,5 +1,6 @@
 package com.glowup.app.ui.screens.wardrobe
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -27,20 +28,32 @@ import com.glowup.app.ui.data.PhotoVault
 import com.glowup.app.ui.data.WardrobeItem
 import com.glowup.app.ui.data.WardrobeStore
 import com.glowup.app.ui.data.style.Swatch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.glowup.app.ui.theme.Ink
 import java.io.ByteArrayOutputStream
 import kotlin.math.max
 import kotlin.math.sqrt
-import com.glowup.app.ui.theme.Ink
-import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /** The item's photo if it has one, otherwise the same flat-lay drawing the lookbook uses. */
 @Composable
 fun ItemImage(item: WardrobeItem, modifier: Modifier, corner: Dp = 16.dp) {
     val file = item.photo?.let { name -> PhotoVault.list(PhotoVault.Album.WARDROBE).firstOrNull { it.name == name } }
     val bitmap by produceState<Bitmap?>(null, file) {
-        value = file?.let { f -> withContext(Dispatchers.IO) { runCatching { BitmapFactory.decodeFile(f.absolutePath, BitmapFactory.Options().apply { inSampleSize = 4 }) }.getOrNull() } }
+        value =
+            file?.let { f ->
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        BitmapFactory.decodeFile(
+                            f.absolutePath,
+                            BitmapFactory.Options().apply {
+                                inSampleSize =
+                                    4
+                            }
+                        )
+                    }.getOrNull()
+                }
+            }
     }
     Box(modifier.clip(RoundedCornerShape(corner)).background(item.tint), contentAlignment = Alignment.Center) {
         val bmp = bitmap
@@ -56,7 +69,7 @@ fun ItemImage(item: WardrobeItem, modifier: Modifier, corner: Dp = 16.dp) {
 fun SwatchDot(swatch: Swatch, size: Dp = 18.dp, selected: Boolean = false) {
     Box(
         Modifier.size(size).clip(CircleShape).background(swatch.color)
-            .border(if (selected) 3.dp else 1.dp, if (selected) Ink else Color.Black.copy(alpha = 0.12f), CircleShape),
+            .border(if (selected) 3.dp else 1.dp, if (selected) Ink else Color.Black.copy(alpha = 0.12f), CircleShape)
     )
 }
 
@@ -67,8 +80,9 @@ object PhotoTools {
         context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
         var sample = 1
         while (max(bounds.outWidth, bounds.outHeight) / sample > maxSide * 2) sample *= 2
-        val bmp = context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample }) }
-            ?: return@runCatching null
+        val bmp =
+            context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample }) }
+                ?: return@runCatching null
         val scale = maxSide.toFloat() / max(bmp.width, bmp.height)
         if (scale < 1f) Bitmap.createScaledBitmap(bmp, (bmp.width * scale).toInt(), (bmp.height * scale).toInt(), true) else bmp
     }.getOrNull()
@@ -82,14 +96,21 @@ object PhotoTools {
     fun dominantSwatch(bitmap: Bitmap): Swatch {
         val small = Bitmap.createScaledBitmap(bitmap, 48, 48, true)
         val border = mutableListOf<Int>()
-        for (i in 0 until 48) { border += small.getPixel(i, 0); border += small.getPixel(i, 47); border += small.getPixel(0, i); border += small.getPixel(47, i) }
+        for (i in 0 until 48) {
+            border += small.getPixel(i, 0)
+            border += small.getPixel(i, 47)
+            border += small.getPixel(0, i)
+            border += small.getPixel(47, i)
+        }
         val bg = average(border)
         val counts = mutableMapOf<Swatch, Int>()
-        for (y in 10 until 38) for (x in 10 until 38) {
-            val p = small.getPixel(x, y)
-            if (distance(p, bg) < 0.12) continue
-            val s = nearest(p)
-            counts[s] = (counts[s] ?: 0) + 1
+        for (y in 10 until 38) {
+            for (x in 10 until 38) {
+                val p = small.getPixel(x, y)
+                if (distance(p, bg) < 0.12) continue
+                val s = nearest(p)
+                counts[s] = (counts[s] ?: 0) + 1
+            }
         }
         return counts.maxByOrNull { it.value }?.key ?: nearest(small.getPixel(24, 24))
     }

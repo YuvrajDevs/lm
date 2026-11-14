@@ -12,51 +12,42 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.AcUnit
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
-import com.glowup.app.ui.components.ReMakeUBottomNav
 import com.glowup.app.ui.components.NavTab
+import com.glowup.app.ui.components.ProCrownButton
+import com.glowup.app.ui.components.ReMakeUBottomNav
 import com.glowup.app.ui.data.DailyContent
-import com.glowup.app.ui.data.FocusStore
-import com.glowup.app.ui.data.program.Program
-import com.glowup.app.ui.data.program.ProgramStore
+import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.ProgressStore
-import com.glowup.app.ui.data.TodoBucket
-import com.glowup.app.ui.data.TodoStore
-import com.glowup.app.ui.data.RoutineStore
+import com.glowup.app.ui.data.RoutineEntry
 import com.glowup.app.ui.data.RoutineLinks
 import com.glowup.app.ui.data.RoutineSession
-import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.data.RoutineStore
+import com.glowup.app.ui.data.TodoBucket
+import com.glowup.app.ui.data.TodoEntry
+import com.glowup.app.ui.data.TodoStore
+import com.glowup.app.ui.data.glow.GlowCheckStore
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.design.Space
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.runtime.LaunchedEffect
-import com.glowup.app.ui.components.ProCrownButton
-import com.glowup.app.ui.data.MoodStore
-import com.glowup.app.ui.data.ProGate
-import com.glowup.app.ui.data.ProStore
-import com.glowup.app.ui.data.SleepLogStore
-import com.glowup.app.ui.data.fitness.FitnessStore
-import com.glowup.app.ui.data.formatDuration
-import com.glowup.app.ui.data.glow.GlowCheckStore
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.*
 import java.time.LocalDate
 
 private data class QuickAccess(val label: String, val icon: Int, val bg: Color, val route: String)
@@ -71,7 +62,7 @@ private val quickAccessItems = listOf(
     QuickAccess("Confidence", R.drawable.ic_heart, GreenTint, "confidence"),
     QuickAccess("Talk", R.drawable.ic_speech, CoralTint, "communication"),
     QuickAccess("To-do", R.drawable.ic_list, PurpleTint, "todo"),
-    QuickAccess("Quotes", R.drawable.ic_quote, MaroonTint, "quotes_notes"),
+    QuickAccess("Quotes", R.drawable.ic_quote, MaroonTint, "quotes_notes")
 )
 
 @Composable
@@ -96,74 +87,38 @@ fun HomeScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
+            HomeHeader(navController)
 
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(24.dp, 32.dp, 24.dp, 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(DailyContent.greeting(), color = TextSecondary, fontSize = TextSize.BodySmall)
-                    Text("Hey, ${ProfileStore.firstName}", style = MaterialTheme.typography.headlineMedium, fontSize = TextSize.Headline)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ProCrownButton { ProStore.showPaywall() }
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .background(Ink)
-                            .clickable { navController.navigate("notifications") },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
-                    }
-                }
-            }
+            Spacer(Modifier.height(Space.L))
 
-            Spacer(Modifier.height(16.dp))
+            QuickAccessRow(orderedQuickAccess) { navController.navigate(it) }
 
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                items(orderedQuickAccess) { item ->
-                    Column(
-                        modifier = Modifier.clip(Shapes.Medium).clickable { navController.navigate(item.route) }.padding(horizontal = 4.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(52.dp)
-                                .clip(CircleShape)
-                                .background(item.bg),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Image(painterResource(item.icon), contentDescription = null, modifier = Modifier.size(22.dp), contentScale = ContentScale.Fit)
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(item.label, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(Space.M))
 
             val planItems = TodoStore.items.filter { it.bucket == TodoBucket.TODAY }
             val doneCount = planItems.count { it.done }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = Space.Gutter, vertical = 0.dp),
+                verticalArrangement = Arrangement.spacedBy(Space.S)
             ) {
                 ProgressStore.freezeNotice?.let { notice ->
                     item {
                         FreezeBanner(
                             title = "Streak saved",
-                            text = (if (notice.daysCovered == 1) "A freeze covered the day you missed" else "${notice.daysCovered} freezes covered the days you missed") +
+                            text =
+                            (
+                                if (notice.daysCovered ==
+                                    1
+                                ) {
+                                    "A freeze covered the day you missed"
+                                } else {
+                                    "${notice.daysCovered} freezes covered the days you missed"
+                                }
+                                ) +
                                 " — your ${notice.streak}-day streak is safe.",
-                            onDismiss = { ProgressStore.dismissFreezeNotice() },
+                            onDismiss = { ProgressStore.dismissFreezeNotice() }
                         )
                     }
                 }
@@ -172,7 +127,7 @@ fun HomeScreen(navController: NavHostController) {
                         FreezeBanner(
                             title = "You earned a streak freeze",
                             text = "7 days in a row! If you miss a day, it'll protect your streak automatically. ${ProgressStore.freezes} of ${ProgressStore.maxFreezes} banked.",
-                            onDismiss = { ProgressStore.acknowledgeFreezeEarned() },
+                            onDismiss = { ProgressStore.acknowledgeFreezeEarned() }
                         )
                     }
                 }
@@ -180,181 +135,88 @@ fun HomeScreen(navController: NavHostController) {
                 item { TodaySessionCard(navController) }
                 item { CheckInsRow(navController) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         StreakTile(streak, Modifier.weight(1f)) { navController.navigate("streak_detail") }
                         FocusTile(Modifier.weight(1f)) { navController.navigate("focus") }
                     }
                 }
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(top = Space.S, bottom = Space.Xs),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Today's plan", style = MaterialTheme.typography.titleLarge, fontSize = TextSize.Title)
-                        Text("$doneCount of ${planItems.size} done", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.home_today_s_plan), style = MaterialTheme.typography.titleLarge, fontSize = TextSize.Title)
+                        Text(
+                            stringResource(R.string.common_1_s_of_2_s, doneCount, planItems.size),
+                            color = TextSecondary,
+                            fontSize = TextSize.BodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
                 items(planItems, key = { it.id }) { plan ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(Shapes.Card)
-                            .background(plan.tint)
-                            .clickable { TodoStore.toggle(plan.id) }
-                            .padding(14.dp, 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        CheckCircle(plan.done)
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                plan.title,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = TextSize.Body,
-                                textDecoration = if (plan.done) TextDecoration.LineThrough else null,
-                            )
-                            plan.meta?.let { Text(it, color = TextSecondary, fontSize = TextSize.Caption) }
-                        }
-                        val icon = plan.icon
-                        if (!plan.done && icon != null) {
-                            Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(32.dp))
-                        }
-                    }
+                    PlanItemRow(plan) { TodoStore.toggle(plan.id) }
                 }
                 if (planItems.isEmpty()) {
                     item {
                         Text(
-                            "Nothing planned yet — add a to-do or pick up today's goal below.",
+                            stringResource(R.string.home_nothing_planned_yet_add_a),
                             color = TextSecondary,
                             fontSize = TextSize.BodySmall,
-                            modifier = Modifier.padding(vertical = 8.dp),
+                            modifier = Modifier.padding(vertical = Space.S)
                         )
                     }
                 }
                 item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                            .clip(Shapes.Large)
-                            .background(PurpleTint)
-                            .clickable(enabled = !goalAdded) { TodoStore.add(goal, TodoBucket.TODAY, "Goal of the day · $goalArea") }
-                            .padding(18.dp, 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Image(painterResource(R.drawable.ic_social), contentDescription = null, modifier = Modifier.size(40.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("GOAL OF THE DAY · ${goalArea.uppercase()}", color = PurpleText, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
-                            Text(goal, fontWeight = FontWeight.SemiBold, fontSize = TextSize.BodyLarge)
-                            Text(
-                                if (goalAdded) "Added to today's plan" else "Tap to add it to today's plan",
-                                color = PurpleText,
-                                fontSize = TextSize.Caption,
-                                modifier = Modifier.padding(top = 2.dp),
-                            )
-                        }
-                    }
+                    GoalOfTheDayCard(goalArea, goal, goalAdded) { TodoStore.add(goal, TodoBucket.TODAY, "Goal of the day · $goalArea") }
                 }
                 val routines = RoutineStore.items.toList()
                 val today = LocalDate.now()
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = Space.L, bottom = Space.Xs),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("Routines", style = MaterialTheme.typography.titleLarge, fontSize = TextSize.Title)
+                            Text(stringResource(R.string.common_routine_routines), style = MaterialTheme.typography.titleLarge, fontSize = TextSize.Title)
                             Text(
-                                if (routines.isEmpty()) "Habits you repeat every day"
-                                else "${routines.count { it.isDoneOn(today) }} of ${routines.size} done today",
-                                color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium,
+                                if (routines.isEmpty()) {
+                                    stringResource(R.string.home_habits_you_repeat_every_day)
+                                } else {
+                                    "${routines.count { it.isDoneOn(today) }} of ${routines.size} done today"
+                                },
+                                color = TextSecondary,
+                                fontSize = TextSize.BodySmall,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                         Text(
-                            if (routines.isEmpty()) "Add" else "See all",
+                            if (routines.isEmpty()) stringResource(R.string.common_add) else stringResource(R.string.home_see_all),
                             fontSize = TextSize.BodySmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier
                                 .clip(Shapes.Pill)
                                 .background(ChipNeutral)
                                 .clickable { navController.navigate(if (routines.isEmpty()) "add_routine" else "routines") }
-                                .padding(14.dp, 7.dp),
+                                .padding(Space.M, Space.S)
                         )
                     }
                 }
                 items(routines, key = { "routine-${it.id}" }) { routine ->
-                    val done = routine.isDoneOn(today)
-                    val routineStreak = routine.streakDays(today)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(Shapes.Card)
-                            .background(CardNeutral)
-                            .clickable {
-                                val route = RoutineLinks.routeFor(routine)
-                                if (!done && route != null) {
-                                    RoutineSession.start(routine.id)
-                                    navController.navigate(route)
-                                } else {
-                                    RoutineStore.toggleToday(routine.id)
-                                }
-                            }
-                            .padding(14.dp, 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        // The circle always ticks it off right here.
-                        Box(Modifier.clip(CircleShape).clickable { RoutineStore.toggleToday(routine.id) }) { CheckCircle(done) }
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                routine.title,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = TextSize.Body,
-                                color = if (done) TextSecondary else Ink,
-                                textDecoration = if (done) TextDecoration.LineThrough else null,
-                            )
-                            val route = RoutineLinks.routeFor(routine)
-                            Text(
-                                routine.category + (if (routine.frequency == "WEEKLY") " · Weekly" else "") +
-                                    if (!done && route != null) " · Tap to start" else "",
-                                color = TextSecondary, fontSize = TextSize.Caption,
-                            )
-                        }
-                        if (routineStreak > 0) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(14.dp))
-                                Spacer(Modifier.width(3.dp))
-                                Text("$routineStreak", fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                        Box(
-                            Modifier.size(34.dp).clip(CircleShape).background(routine.tint),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Image(painterResource(routine.icon), contentDescription = null, modifier = Modifier.size(20.dp))
-                        }
-                    }
+                    RoutineRow(
+                        routine = routine,
+                        today = today,
+                        onOpen = { route ->
+                            RoutineSession.start(routine.id)
+                            navController.navigate(route)
+                        },
+                        onToggle = { RoutineStore.toggleToday(routine.id) }
+                    )
                 }
                 item {
-                    Spacer(Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(Shapes.Large)
-                            .background(MaroonTint)
-                            .clickable { navController.navigate("quotes_notes") }
-                            .padding(18.dp, 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("QUOTE OF THE DAY", color = Maroon, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                            Text(DailyContent.quoteOfTheDay().text, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 2.dp))
-                        }
-                    }
+                    Spacer(Modifier.height(Space.M))
+                    QuoteCard { navController.navigate("quotes_notes") }
                 }
                 item { Spacer(Modifier.height(90.dp)) }
             }
@@ -367,243 +229,218 @@ fun HomeScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun TodaySessionCard(navController: NavHostController) {
-    val next = ProgramStore.next ?: return
-    val doneToday = ProgramStore.doneToday()
-    val locked = ProGate.sessionLocked(next.index)
-    val learningStreak = ProgramStore.streakDays()
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(Shapes.Hero)
-            .background(next.area.tint)
-            .clickable {
-                if (locked) ProStore.showPaywall("You've finished the free weeks — keep going with the full programme")
-                else navController.navigate("session/${next.index}")
-            }
-            .padding(20.dp, 18.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    (if (doneToday) "UP NEXT" else "TODAY") + " · DAY ${next.day} OF ${Program.TOTAL}",
-                    color = next.area.accent,
-                    fontSize = TextSize.Micro,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.4.sp,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(next.title, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Title)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "${next.area.label} · ${next.minutes} min · +${next.points} points",
-                    color = TextSecondary,
-                    fontSize = TextSize.BodySmall,
-                )
-            }
-            Spacer(Modifier.width(Space.M))
-            Image(painterResource(next.area.icon), contentDescription = null, modifier = Modifier.size(52.dp))
-        }
-        Spacer(Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier.clip(Shapes.Pill).background(Ink).padding(18.dp, 10.dp),
-            ) {
-                Text(if (locked) "Unlock with Pro" else if (doneToday) "Keep going" else "Start session", color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
-            }
-            Spacer(Modifier.width(12.dp))
-            when {
-                doneToday -> {
-                    Image(painterResource(R.drawable.ic_check), contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("Today's streak secured", color = Green, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-                }
-                learningStreak > 0 -> {
-                    Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("Keep your $learningStreak-day streak", color = Coral, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun StreakTile(streak: Int, modifier: Modifier, onClick: () -> Unit) {
-    Column(
-        modifier = modifier
-            .clip(Shapes.Large)
-            .background(Ink)
-            .clickable(onClick = onClick)
-            .padding(16.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(4.dp))
-            Text("$streak", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("day streak", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Caption)
-            if (ProgressStore.freezes > 0) {
-                Spacer(Modifier.width(6.dp))
-                Icon(Icons.Filled.AcUnit, contentDescription = "Streak freezes", tint = Sky, modifier = Modifier.size(12.dp))
-                Text("${ProgressStore.freezes}", color = Sky, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold)
-            }
-        }
-        Spacer(Modifier.height(6.dp))
-        Text("Level ${ProgressStore.level} · ${ProgressStore.points} pts", color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
-private fun FocusTile(modifier: Modifier, onClick: () -> Unit) {
-    val active = FocusStore.active
-    val focusStreak = FocusStore.streakDays()
-    Column(
-        modifier = modifier
-            .clip(Shapes.Large)
-            .background(BlueTint)
-            .clickable(onClick = onClick)
-            .padding(16.dp),
-    ) {
-        Text(
-            when {
-                active == null -> "${FocusStore.minutesOn(LocalDate.now())} min"
-                active.isRunning -> "Focusing"
-                else -> "Paused"
-            },
-            fontSize = TextSize.TitleLarge,
-            fontWeight = FontWeight.Bold,
-            color = Navy,
-        )
-        Text(if (active == null) "focused today" else active.label, color = TextSecondary, fontSize = TextSize.Caption)
-        Spacer(Modifier.height(6.dp))
-        Text(
-            if (active != null) "Tap to return" else if (focusStreak > 0) "$focusStreak-day focus streak" else "Start a focus block",
-            color = Navy,
-            fontSize = TextSize.BodySmall,
-            fontWeight = FontWeight.SemiBold,
-        )
-    }
-}
-
-@Composable
-private fun FreezeBanner(title: String, text: String, onDismiss: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(BlueTint).padding(16.dp, 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(38.dp).clip(CircleShape).background(Blue), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.AcUnit, contentDescription = null, tint = Color.White, modifier = Modifier.size(19.dp))
-        }
-        Spacer(Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
-            Text(text, color = Navy, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
-        }
-        Box(
-            Modifier.size(32.dp).clip(CircleShape).clickable(onClick = onDismiss),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.Filled.Close, contentDescription = "Dismiss", tint = Navy, modifier = Modifier.size(16.dp))
-        }
-    }
-}
-
-@Composable
 private fun CheckCircle(done: Boolean) {
     if (done) {
-        Image(painterResource(R.drawable.ic_check), contentDescription = "Done", modifier = Modifier.size(26.dp))
+        Image(painterResource(R.drawable.ic_check), contentDescription = stringResource(R.string.common_done), modifier = Modifier.size(26.dp))
     } else {
         Box(
             Modifier
                 .size(26.dp)
                 .clip(CircleShape)
-                .border(2.dp, TextMuted, CircleShape),
+                .border(2.dp, TextMuted, CircleShape)
         )
     }
 }
 
 @Composable
-private fun GlowCheckCard(navController: NavHostController) {
-    val latest = GlowCheckStore.latest
-    val due = GlowCheckStore.daysUntilRescan()
-    if (latest == null) {
-        Row(
-            modifier = Modifier.fillMaxWidth().clip(Shapes.Hero).background(Ink).clickable { navController.navigate("glow_check") }.padding(20.dp, 18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text("YOUR PERSONAL PLAN", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                Text("Take the Glow Check", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
-                Text("3 minutes · find what will make the biggest difference for you", color = Color.White.copy(alpha = 0.65f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
-            }
-            Spacer(Modifier.width(10.dp))
-            Image(painterResource(R.drawable.ic_streak), contentDescription = null, modifier = Modifier.size(54.dp))
+private fun HomeHeader(navController: NavHostController) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(Space.Gutter, Space.Xxl, Space.Gutter, 0.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(DailyContent.greeting(), color = TextSecondary, fontSize = TextSize.BodySmall)
+            Text(stringResource(R.string.home_hey_1_s, ProfileStore.firstName), style = MaterialTheme.typography.headlineMedium, fontSize = TextSize.Headline)
         }
-    } else {
-        Row(
-            modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).clickable { navController.navigate("glow_results") }.padding(16.dp, 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text("Your Glow map", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
-                Text(
-                    latest.focus.joinToString(" · ") { it.area.title }.ifBlank { "All areas looking good" },
-                    color = TextSecondary, fontSize = TextSize.BodySmall, maxLines = 1,
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
+            ProCrownButton { ProStore.showPaywall() }
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(Ink)
+                    .clickable { navController.navigate("notifications") },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Filled.Notifications,
+                    contentDescription = stringResource(R.string.home_notifications),
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun QuickAccessRow(items: List<QuickAccess>, onOpen: (String) -> Unit) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = Space.Gutter),
+        horizontalArrangement = Arrangement.spacedBy(Space.M)
+    ) {
+        items(items) { item ->
+            Column(
+                modifier = Modifier.clip(Shapes.Medium).clickable { onOpen(item.route) }.padding(horizontal = Space.Xs),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(item.bg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(painterResource(item.icon), contentDescription = null, modifier = Modifier.size(22.dp), contentScale = ContentScale.Fit)
+                }
+                Spacer(Modifier.height(Space.S))
+                Text(item.label, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlanItemRow(plan: TodoEntry, onToggle: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.Card)
+            .background(plan.tint)
+            .clickable(onClick = onToggle)
+            .padding(Space.M, Space.M),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.M)
+    ) {
+        CheckCircle(plan.done)
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                if (due == 0) "Rescan due" else "Rescan in $due d",
-                color = if (due == 0) Color.White else Ink, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold,
-                modifier = Modifier.clip(Shapes.Pill).background(if (due == 0) Coral else Color.White).padding(10.dp, 5.dp),
+                plan.title,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = TextSize.Body,
+                textDecoration = if (plan.done) TextDecoration.LineThrough else null
+            )
+            plan.meta?.let { Text(it, color = TextSecondary, fontSize = TextSize.Caption) }
+        }
+        val icon = plan.icon
+        if (!plan.done && icon != null) {
+            Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(32.dp))
+        }
+    }
+}
+
+@Composable
+private fun GoalOfTheDayCard(goalArea: String, goal: String, goalAdded: Boolean, onAdd: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = Space.S)
+            .clip(Shapes.Large)
+            .background(PurpleTint)
+            .clickable(enabled = !goalAdded, onClick = onAdd)
+            .padding(Space.L, Space.L),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.M)
+    ) {
+        Image(painterResource(R.drawable.ic_social), contentDescription = null, modifier = Modifier.size(40.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.home_goal_of_the_day_1, goalArea.uppercase()),
+                color = PurpleText,
+                fontSize = TextSize.Micro,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(goal, fontWeight = FontWeight.SemiBold, fontSize = TextSize.BodyLarge)
+            Text(
+                if (goalAdded) stringResource(R.string.common_added_to_today_s_plan) else stringResource(R.string.home_tap_to_add_it_to),
+                color = PurpleText,
+                fontSize = TextSize.Caption,
+                modifier = Modifier.padding(top = 2.dp)
             )
         }
     }
 }
 
-/** Today's quick check-ins across the app, each showing whether it's done. */
 @Composable
-private fun CheckInsRow(navController: NavHostController) {
-    val today = LocalDate.now()
-    val fitness = FitnessStore
-    data class Chip(val label: String, val sub: String, val done: Boolean, val route: String, val tint: Color)
-    val chips = buildList {
-        add(Chip("Mood", MoodStore.moodOn(today) ?: "Check in", MoodStore.moodOn(today) != null, "mood_checkin", GreenTint))
-        val night = SleepLogStore.on(today)
-        add(Chip("Sleep", night?.let { formatDuration(it.minutes) } ?: "Log night", night != null, "sleep_log", PurpleTint))
-        if (fitness.setUp) {
-            val done = fitness.doneOn(today)
-            add(Chip("Workout", if (done) "Done" else if (fitness.isTrainingDay(today) || fitness.activeProgramme != null) "Today" else "Optional", done, "fitness", CoralTint))
-            if (fitness.weighInDue() && fitness.latestBody() != null) add(Chip("Weigh-in", "Due", false, "body_checkin", YellowTint))
-        } else {
-            add(Chip("Workout", "Set up", false, "fitness", CoralTint))
+private fun RoutineRow(routine: RoutineEntry, today: LocalDate, onOpen: (String) -> Unit, onToggle: () -> Unit) {
+    val done = routine.isDoneOn(today)
+    val routineStreak = routine.streakDays(today)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.Card)
+            .background(CardNeutral)
+            .clickable {
+                val route = RoutineLinks.routeFor(routine)
+                if (!done && route != null) onOpen(route) else onToggle()
+            }
+            .padding(Space.M, Space.M),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.M)
+    ) {
+        // The circle always ticks it off right here.
+        Box(Modifier.clip(CircleShape).clickable(onClick = onToggle)) { CheckCircle(done) }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                routine.title,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = TextSize.Body,
+                color = if (done) TextSecondary else Ink,
+                textDecoration = if (done) TextDecoration.LineThrough else null
+            )
+            val route = RoutineLinks.routeFor(routine)
+            Text(
+                routine.category + (if (routine.frequency == "WEEKLY") stringResource(R.string.home_weekly) else "") +
+                    if (!done && route != null) stringResource(R.string.home_tap_to_start) else "",
+                color = TextSecondary,
+                fontSize = TextSize.Caption
+            )
         }
-    }
-    @Composable
-    fun CheckChip(c: Chip, modifier: Modifier) {
-        Row(
-            modifier.clip(Shapes.Medium).background(c.tint).clickable { navController.navigate(c.route) }.padding(10.dp, 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        if (routineStreak > 0) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(Space.Xs))
+                Text("$routineStreak", fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
+            }
+        }
+        Box(
+            Modifier.size(34.dp).clip(CircleShape).background(routine.tint),
+            contentAlignment = Alignment.Center
         ) {
-            Box(Modifier.size(20.dp).clip(CircleShape).background(if (c.done) Ink else Color.White), contentAlignment = Alignment.Center) {
-                if (c.done) Icon(Icons.Filled.Check, contentDescription = "Done", tint = Color.White, modifier = Modifier.size(14.dp))
-            }
-            Spacer(Modifier.width(Space.S))
-            Column {
-                Text(c.label, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold, maxLines = 1)
-                Text(c.sub, color = TextSecondary, fontSize = TextSize.Caption, maxLines = 1)
-            }
+            Image(painterResource(routine.icon), contentDescription = null, modifier = Modifier.size(20.dp))
         }
     }
-    // Up to three check-ins share the width evenly; a fourth (or large system text) turns the row into a scroller.
-    if (chips.size <= 3 && LocalDensity.current.fontScale <= 1.15f) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            chips.forEach { CheckChip(it, Modifier.weight(1f)) }
-        }
-    } else {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(chips) { CheckChip(it, Modifier) }
+}
+
+@Composable
+private fun QuoteCard(onOpen: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.Large)
+            .background(MaroonTint)
+            .clickable(onClick = onOpen)
+            .padding(Space.L, Space.M),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.S)
+    ) {
+        Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.home_quote_of_the_day),
+                color = Maroon,
+                fontSize = TextSize.Micro,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.4.sp
+            )
+            Text(
+                DailyContent.quoteOfTheDay().text,
+                fontSize = TextSize.BodySmall,
+                fontWeight = FontWeight.Medium,
+                lineHeight = LineHeight.Compact,
+                modifier = Modifier.padding(top = 2.dp)
+            )
         }
     }
 }

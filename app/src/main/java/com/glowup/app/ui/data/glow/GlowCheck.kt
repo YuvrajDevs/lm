@@ -9,11 +9,11 @@ import com.glowup.app.ui.data.objects
 import com.glowup.app.ui.data.optStringOrNull
 import com.glowup.app.ui.data.strings
 import com.glowup.app.ui.data.toJsonArray
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.abs
+import org.json.JSONArray
+import org.json.JSONObject
 
 /** Things a user can actually change. Fixed traits (bone structure, eye spacing) are never areas. */
 enum class FocusArea(val title: String, val tagline: String) {
@@ -25,7 +25,7 @@ enum class FocusArea(val title: String, val tagline: String) {
     STYLE("Style", "Clothes that fit and work together"),
     JAW_NECK("Jaw & neck", "A cleaner side profile"),
     SYMMETRY("Balance habits", "Small daily habits"),
-    CONFIDENCE("Presence", "How you carry yourself"),
+    CONFIDENCE("Presence", "How you carry yourself")
 }
 
 data class Question(val id: String, val text: String, val options: List<String>, val hint: String? = null)
@@ -42,14 +42,23 @@ object GlowQuestions {
         Question("facialHair", "Facial hair?", listOf("Clean shaven", "Stubble", "Beard", "Can't grow much")),
         Question("sleep", "How much do you usually sleep?", listOf("Under 6 hours", "6–7 hours", "7–8 hours", "8+ hours")),
         Question("exercise", "How many days a week do you exercise?", listOf("0", "1–2", "3–4", "5+")),
-        Question("screen", "Daily screen time (phone + laptop)?", listOf("Under 4 hours", "4–6 hours", "6–9 hours", "9+ hours"), hint = "Long hours at screens is the main cause of forward head posture."),
-        Question("style", "How confident are you in your clothes?", listOf("Not at all", "Somewhat", "Very")),
+        Question(
+            "screen",
+            "Daily screen time (phone + laptop)?",
+            listOf("Under 4 hours", "4–6 hours", "6–9 hours", "9+ hours"),
+            hint = "Long hours at screens is the main cause of forward head posture."
+        ),
+        Question("style", "How confident are you in your clothes?", listOf("Not at all", "Somewhat", "Very"))
     )
 }
 
 data class AreaScore(val area: FocusArea, val room: Int, val reason: String) {
     /** 0 = a strength, 1 = some room to grow, 2 = big room to grow. */
-    val roomLabel: String get() = when (room) { 2 -> "Big room to grow"; 1 -> "Some room to grow"; else -> "Strength" }
+    val roomLabel: String get() = when (room) {
+        2 -> "Big room to grow"
+        1 -> "Some room to grow"
+        else -> "Strength"
+    }
 }
 
 data class CheckResult(
@@ -63,7 +72,7 @@ data class CheckResult(
     val heightCm: Int?,
     val weightKg: Double?,
     val waistCm: Double?,
-    val areas: List<AreaScore>,
+    val areas: List<AreaScore>
 ) {
     val focus: List<AreaScore> get() = areas.filter { it.room > 0 }.take(3)
     val strengths: List<AreaScore> get() = areas.filter { it.room == 0 }.take(2)
@@ -79,7 +88,7 @@ object GlowScoring {
     /** How much each area can realistically change, used to rank areas with equal room. */
     private val changeability = mapOf(
         FocusArea.BODY to 5, FocusArea.POSTURE to 5, FocusArea.SKIN to 4, FocusArea.SLEEP to 4, FocusArea.GROOMING to 4,
-        FocusArea.STYLE to 3, FocusArea.CONFIDENCE to 3, FocusArea.JAW_NECK to 2, FocusArea.SYMMETRY to 1,
+        FocusArea.STYLE to 3, FocusArea.CONFIDENCE to 3, FocusArea.JAW_NECK to 2, FocusArea.SYMMETRY to 1
     )
 
     private val goalAreas = mapOf(
@@ -90,7 +99,7 @@ object GlowScoring {
         "Posture" to setOf(FocusArea.POSTURE),
         "Style" to setOf(FocusArea.STYLE),
         "Confidence" to setOf(FocusArea.CONFIDENCE),
-        "Sleep" to setOf(FocusArea.SLEEP),
+        "Sleep" to setOf(FocusArea.SLEEP)
     )
 
     fun score(
@@ -102,7 +111,7 @@ object GlowScoring {
         weightKg: Double?,
         waistCm: Double?,
         minor: Boolean,
-        loggedSleepMinutes: Int? = null,
+        loggedSleepMinutes: Int? = null
     ): List<AreaScore> {
         val scores = mutableListOf<AreaScore>()
         val wanted = goals.flatMap { goalAreas[it].orEmpty() }.toSet()
@@ -110,13 +119,23 @@ object GlowScoring {
         // Posture: measured if we have the side photo, otherwise inferred from screen time.
         when {
             neckAngle != null -> when (PostureAnalysis.level(neckAngle)) {
-                PostureLevel.FORWARD -> scores += AreaScore(FocusArea.POSTURE, 2, "Your head sits noticeably forward of your shoulders ($neckAngle°). This is very fixable — most people see a change in 4–6 weeks.")
-                PostureLevel.MILD -> scores += AreaScore(FocusArea.POSTURE, 1, "Your head drifts a little forward ($neckAngle°). A few minutes of drills a day straightens this up.")
+                PostureLevel.FORWARD ->
+                    scores +=
+                        AreaScore(
+                            FocusArea.POSTURE,
+                            2,
+                            "Your head sits noticeably forward of your shoulders ($neckAngle°). This is very fixable — most people see a change in 4–6 weeks."
+                        )
+                PostureLevel.MILD ->
+                    scores +=
+                        AreaScore(FocusArea.POSTURE, 1, "Your head drifts a little forward ($neckAngle°). A few minutes of drills a day straightens this up.")
                 PostureLevel.GOOD -> scores += AreaScore(FocusArea.POSTURE, 0, "Your ears sit nicely over your shoulders ($neckAngle°). Keep it up.")
             }
             answers["screen"] in setOf("6–9 hours", "9+ hours") ->
                 scores += AreaScore(FocusArea.POSTURE, 1, "Long hours at screens pull the head forward. A short daily posture routine counters it.")
-            FocusArea.POSTURE in wanted -> scores += AreaScore(FocusArea.POSTURE, 1, "You want to work on posture — a side-on scan next time will give you a number to track.")
+            FocusArea.POSTURE in wanted ->
+                scores +=
+                    AreaScore(FocusArea.POSTURE, 1, "You want to work on posture — a side-on scan next time will give you a number to track.")
         }
 
         // Body composition.
@@ -125,15 +144,37 @@ object GlowScoring {
         val inactive = answers["exercise"] == "0"
         when {
             minor -> {
-                if (inactive) scores += AreaScore(FocusArea.BODY, 1, "Getting active 3 times a week builds strength and confidence. Short home workouts are a great start.")
-                else if (FocusArea.BODY in wanted) scores += AreaScore(FocusArea.BODY, 1, "Strength training a few times a week builds your frame as you grow.")
+                if (inactive) {
+                    scores +=
+                        AreaScore(FocusArea.BODY, 1, "Getting active 3 times a week builds strength and confidence. Short home workouts are a great start.")
+                } else if (FocusArea.BODY in wanted) {
+                    scores += AreaScore(FocusArea.BODY, 1, "Strength training a few times a week builds your frame as you grow.")
+                }
             }
-            whtr != null && whtr >= 0.55 -> scores += AreaScore(FocusArea.BODY, 2, "Your waist-to-height is ${"%.2f".format(whtr)}. Bringing it under 0.5 is the single biggest thing for a sharper face — and your health.")
-            whtr != null && whtr >= 0.5 -> scores += AreaScore(FocusArea.BODY, 1, "Your waist-to-height is ${"%.2f".format(whtr)}, just above the 0.5 line. A small drop would sharpen your jawline.")
+            whtr != null && whtr >= 0.55 ->
+                scores +=
+                    AreaScore(
+                        FocusArea.BODY,
+                        2,
+                        "Your waist-to-height is ${"%.2f".format(
+                            whtr
+                        )}. Bringing it under 0.5 is the single biggest thing for a sharper face — and your health."
+                    )
+            whtr != null && whtr >= 0.5 ->
+                scores +=
+                    AreaScore(
+                        FocusArea.BODY,
+                        1,
+                        "Your waist-to-height is ${"%.2f".format(whtr)}, just above the 0.5 line. A small drop would sharpen your jawline."
+                    )
             bmi != null && bmi < 18.5 -> scores += AreaScore(FocusArea.BODY, 1, "You're on the lean side. Building muscle would fill out your frame and face.")
-            bmi != null && bmi >= 30 -> scores += AreaScore(FocusArea.BODY, 2, "Lowering body fat is the biggest lever for face definition — and steady, safe loss works best.")
+            bmi != null && bmi >= 30 ->
+                scores +=
+                    AreaScore(FocusArea.BODY, 2, "Lowering body fat is the biggest lever for face definition — and steady, safe loss works best.")
             bmi != null && bmi >= 25 -> scores += AreaScore(FocusArea.BODY, 1, "A little less body fat would make your jaw and cheekbones more defined.")
-            inactive -> scores += AreaScore(FocusArea.BODY, 1, "You're not exercising yet. Three short sessions a week change how you look and feel within a month.")
+            inactive ->
+                scores +=
+                    AreaScore(FocusArea.BODY, 1, "You're not exercising yet. Three short sessions a week change how you look and feel within a month.")
             whtr != null || bmi != null -> scores += AreaScore(FocusArea.BODY, 0, "Your body composition is in a healthy range.")
             FocusArea.BODY in wanted -> scores += AreaScore(FocusArea.BODY, 1, "Training 3–4 times a week will tighten everything up.")
         }
@@ -148,13 +189,14 @@ object GlowScoring {
         }
         if (skinRoom >= 0) {
             scores += AreaScore(
-                FocusArea.SKIN, skinRoom,
+                FocusArea.SKIN,
+                skinRoom,
                 when {
                     skinRoom == 0 -> "You've got the essentials covered — cleanser, moisturiser and sunscreen."
                     answers["breakouts"] == "Often" -> "Frequent spots: a simple, consistent routine helps, and a dermatologist can help a lot more if it doesn't settle."
                     answers["skincare"] == "Nothing" -> "Starting a 3-step routine is one of the quickest visible upgrades."
                     else -> "Adding daily sunscreen is the single best thing for long-term skin."
-                },
+                }
             )
         }
 
@@ -168,25 +210,39 @@ object GlowScoring {
         if (groomRoom >= 0) {
             val shape = face?.shape
             scores += AreaScore(
-                FocusArea.GROOMING, groomRoom,
-                if (groomRoom == 0) "Regular cuts keep you looking sharp."
-                else "A cut chosen for your${shape?.let { " ${it.lowercase()}" } ?: ""} face shape, trimmed every few weeks, is the fastest visible upgrade.",
+                FocusArea.GROOMING,
+                groomRoom,
+                if (groomRoom == 0) {
+                    "Regular cuts keep you looking sharp."
+                } else {
+                    "A cut chosen for your${shape?.let { " ${it.lowercase()}" } ?: ""} face shape, trimmed every few weeks, is the fastest visible upgrade."
+                }
             )
         }
 
         // Sleep: use the sleep log when there's one, otherwise the answer.
         val sleepRoom = when {
-            loggedSleepMinutes != null -> when { loggedSleepMinutes < 360 -> 2; loggedSleepMinutes < 420 -> 1; else -> 0 }
-            else -> when (answers["sleep"]) { "Under 6 hours" -> 2; "6–7 hours" -> 1; "7–8 hours", "8+ hours" -> 0; else -> -1 }
+            loggedSleepMinutes != null -> when {
+                loggedSleepMinutes < 360 -> 2
+                loggedSleepMinutes < 420 -> 1
+                else -> 0
+            }
+            else -> when (answers["sleep"]) {
+                "Under 6 hours" -> 2
+                "6–7 hours" -> 1
+                "7–8 hours", "8+ hours" -> 0
+                else -> -1
+            }
         }
         if (sleepRoom >= 0) {
             scores += AreaScore(
-                FocusArea.SLEEP, sleepRoom,
+                FocusArea.SLEEP,
+                sleepRoom,
                 when (sleepRoom) {
                     2 -> "Under 6 hours shows up as puffiness, dark circles and lower mood. More sleep is a quick win."
                     1 -> "An extra 30–60 minutes of sleep reduces puffiness and helps everything else stick."
                     else -> "You're sleeping enough — great for skin, mood and recovery."
-                },
+                }
             )
         }
 
@@ -200,17 +256,31 @@ object GlowScoring {
         if (FocusArea.JAW_NECK in wanted && !minor) {
             scores += AreaScore(FocusArea.JAW_NECK, 1, "Neck training and a lean body define the jaw-to-neck line. We'll be honest about what doesn't work.")
         }
-        if (FocusArea.CONFIDENCE in wanted) scores += AreaScore(FocusArea.CONFIDENCE, 1, "How you carry yourself changes how you're seen as much as your features do.")
+        if (FocusArea.CONFIDENCE in
+            wanted
+        ) {
+            scores += AreaScore(FocusArea.CONFIDENCE, 1, "How you carry yourself changes how you're seen as much as your features do.")
+        }
 
         face?.let {
-            if (it.symmetry < 88) scores += AreaScore(FocusArea.SYMMETRY, 1, "Every face is a little uneven. A few habits — chewing on both sides, sleeping on your back — may help with muscle balance.")
-            else scores += AreaScore(FocusArea.SYMMETRY, 0, "Your face is well balanced (${it.symmetry}/100 — most people land between 88 and 97).")
+            if (it.symmetry <
+                88
+            ) {
+                scores +=
+                    AreaScore(
+                        FocusArea.SYMMETRY,
+                        1,
+                        "Every face is a little uneven. A few habits — chewing on both sides, sleeping on your back — may help with muscle balance."
+                    )
+            } else {
+                scores += AreaScore(FocusArea.SYMMETRY, 0, "Your face is well balanced (${it.symmetry}/100 — most people land between 88 and 97).")
+            }
         }
 
         return scores.sortedWith(
             compareByDescending<AreaScore> { it.room }
                 .thenByDescending { if (it.area in wanted) 1 else 0 }
-                .thenByDescending { changeability[it.area] ?: 0 },
+                .thenByDescending { changeability[it.area] ?: 0 }
         )
     }
 
@@ -226,7 +296,10 @@ object GlowScoring {
                 FocusArea.POSTURE -> add("posture-fix")
                 FocusArea.BODY -> add("fat-loss-face")
                 FocusArea.SKIN -> add("skin-basics")
-                FocusArea.GROOMING -> { add("hair-face-shape"); add("brows-small-grooming") }
+                FocusArea.GROOMING -> {
+                    add("hair-face-shape")
+                    add("brows-small-grooming")
+                }
                 FocusArea.SLEEP -> add("eyes-under-eye")
                 FocusArea.STYLE -> add("style-basics")
                 FocusArea.JAW_NECK -> add("jaw-neck")
@@ -236,7 +309,11 @@ object GlowScoring {
         }
         // Everyone benefits from the skin basics, so add them if there's time.
         if (result.minutesPerDay >= 20) add("skin-basics")
-        val budget = when (result.minutesPerDay) { 10 -> 3; 20 -> 4; else -> 6 }
+        val budget = when (result.minutesPerDay) {
+            10 -> 3
+            20 -> 4
+            else -> 6
+        }
         val chosen = items.take(budget)
 
         val focusAreas = result.focus.map { it.area }
@@ -307,7 +384,7 @@ object GlowCheckStore {
         heightCm: Int?,
         weightKg: Double?,
         waistCm: Double?,
-        today: LocalDate = LocalDate.now(),
+        today: LocalDate = LocalDate.now()
     ): CheckResult {
         val minor = ProfileStore.isMinor
         val logged = SleepLogStore.recent(today, 7).takeIf { it.size >= 3 }?.let(SleepMath::averageMinutes)
@@ -343,8 +420,8 @@ object GlowCheckStore {
                 CheckResult(
                     LocalDate.parse(j.getString("date")), j.getJSONArray("goals").strings().toSet(), j.getInt("minutes"), answers, face,
                     j.optStringOrNull("shape"), if (j.isNull("neck")) null else j.getInt("neck"),
-                    if (j.isNull("height")) null else j.getInt("height"), dbl("weight"), dbl("waist"), areas,
-                ),
+                    if (j.isNull("height")) null else j.getInt("height"), dbl("weight"), dbl("waist"), areas
+                )
             )
         }
     }
@@ -358,13 +435,30 @@ object GlowCheckStore {
                     .put("goals", r.goals.toList().toJsonArray())
                     .put("minutes", r.minutesPerDay)
                     .put("answers", JSONObject(r.answers))
-                    .put("face", r.face?.let { JSONObject().put("shape", it.shape).put("lw", it.lengthToWidth).put("fc", it.foreheadToCheek).put("jc", it.jawToCheek).put("sym", it.symmetry).put("lower", it.lowerFaceRatio) } ?: JSONObject.NULL)
+                    .put(
+                        "face",
+                        r.face?.let {
+                            JSONObject().put(
+                                "shape",
+                                it.shape
+                            ).put(
+                                "lw",
+                                it.lengthToWidth
+                            ).put("fc", it.foreheadToCheek).put("jc", it.jawToCheek).put("sym", it.symmetry).put("lower", it.lowerFaceRatio)
+                        }
+                            ?: JSONObject.NULL
+                    )
                     .put("shape", r.faceShape ?: JSONObject.NULL)
                     .put("neck", r.neckAngle ?: JSONObject.NULL)
                     .put("height", r.heightCm ?: JSONObject.NULL)
                     .put("weight", r.weightKg ?: JSONObject.NULL)
                     .put("waist", r.waistCm ?: JSONObject.NULL)
-                    .put("areas", JSONArray().also { a -> r.areas.forEach { a.put(JSONObject().put("area", it.area.name).put("room", it.room).put("reason", it.reason)) } }),
+                    .put(
+                        "areas",
+                        JSONArray().also { a ->
+                            r.areas.forEach { a.put(JSONObject().put("area", it.area.name).put("room", it.room).put("reason", it.reason)) }
+                        }
+                    )
             )
         }
         Storage.write(KEY, arr.toString())

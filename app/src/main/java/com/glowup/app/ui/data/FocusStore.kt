@@ -4,12 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
+import org.json.JSONObject
 
 /** A focus block. Running when [endAtMillis] is set; paused when [remainingMillis] is set instead. */
 data class ActiveFocus(
@@ -20,7 +20,7 @@ data class ActiveFocus(
     /** Block the user's chosen apps while this runs. */
     val blockApps: Boolean = false,
     /** Can't be paused or ended early except through the emergency exit. */
-    val strict: Boolean = false,
+    val strict: Boolean = false
 ) {
     val isRunning: Boolean get() = endAtMillis != null
 
@@ -139,7 +139,7 @@ object FocusStore {
                 if (it.isNull("endAt")) null else it.getLong("endAt"),
                 if (it.isNull("remaining")) null else it.getLong("remaining"),
                 it.optBoolean("block"),
-                it.optBoolean("strict"),
+                it.optBoolean("strict")
             )
         }
     }
@@ -160,7 +160,7 @@ object FocusStore {
                         .put("remaining", it.remainingMillis ?: JSONObject.NULL)
                         .put("block", it.blockApps)
                         .put("strict", it.strict)
-                } ?: JSONObject.NULL,
+                } ?: JSONObject.NULL
             )
         Storage.write(KEY, json.toString())
     }

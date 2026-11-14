@@ -13,7 +13,7 @@ val Poppins = FontFamily(
     Font(R.font.poppins_medium, FontWeight.Medium),
     Font(R.font.poppins_semibold, FontWeight.SemiBold),
     Font(R.font.poppins_bold, FontWeight.Bold),
-    Font(R.font.poppins_extrabold, FontWeight.ExtraBold),
+    Font(R.font.poppins_extrabold, FontWeight.ExtraBold)
 )
 
 val ReMakeUTypography = Typography(
@@ -23,5 +23,5 @@ val ReMakeUTypography = Typography(
     bodyLarge = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Normal, fontSize = 14.5.sp),
     bodyMedium = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Normal, fontSize = 13.sp),
     bodySmall = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Medium, fontSize = 11.5.sp),
-    labelLarge = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 14.sp),
+    labelLarge = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
 )

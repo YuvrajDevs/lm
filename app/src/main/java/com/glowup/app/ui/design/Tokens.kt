@@ -9,17 +9,17 @@ import androidx.compose.ui.unit.sp
  * across screens. Pair each with the matching [LineHeight] for multi-line text.
  */
 object TextSize {
-    val Micro = 11.sp        // overlines, badges, chart labels
-    val Caption = 12.sp      // secondary metadata
-    val BodySmall = 13.sp    // supporting copy
-    val Body = 14.sp         // default body text
-    val BodyLarge = 15.sp    // row titles, buttons
-    val Title = 17.sp        // section titles, card titles
-    val TitleLarge = 20.sp   // hero card titles
-    val Headline = 24.sp     // screen headers
-    val Display = 28.sp      // step titles, big stats
+    val Micro = 11.sp // overlines, badges, chart labels
+    val Caption = 12.sp // secondary metadata
+    val BodySmall = 13.sp // supporting copy
+    val Body = 14.sp // default body text
+    val BodyLarge = 15.sp // row titles, buttons
+    val Title = 17.sp // section titles, card titles
+    val TitleLarge = 20.sp // hero card titles
+    val Headline = 24.sp // screen headers
+    val Display = 28.sp // step titles, big stats
     val DisplayLarge = 34.sp // hero numbers
-    val Number = 48.sp       // countdowns
+    val Number = 48.sp // countdowns
     val NumberLarge = 56.sp
     val Jumbo = 72.sp
     val Countdown = 96.sp
@@ -52,7 +52,10 @@ object Shapes {
     val Pill = RoundedCornerShape(percent = 50)
 }
 
-/** Spacing on a 4dp grid. Screen edges use [Gutter]. */
+/**
+ * Spacing on a 4dp grid; screen edges use [Gutter]. Every padding, gap and spacer uses one of
+ * these — 0–3dp hairlines are the only literals allowed.
+ */
 object Space {
     val Xs = 4.dp
     val S = 8.dp
@@ -61,12 +64,15 @@ object Space {
     val Xl = 20.dp
     val Gutter = 24.dp
     val Section = 28.dp
+    val Xxl = 32.dp
+    val Huge = 40.dp
 }
 
 object Sizes {
     val Button = 56.dp
     val ButtonSmall = 48.dp
     val IconButton = 48.dp
+
     /** Minimum touch target, per Material accessibility guidance. */
     val Touch = 48.dp
 }

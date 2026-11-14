@@ -4,13 +4,13 @@ import com.glowup.app.ui.data.style.Garment
 import com.glowup.app.ui.data.style.OutfitEngine
 import com.glowup.app.ui.data.style.Palette
 import com.glowup.app.ui.data.style.StyleLibrary
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
 
 class WardrobeTest {
     @Before
@@ -89,7 +89,10 @@ class WardrobeTest {
 
     @Test
     fun oldTextItemsAreUpgraded() {
-        Storage.write("wardrobe", """[{"id":1,"category":"Top","title":"Navy oxford shirt","meta":"Cotton"},{"id":2,"category":"Shoes","title":"White sneakers","meta":""}]""")
+        Storage.write(
+            "wardrobe",
+            """[{"id":1,"category":"Top","title":"Navy oxford shirt","meta":"Cotton"},{"id":2,"category":"Shoes","title":"White sneakers","meta":""}]"""
+        )
         WardrobeStore.load()
         assertEquals(Garment.SHIRT, WardrobeStore.find(1)!!.garment)
         assertEquals(Palette.Navy, WardrobeStore.find(1)!!.colour)

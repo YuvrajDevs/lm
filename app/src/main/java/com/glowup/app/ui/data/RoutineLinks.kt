@@ -18,9 +18,10 @@ object RoutineLinks {
         "bedtime" to "sleep", "sleep" to "sleep_log",
         "mood" to "mood_checkin",
         "learn" to "learn", "lesson" to "learn",
-        "workout" to "fitness", "exercise" to "fitness", "push-up" to "fitness", "pushup" to "fitness", "gym" to "fitness", "running" to "fitness", "jog" to "fitness", "walk" to "fitness",
+        "workout" to "fitness", "exercise" to "fitness", "push-up" to "fitness", "pushup" to "fitness", "gym" to "fitness", "running" to "fitness",
+        "jog" to "fitness", "walk" to "fitness",
         "progress photo" to "progress_photos",
-        "to-do" to "todo", "todo" to "todo", "plan tomorrow" to "todo",
+        "to-do" to "todo", "todo" to "todo", "plan tomorrow" to "todo"
     )
 
     private val byCategory = mapOf(
@@ -29,7 +30,7 @@ object RoutineLinks {
         "Social" to "communication",
         "Mind" to "quotes_notes",
         "Style" to "wardrobe",
-        "Sleep" to "sleep",
+        "Sleep" to "sleep"
     )
 
     /** The screen to open for [routine], or null when it's something you do away from the app. */

@@ -3,9 +3,9 @@ package com.glowup.app.ui.data
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import com.glowup.app.R
+import java.time.LocalDate
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.LocalDate
 
 /** [score] places each mood on a 1 (low) – 5 (great) scale so days can be compared. */
 data class LoggedMood(val label: String, val icon: Int, val score: Int)
@@ -18,7 +18,7 @@ val moodOptions = listOf(
     LoggedMood("Tired", R.drawable.ic_mood_tired, 2),
     LoggedMood("Confused", R.drawable.ic_mood_confused, 3),
     LoggedMood("Sad", R.drawable.ic_mood_sad, 1),
-    LoggedMood("Angry", R.drawable.ic_mood_angry, 1),
+    LoggedMood("Angry", R.drawable.ic_mood_angry, 1)
 )
 
 /** Mood log keyed by ISO date, shared by the streak detail screen and the check-in flow. */
@@ -30,7 +30,7 @@ object MoodStore {
 
     val defaultTags = listOf(
         "Slept well", "Exercise", "Friends", "Family", "Date", "Work stress", "Study",
-        "Outdoors", "Junk food", "Ate well", "Alone time", "Social media", "Alcohol", "Sick",
+        "Outdoors", "Junk food", "Ate well", "Alone time", "Social media", "Alcohol", "Sick"
     )
 
     val moodLog = mutableStateMapOf<String, String>()

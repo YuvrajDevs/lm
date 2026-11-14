@@ -1,13 +1,12 @@
 package com.glowup.app.ui.data
 
 import androidx.compose.runtime.mutableStateListOf
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
+import org.json.JSONObject
 
-fun weekKey(today: LocalDate = LocalDate.now()): String =
-    today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString()
+fun weekKey(today: LocalDate = LocalDate.now()): String = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString()
 
 /** Confidence cards completed this week; resets every Monday. */
 object ConfidenceStore {
@@ -16,8 +15,7 @@ object ConfidenceStore {
     private var week = weekKey()
     val doneTitles = mutableStateListOf<String>()
 
-    fun isDone(title: String, today: LocalDate = LocalDate.now()): Boolean =
-        weekKey(today) == week && title in doneTitles
+    fun isDone(title: String, today: LocalDate = LocalDate.now()): Boolean = weekKey(today) == week && title in doneTitles
 
     fun toggle(title: String, points: Int, today: LocalDate = LocalDate.now()) {
         rollOver(today)

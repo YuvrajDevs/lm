@@ -4,6 +4,21 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jlleitschuh.gradle.ktlint")
+    id("io.gitlab.arturbosch.detekt")
+}
+
+ktlint {
+    android.set(true)
+    baseline.set(file("ktlint-baseline.xml"))
+    filter { exclude { it.file.path.contains("/build/") } }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(rootProject.file("config/detekt.yml"))
+    baseline = file("detekt-baseline.xml")
+    source.setFrom("src/main/java", "src/test/java")
 }
 
 android {

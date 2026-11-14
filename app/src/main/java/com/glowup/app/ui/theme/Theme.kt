@@ -11,7 +11,7 @@ private val ReMakeUColorScheme = lightColorScheme(
     surface = Surface,
     onBackground = Ink,
     onSurface = Ink,
-    secondaryContainer = CardNeutral,
+    secondaryContainer = CardNeutral
 )
 
 @Composable
@@ -19,6 +19,6 @@ fun ReMakeUTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = ReMakeUColorScheme,
         typography = ReMakeUTypography,
-        content = content,
+        content = content
     )
 }

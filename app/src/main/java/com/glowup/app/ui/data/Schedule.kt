@@ -95,7 +95,7 @@ sealed interface Schedule {
             Daily(LocalTime.of(22, 0)),
             Daily(LocalTime.of(22, 30)),
             Weekly(DayOfWeek.SUNDAY, LocalTime.of(10, 0)),
-            Weekly(DayOfWeek.SATURDAY, LocalTime.of(11, 0)),
+            Weekly(DayOfWeek.SATURDAY, LocalTime.of(11, 0))
         )
     }
 }

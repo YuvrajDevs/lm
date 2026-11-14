@@ -25,7 +25,7 @@ object OutfitEngine {
     private val neutrals = setOf(
         Palette.White, Palette.Ivory, Palette.Cream, Palette.Beige, Palette.Stone, Palette.Khaki, Palette.Camel, Palette.Tan,
         Palette.Brown, Palette.DarkBrown, Palette.LightGrey, Palette.Grey, Palette.Charcoal, Palette.Black, Palette.Navy,
-        Palette.LightBlue, Palette.Denim, Palette.DarkDenim,
+        Palette.LightBlue, Palette.Denim, Palette.DarkDenim
     ).map { it.name }.toSet()
 
     /** Earthy accents that sit happily together (olive with rust, mustard with forest…). */
@@ -33,7 +33,7 @@ object OutfitEngine {
 
     /** Occasion → target formality (1 casual … 3 formal). */
     val occasions: List<Pair<String, Int>> = listOf(
-        "Everyday" to 1, "Weekend" to 1, "Gym" to 1, "College" to 1, "Date" to 2, "Office" to 2, "Dinner" to 2, "Wedding" to 3, "Interview" to 3,
+        "Everyday" to 1, "Weekend" to 1, "Gym" to 1, "College" to 1, "Date" to 2, "Office" to 2, "Dinner" to 2, "Wedding" to 3, "Interview" to 3
     )
 
     fun isNeutral(s: Swatch) = s.name in neutrals
@@ -67,7 +67,8 @@ object OutfitEngine {
         val colours = listOfNotNull(layer?.colour, top.colour, bottom.colour, shoes.colour)
         // Prefer things you haven't worn lately so suggestions rotate.
         val freshness = pieces.sumOf { it.wearCount.coerceAtMost(10) }
-        return (colourScore(listOf(top.colour, bottom.colour) + listOfNotNull(layer?.colour, shoes.colour)) * 6 + formalityFit * 4) / 10 - freshness + (if (colours.size >= 4) 2 else 0)
+        return (colourScore(listOf(top.colour, bottom.colour) + listOfNotNull(layer?.colour, shoes.colour)) * 6 + formalityFit * 4) / 10 - freshness +
+            (if (colours.size >= 4) 2 else 0)
     }
 
     /** Best outfits for an occasion, all different, highest score first. */
@@ -77,11 +78,17 @@ object OutfitEngine {
         val shoes = items.filter { it.slot == Slot.SHOES }
         val layers = listOf<WardrobeItem?>(null) + items.filter { it.slot == Slot.LAYER }
         val all = mutableListOf<ClosetOutfit>()
-        for (t in tops) for (b in bottoms) for (s in shoes) for (l in layers) {
-            val score = outfitScore(t, b, s, l, target) ?: continue
-            // Formal occasions want a layer when one is available.
-            val bonus = if (target == 3 && l != null) 8 else 0
-            all += ClosetOutfit(t, b, s, l, score + bonus - ((t.id * 31 + b.id * 17 + shuffleSeed) % 3))
+        for (t in tops) {
+            for (b in bottoms) {
+                for (s in shoes) {
+                    for (l in layers) {
+                        val score = outfitScore(t, b, s, l, target) ?: continue
+                        // Formal occasions want a layer when one is available.
+                        val bonus = if (target == 3 && l != null) 8 else 0
+                        all += ClosetOutfit(t, b, s, l, score + bonus - ((t.id * 31 + b.id * 17 + shuffleSeed) % 3))
+                    }
+                }
+            }
         }
         val result = mutableListOf<ClosetOutfit>()
         for (o in all.sortedByDescending { it.score }) {
@@ -99,8 +106,12 @@ object OutfitEngine {
         val tops = items.filter { it.slot == Slot.TOP }
         val bottoms = items.filter { it.slot == Slot.BOTTOM }
         val shoes = items.filter { it.slot == Slot.SHOES }
-        for (t in tops) for (b in bottoms) for (s in shoes) {
-            if ((1..3).any { target -> outfitScore(t, b, s, null, target)?.let { it >= 60 } == true }) n++
+        for (t in tops) {
+            for (b in bottoms) {
+                for (s in shoes) {
+                    if ((1..3).any { target -> outfitScore(t, b, s, null, target)?.let { it >= 60 } == true }) n++
+                }
+            }
         }
         return n
     }
@@ -125,7 +136,7 @@ object OutfitEngine {
         Garment.TROUSERS to setOf(Garment.JEANS),
         Garment.LOAFERS to setOf(Garment.DERBIES),
         Garment.DERBIES to setOf(Garment.LOAFERS),
-        Garment.BOOTS to setOf(Garment.DERBIES),
+        Garment.BOOTS to setOf(Garment.DERBIES)
     )
 
     fun matchLook(outfit: Outfit, items: List<WardrobeItem>): List<LookMatch> {
@@ -135,7 +146,9 @@ object OutfitEngine {
             val similar = items.filter { it.id !in used && it.garment in standIns[piece.garment].orEmpty() }
             val best = (sameGarment.ifEmpty { similar })
                 .minByOrNull { distance(it.colour, piece.swatch) }
-                ?.takeIf { distance(it.colour, piece.swatch) < 0.42 || (isNeutral(it.colour) && isNeutral(piece.swatch) && piece.garment.slot != Slot.ACCESSORY) }
+                ?.takeIf {
+                    distance(it.colour, piece.swatch) < 0.42 || (isNeutral(it.colour) && isNeutral(piece.swatch) && piece.garment.slot != Slot.ACCESSORY)
+                }
             best?.let { used += it.id }
             LookMatch(piece, best, best != null && best.garment == piece.garment && distance(best.colour, piece.swatch) < 0.15)
         }

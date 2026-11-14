@@ -13,8 +13,6 @@ import com.glowup.app.ui.data.objects
 import com.glowup.app.ui.data.optStringOrNull
 import com.glowup.app.ui.data.strings
 import com.glowup.app.ui.data.toJsonArray
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -23,6 +21,8 @@ import java.time.temporal.TemporalAdjusters
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
+import org.json.JSONArray
+import org.json.JSONObject
 
 data class SetLog(val exerciseId: String, val target: Int, val done: Int, val max: Boolean = false)
 
@@ -34,7 +34,7 @@ data class WorkoutLog(
     val seconds: Int,
     val sets: List<SetLog>,
     /** 1 easy … 5 brutal. */
-    val effort: Int,
+    val effort: Int
 ) {
     /** Share of the targets hit, 0–1. Max-effort sets always count as complete. */
     val completion: Double
@@ -112,7 +112,7 @@ object FitnessStore {
         startWeightKg: Double?,
         waistCm: Double?,
         targetKg: Double?,
-        today: LocalDate = LocalDate.now(),
+        today: LocalDate = LocalDate.now()
     ) {
         // Under-18s never get a weight-loss goal or target.
         this.goal = if (ProfileStore.isMinor && !goal.minorSafe) FitnessGoal.GET_TONED else goal
@@ -177,9 +177,21 @@ object FitnessStore {
     /** Level from the quick test: max push-ups, plank seconds and squats in a minute. */
     fun levelFromTest(pushups: Int, plankSeconds: Int, squatsPerMinute: Int): FitnessLevel {
         var score = 0
-        score += when { pushups >= 20 -> 2; pushups >= 8 -> 1; else -> 0 }
-        score += when { plankSeconds >= 90 -> 2; plankSeconds >= 40 -> 1; else -> 0 }
-        score += when { squatsPerMinute >= 40 -> 2; squatsPerMinute >= 25 -> 1; else -> 0 }
+        score += when {
+            pushups >= 20 -> 2
+            pushups >= 8 -> 1
+            else -> 0
+        }
+        score += when {
+            plankSeconds >= 90 -> 2
+            plankSeconds >= 40 -> 1
+            else -> 0
+        }
+        score += when {
+            squatsPerMinute >= 40 -> 2
+            squatsPerMinute >= 25 -> 1
+            else -> 0
+        }
         return when {
             score >= 5 -> FitnessLevel.ADVANCED
             score >= 2 -> FitnessLevel.INTERMEDIATE
@@ -242,12 +254,18 @@ object FitnessStore {
     fun bestFor(exerciseId: String): Int? = logs.flatMap { it.sets }.filter { it.exerciseId == exerciseId }.maxOfOrNull { it.done }
 
     /** Best set per workout over time, oldest first. */
-    fun history(exerciseId: String): List<Pair<LocalDate, Int>> =
-        logs.sortedBy { it.id }.mapNotNull { log ->
-            log.sets.filter { it.exerciseId == exerciseId }.maxOfOrNull { it.done }?.let { log.date to it }
-        }
+    fun history(exerciseId: String): List<Pair<LocalDate, Int>> = logs.sortedBy { it.id }.mapNotNull { log ->
+        log.sets.filter { it.exerciseId == exerciseId }.maxOfOrNull { it.done }?.let { log.date to it }
+    }
 
-    fun saveWorkout(plan: WorkoutPlan, sets: List<SetLog>, seconds: Int, effort: Int, now: Long = System.currentTimeMillis(), date: LocalDate = LocalDate.now()): WorkoutResult {
+    fun saveWorkout(
+        plan: WorkoutPlan,
+        sets: List<SetLog>,
+        seconds: Int,
+        effort: Int,
+        now: Long = System.currentTimeMillis(),
+        date: LocalDate = LocalDate.now()
+    ): WorkoutResult {
         val previousBests = sets.map { it.exerciseId }.distinct().associateWith { bestFor(it) }
         val log = WorkoutLog(now, date, plan.key, plan.title, seconds, sets, effort.coerceIn(1, 5))
         logs.add(log)
@@ -269,7 +287,9 @@ object FitnessStore {
                         hits[id] = 0
                         bonus[id] = (bonus[id] ?: 0) + 1
                         changes += ProgressionChange(id, Direction.UP, bonus[id]!!)
-                    } else hits[id] = h
+                    } else {
+                        hits[id] = h
+                    }
                 }
                 rate < 0.6 -> {
                     hits[id] = 0
@@ -281,7 +301,9 @@ object FitnessStore {
                             bonus[id] = eased
                             changes += ProgressionChange(id, Direction.DOWN, eased)
                         }
-                    } else misses[id] = m
+                    } else {
+                        misses[id] = m
+                    }
                 }
                 else -> hits[id] = 0
             }
@@ -356,11 +378,19 @@ object FitnessStore {
         val change = latest.weightKg - baseline.weightKg
         val weekly = if (weeks < 0.5) 0.0 else change / baseline.weightKg / weeks * 100
         if (ProfileStore.isMinor) {
-            return WeightTrend(change, weeks, weekly, "Weight naturally changes as you grow. Focus on getting stronger and sleeping well — that's what counts.", TrendTone.NEUTRAL)
+            return WeightTrend(
+                change,
+                weeks,
+                weekly,
+                "Weight naturally changes as you grow. Focus on getting stronger and sleeping well — that's what counts.",
+                TrendTone.NEUTRAL
+            )
         }
         val (message, tone) = when (goal) {
             FitnessGoal.LOSE_FAT -> when {
-                weekly < -1.0 -> "You're losing faster than about 1% a week. Eat a bit more and keep protein high so you lose fat, not muscle." to TrendTone.CAUTION
+                weekly < -1.0 ->
+                    "You're losing faster than about 1% a week. Eat a bit more and keep protein high so you lose fat, not muscle." to
+                        TrendTone.CAUTION
                 weekly <= -0.25 -> "Right on track — steady fat loss you can keep up." to TrendTone.GOOD
                 weekly < 0.25 -> "Holding steady. Small changes work best: one less snack, a 20-minute walk." to TrendTone.NEUTRAL
                 else -> "Up a little. Water and salt swing weight by 1–2 kg day to day, so watch the trend over weeks." to TrendTone.NEUTRAL
@@ -389,8 +419,7 @@ object FitnessStore {
 
     // ---------- Units ----------
 
-    fun displayWeight(kg: Double): String =
-        if (useLb) "%.1f lb".format(kg * 2.20462) else "%.1f kg".format(kg)
+    fun displayWeight(kg: Double): String = if (useLb) "%.1f lb".format(kg * 2.20462) else "%.1f kg".format(kg)
 
     fun displayChange(kg: Double): String {
         val value = if (useLb) kg * 2.20462 else kg
@@ -407,7 +436,12 @@ object FitnessStore {
     }
 
     fun load() {
-        progress.clear(); logs.clear(); bonus.clear(); hits.clear(); misses.clear(); body.clear()
+        progress.clear()
+        logs.clear()
+        bonus.clear()
+        hits.clear()
+        misses.clear()
+        body.clear()
         val json = Storage.read(KEY)?.let(::JSONObject)
         setUp = json?.optBoolean("setUp") ?: false
         goal = json?.optStringOrNull("goal")?.let { runCatching { FitnessGoal.valueOf(it) }.getOrNull() }
@@ -432,15 +466,20 @@ object FitnessStore {
         json?.optJSONArray("logs")?.objects()?.forEach { l ->
             logs.add(
                 WorkoutLog(
-                    l.getLong("id"), LocalDate.parse(l.getString("date")), l.getString("key"), l.getString("title"),
+                    l.getLong("id"),
+                    LocalDate.parse(l.getString("date")),
+                    l.getString("key"),
+                    l.getString("title"),
                     l.getInt("seconds"),
                     l.getJSONArray("sets").objects().map { SetLog(it.getString("e"), it.getInt("t"), it.getInt("d"), it.optBoolean("m")) },
-                    l.getInt("effort"),
-                ),
+                    l.getInt("effort")
+                )
             )
         }
         fun ints(name: String, into: MutableMap<String, Int>) = json?.optJSONObject(name)?.let { o -> o.keys().forEach { into[it] = o.getInt(it) } }
-        ints("bonus", bonus); ints("hits", hits); ints("misses", misses)
+        ints("bonus", bonus)
+        ints("hits", hits)
+        ints("misses", misses)
         json?.optJSONObject("body")?.let { b ->
             b.keys().forEach { day ->
                 val e = b.getJSONObject(day)
@@ -472,15 +511,25 @@ object FitnessStore {
                         arr.put(
                             JSONObject().put("id", l.id).put("date", l.date.toString()).put("key", l.key).put("title", l.title)
                                 .put("seconds", l.seconds).put("effort", l.effort)
-                                .put("sets", JSONArray().also { s -> l.sets.forEach { s.put(JSONObject().put("e", it.exerciseId).put("t", it.target).put("d", it.done).put("m", it.max)) } }),
+                                .put(
+                                    "sets",
+                                    JSONArray().also { s ->
+                                        l.sets.forEach { s.put(JSONObject().put("e", it.exerciseId).put("t", it.target).put("d", it.done).put("m", it.max)) }
+                                    }
+                                )
                         )
                     }
-                },
+                }
             )
             .put("bonus", JSONObject(bonus.toMap()))
             .put("hits", JSONObject(hits.toMap()))
             .put("misses", JSONObject(misses.toMap()))
-            .put("body", JSONObject().also { b -> body.forEach { (d, e) -> b.put(d, JSONObject().put("kg", e.weightKg).put("waist", e.waistCm ?: JSONObject.NULL)) } })
+            .put(
+                "body",
+                JSONObject().also { b ->
+                    body.forEach { (d, e) -> b.put(d, JSONObject().put("kg", e.weightKg).put("waist", e.waistCm ?: JSONObject.NULL)) }
+                }
+            )
         Storage.write(KEY, json.toString())
     }
 }

@@ -1,0 +1,201 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:BlockStore.kt$BlockStore$focus != null &amp;&amp; focus.isRunning &amp;&amp; focus.blockApps &amp;&amp; packageName in focusApps</ID>
+    <ID>ComplexCondition:FaceAnalysis.kt$FaceAnalysis$(a.y &lt;= y &amp;&amp; b.y &gt; y) || (b.y &lt;= y &amp;&amp; a.y &gt; y)</ID>
+    <ID>ComplexCondition:OutfitEngine.kt$OutfitEngine$target == 3 &amp;&amp; (shoes.garment == Garment.SNEAKERS || shoes.garment == Garment.SANDALS) &amp;&amp; layer != null</ID>
+    <ID>ComplexCondition:SleepScreen.kt$(SleepStore.wakeAlarmOn || SleepStore.bedtimeAlarmOn) &amp;&amp; !exactAllowed &amp;&amp; Build.VERSION.SDK_INT &gt;= 31</ID>
+    <ID>CyclomaticComplexMethod:AddRoutineScreen.kt$@Composable fun AddRoutineScreen(navController: NavHostController)</ID>
+    <ID>CyclomaticComplexMethod:BodyCheckInScreen.kt$@Composable fun BodyCheckInScreen(navController: NavHostController)</ID>
+    <ID>CyclomaticComplexMethod:CameraScanner.kt$@Composable fun CameraScanner( mode: ScanMode, onFace: (FaceMetrics) -&gt; Unit = {}, onPosture: (Int) -&gt; Unit = {}, onPermissionDenied: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>CyclomaticComplexMethod:FitnessSetupScreen.kt$@Composable fun FitnessSetupScreen(navController: NavHostController)</ID>
+    <ID>CyclomaticComplexMethod:GlowCheck.kt$GlowScoring$fun score( goals: Set&lt;String&gt;, answers: Map&lt;String, String&gt;, face: FaceMetrics?, neckAngle: Int?, heightCm: Int?, weightKg: Double?, waistCm: Double?, minor: Boolean, loggedSleepMinutes: Int? = null ): List&lt;AreaScore&gt;</ID>
+    <ID>CyclomaticComplexMethod:GlowCheckScreen.kt$@Composable private fun ColumnScope.PlanContent(result: CheckResult, navController: NavHostController)</ID>
+    <ID>CyclomaticComplexMethod:GlowCheckScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable fun GlowCheckScreen(navController: NavHostController)</ID>
+    <ID>CyclomaticComplexMethod:ProgrammeScreen.kt$@Composable fun ProgrammeScreen(navController: NavHostController, id: String)</ID>
+    <ID>CyclomaticComplexMethod:SettingsScreen.kt$@Composable fun SettingsScreen(navController: NavHostController)</ID>
+    <ID>CyclomaticComplexMethod:SleepScreen.kt$@Composable fun SleepScreen(navController: NavHostController)</ID>
+    <ID>CyclomaticComplexMethod:SpeakingPracticeScreen.kt$@Composable fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = null, scenario: Scenario? = null)</ID>
+    <ID>CyclomaticComplexMethod:WorkoutPlayerScreen.kt$@Composable fun WorkoutPlayerScreen(navController: NavHostController, key: String)</ID>
+    <ID>ForEachOnRange:FitnessScreen.kt$0..6</ID>
+    <ID>ForEachOnRange:LearnScreen.kt$1..Program.WEEKS</ID>
+    <ID>ForEachOnRange:ProgrammeScreen.kt$(1..30).chunked(5)</ID>
+    <ID>ForEachOnRange:SpeakingPracticeScreen.kt$0 until 300</ID>
+    <ID>LargeClass:ExerciseLibrary.kt$ExerciseLibrary</ID>
+    <ID>LongMethod:AddRoutineScreen.kt$@Composable fun AddRoutineScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:BlockerScreen.kt$@Composable fun BlockerScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:BodyCheckInScreen.kt$@Composable fun BodyCheckInScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:CommunicationScreen.kt$@Composable fun CommunicationScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:ExerciseScreens.kt$@Composable fun ExerciseDetailScreen(navController: NavHostController, id: String)</ID>
+    <ID>LongMethod:FitnessSetupScreen.kt$@Composable fun FitnessSetupScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:FocusScreen.kt$@Composable fun FocusScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:GlowCheck.kt$GlowScoring$fun score( goals: Set&lt;String&gt;, answers: Map&lt;String, String&gt;, face: FaceMetrics?, neckAngle: Int?, heightCm: Int?, weightKg: Double?, waistCm: Double?, minor: Boolean, loggedSleepMinutes: Int? = null ): List&lt;AreaScore&gt;</ID>
+    <ID>LongMethod:GlowCheckScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable fun GlowCheckScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:GroomingDetailScreen.kt$@Composable fun GroomingDetailScreen(navController: NavHostController, id: Int)</ID>
+    <ID>LongMethod:HomeScreen.kt$@Composable fun HomeScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:LearnScreen.kt$@Composable fun LearnScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:LessonDetailScreen.kt$@Composable fun LessonDetailScreen(navController: NavHostController, id: Int)</ID>
+    <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:MoodCheckinScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable fun MoodCheckinScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:MorningSessionScreen.kt$@Composable fun MorningSessionScreen(navController: NavHostController, index: Int)</ID>
+    <ID>LongMethod:NotificationsScreen.kt$@Composable fun NotificationsScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:OutfitDetailScreen.kt$@Composable fun OutfitDetailScreen(navController: NavHostController, id: String)</ID>
+    <ID>LongMethod:ProPaywall.kt$@Composable fun ProPaywall()</ID>
+    <ID>LongMethod:ProgrammeScreen.kt$@Composable fun ProgrammeScreen(navController: NavHostController, id: String)</ID>
+    <ID>LongMethod:ProgressPhotosScreen.kt$@Composable fun ProgressPhotosScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:ProgressPhotosScreen.kt$@Composable private fun CaptureView(ghost: File?, pose: Pose, onDone: () -&gt; Unit)</ID>
+    <ID>LongMethod:QuotesNotesScreen.kt$@Composable fun QuotesNotesScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:RoutineDetailScreen.kt$@Composable fun RoutineDetailScreen(navController: NavHostController, routineId: Int)</ID>
+    <ID>LongMethod:RoutinesScreen.kt$@Composable fun RoutinesScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:SettingsScreen.kt$@Composable fun SettingsScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:SleepCheckIn.kt$@Composable internal fun CheckInCard( date: LocalDate, today: LocalDate, bed: LocalTime, wake: LocalTime, quality: Int?, onBed: (LocalTime) -&gt; Unit, onWake: (LocalTime) -&gt; Unit, onPickBed: () -&gt; Unit, onPickWake: () -&gt; Unit, onQuality: (Int) -&gt; Unit, onSave: () -&gt; Unit, onCancel: (() -&gt; Unit)? )</ID>
+    <ID>LongMethod:SleepLogScreen.kt$@Composable fun SleepLogScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:SleepScreen.kt$@Composable fun SleepScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:SpeakingPracticeScreen.kt$@Composable fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = null, scenario: Scenario? = null)</ID>
+    <ID>LongMethod:SpeakingPracticeScreen.kt$@Composable private fun ReportView(report: SpeechReport?, transcript: String, modifier: Modifier, onHistory: () -&gt; Unit)</ID>
+    <ID>LongMethod:StreakDetailScreen.kt$@Composable fun StreakDetailScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:StylingScreen.kt$@Composable fun StylingScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:TodoScreen.kt$@Composable fun TodoScreen(navController: NavHostController)</ID>
+    <ID>LongMethod:WardrobeItemSheets.kt$@OptIn(ExperimentalLayoutApi::class) @Composable internal fun AddItemFlow(onDone: () -&gt; Unit)</ID>
+    <ID>LongMethod:WorkoutPlayerScreen.kt$@Composable fun WorkoutPlayerScreen(navController: NavHostController, key: String)</ID>
+    <ID>LongMethod:WorkoutSummary.kt$@Composable internal fun Summary(title: String, logged: List&lt;SetLog&gt;, seconds: Int, effort: Int, onEffort: (Int) -&gt; Unit, onSave: () -&gt; Unit, onDiscard: () -&gt; Unit)</ID>
+    <ID>LongMethod:YourDataScreen.kt$@Composable fun YourDataScreen(navController: NavHostController)</ID>
+    <ID>LongParameterList:ExerciseLibrary.kt$ExerciseLibrary$( id: String, name: String, primary: Muscle, also: Set&lt;Muscle&gt;, measure: Measure, level: Int, steps: List&lt;String&gt;, mistakes: List&lt;String&gt;, cue: String, easier: String? = null, harder: String? = null, perSide: Boolean = false, safety: String? = null )</ID>
+    <ID>LongParameterList:FitnessStore.kt$FitnessStore$( goal: FitnessGoal, level: FitnessLevel, days: Set&lt;DayOfWeek&gt;, minutes: Int, reminder: LocalTime?, heightCm: Int?, useLb: Boolean, startWeightKg: Double?, waistCm: Double?, targetKg: Double?, today: LocalDate = LocalDate.now() )</ID>
+    <ID>LongParameterList:GlowCheck.kt$GlowCheckStore$( goals: Set&lt;String&gt;, minutes: Int, answers: Map&lt;String, String&gt;, face: FaceMetrics?, manualShape: String?, neckAngle: Int?, heightCm: Int?, weightKg: Double?, waistCm: Double?, today: LocalDate = LocalDate.now() )</ID>
+    <ID>LongParameterList:GlowCheck.kt$GlowScoring$( goals: Set&lt;String&gt;, answers: Map&lt;String, String&gt;, face: FaceMetrics?, neckAngle: Int?, heightCm: Int?, weightKg: Double?, waistCm: Double?, minor: Boolean, loggedSleepMinutes: Int? = null )</ID>
+    <ID>LongParameterList:Programmes.kt$Programme$( val id: String, val title: String, val tagline: String, val about: String, val level: Int, val free: Boolean, val focus: Muscle, val restDays: Set&lt;Int&gt;, private val templates: List&lt;List&lt;T&gt;&gt;, private val restSeconds: Int, /** Day numbers (1-based) with a fixed special workout, e.g. max-rep tests. */ private val specials: Map&lt;Int, List&lt;T&gt;&gt; = emptyMap(), val honestNote: String? = null )</ID>
+    <ID>LongParameterList:SleepCheckIn.kt$( date: LocalDate, today: LocalDate, bed: LocalTime, wake: LocalTime, quality: Int?, onBed: (LocalTime) -&gt; Unit, onWake: (LocalTime) -&gt; Unit, onPickBed: () -&gt; Unit, onPickWake: () -&gt; Unit, onQuality: (Int) -&gt; Unit, onSave: () -&gt; Unit, onCancel: (() -&gt; Unit)? )</ID>
+    <ID>LoopWithTooManyJumpStatements:OutfitEngine.kt$OutfitEngine$for</ID>
+    <ID>LoopWithTooManyJumpStatements:Programmes.kt$QuickSessions$for</ID>
+    <ID>MaxLineLength:BlockerScreen.kt$setOf("com.instagram.android", "com.zhiliaoapp.musically", "com.google.android.youtube", "com.snapchat.android", "com.twitter.android", "com.facebook.katana", "com.reddit.frontpage", "in.mohalla.sharechat", "com.netflix.mediaclient")</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"'In yesterday's meeting (situation), you interrupted me twice (behaviour), and I lost my train of thought (impact).' Specific and factual — no labels like 'you're rude'."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"A one-second pause after each sentence gives the listener time to absorb it and makes you sound in control. Silence reads as confidence, not hesitation."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Before details, say what it is in plain words: 'A mortgage is a loan to buy a home that you pay back over years.' The details then have somewhere to hang."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Clarity usually dies at the end of words and sentences: 'gonna', 'didn'', trailing off. Consciously finish the final consonant of the last word in each sentence."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Connect the new thing to something familiar: 'An API is like a waiter — you ask for something, it brings it from the kitchen.' Analogies make ideas stick."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Every good short story has a normal situation, something going wrong or at stake, and how it turned out. If there's no tension, it's an update, not a story."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Frame your point around what they care about: 'You said speed matters most — this cuts the review time in half.' People trust arguments built on their own priorities."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Most people ask one question and then talk about themselves. Asking a follow-up to the answer is what makes someone feel genuinely interesting."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Point, Reason, Example, Point. 'I'd pick option B. It's cheaper long-term. Last year a similar switch saved us 20%. So — B.' It works for almost any unexpected question."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Skip the long build-up. 'I was standing outside the interview room, and I realised I'd brought the wrong CV' is a far better opening than how you got there."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Speaking through half-closed teeth muffles everything. Exaggerate your jaw movement slightly — it will feel big to you and sound normal to everyone else."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Start with a question, a surprising number or a short story. 'Most people forget 90% of a talk within a week' earns attention in a way 'Hi, I'm…' doesn't."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Start with the problem they already feel, then your idea, then what's in it for them. Leading with your idea makes people defend their current position."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Start with your conclusion in one sentence: 'Yes, we can ship Friday.' Then give the reasons. People can stop listening whenever they have enough."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"Summarise what you heard in one line before giving your view: 'So the real problem is the deadline, not the work itself?' It proves you listened and catches misunderstandings."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$"They appear when your brain is finding the next words and you're afraid of silence. The fix isn't to think faster — it's to be comfortable not making a sound."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$drill = "Ask a friend (or use random topics) for three surprise questions. Answer each in under 45 seconds using PREP. Record at least one and listen back."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$drill = "Prepare a 2-minute talk on any topic you know: a hook, three signposted points, a one-line close. Rehearse the first minute out loud three times."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$drill = "Read one paragraph of anything out loud, timing yourself. Then read it again 20% slower with a full pause at every full stop. Notice which version sounds more sure of itself."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$drill = "Record yourself describing your day for 60 seconds. Count your fillers. Do it again, closing your mouth every time you feel one coming. Compare the counts."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$drill = "Say this three times, slowly, hitting every ending: 'I'd like to take that test tomorrow at twelve.' Then record a 20-second voice note and listen once for trailing endings."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$drill = "Think of one small thing that's been bothering you with someone. Write the SBI sentence and one curious question. Have the conversation, or rehearse it out loud."</ID>
+    <ID>MaxLineLength:CommunicationTrack.kt$drill = "Think of something you want someone to agree to this week. Write it as: their problem → your idea → their benefit → the honest downside. Then have the conversation."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"A slightly lower, chest-resonant voice carries more authority than a tight, throaty one. Relax your shoulders and breathe low before speaking."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"Ask: 'What's the evidence for and against this?' and 'What would I tell a friend who said this?' You're usually far harsher on yourself than on anyone else."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"Hold eye contact for a few seconds, then glance away naturally to the side (not down), and return. Unbroken staring feels intense; constant darting feels nervous."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"Imagine a string pulling the top of your head up. Your chin levels, your chest lifts slightly and your shoulders settle back and down — without forcing it."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"Keep gestures between your chest and waist, roughly shoulder-width. Gestures in this zone look natural and confident; above the shoulders looks frantic."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"More when listening" to "Aim for about 70% eye contact while listening and around 50% while speaking — people naturally look away when they think."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"Racing heart and sweaty hands feel the same as excitement. Saying 'I'm excited' instead of 'calm down' has been shown to improve performance under pressure."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"Warmth (smiling, listening, interest) makes people like you; power (calm posture, steady voice, conviction) makes them respect you. Too much of only one feels needy or cold."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"When something awkward happens, naming it lightly ('Well, that came out wrong — let me try again') instantly diffuses it. Pretending it didn't happen makes it worse."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"When you're not gesturing, rest your hands loosely at your sides or together at waist height. Fidgeting with pens, rings or your phone leaks nerves."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$"Write a fear (e.g. talking to strangers) and 8–10 steps from mildly uncomfortable to very hard: asking a shop assistant a question → complimenting a stranger → starting a 5-minute conversation."</ID>
+    <ID>MaxLineLength:ConfidenceTrack.kt$drill = "Say 'I think we should go with this option' three ways: rising, flat, falling. Hear the difference, then use falling endings for your statements today."</ID>
+    <ID>MaxLineLength:ConsentStore.kt$Consent.MICROPHONE$collects = "Audio from your microphone, only while the practice timer is running. In Analyse mode it's turned into text by your phone's speech recogniser."</ID>
+    <ID>MaxLineLength:DataCatalog.kt$DataCatalog$"Your answers and the numbers measured during each check (face shape, a symmetry score, neck angle) — never a photo. Used to build your plan and show change over time."</ID>
+    <ID>MaxLineLength:DataCatalog.kt$DataCatalog$"Your fitness goal and schedule, every workout and set you log, and the weight and waist you enter — to plan sessions, adjust difficulty and show your progress."</ID>
+    <ID>MaxLineLength:DataCatalog.kt$DataCatalog$"Your last ${SpeechStore.KEEP} practice reports — pace, filler words, pauses — and their transcripts, so you can see yourself improve. Never any audio."</ID>
+    <ID>MaxLineLength:DataCatalog.kt$DataCatalog$"Your name, age range, face shape and focus areas personalise greetings, advice and what's shown first. Your age range keeps advice age-appropriate."</ID>
+    <ID>MaxLineLength:FaceShapeGuide.kt$FaceShapeGuide$"Balanced proportions — slightly longer than wide, with a jaw a little narrower than your forehead. Almost everything suits you, so choose for your hair type and lifestyle."</ID>
+    <ID>MaxLineLength:GlowCheck.kt$GlowScoring$answers["breakouts"] == "Often" -&gt; "Frequent spots: a simple, consistent routine helps, and a dermatologist can help a lot more if it doesn't settle."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Apply to pulse points — neck and wrists — or spray once onto your chest under your shirt. If people can smell you from across the room, it's too much."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Cleanser, moisturiser, sunscreen. Pick each for your type — gel textures for oily, creams for dry. Adding ten products before nailing three usually backfires."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Daily: skin AM/PM, teeth, deodorant. Weekly: nails, brows, exfoliation, beard edges. Monthly: haircut check, replace razor blades, clean brushes."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Every three months, take a photo in the same light, check what's improved and drop products you don't use. Simple routines you actually follow beat perfect ones you don't."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"For brows, remove only the obvious strays between and under them. Brush them up and trim any long hairs. Over-plucking takes months to grow back."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"If products often sting, redden or itch, treat your skin as sensitive on top of its type: fragrance-free, fewer products, patch-test anything new."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Introduce one product, 2–3 nights a week, for at least 4 weeks before adding another. Otherwise you can't tell what's helping or what's irritating."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Most people brush for about 45 seconds. Use a timer or an electric brush, angle the bristles at the gumline and go gently — hard brushing damages gums."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Oily scalps may need washing daily or every other day; dry or curly hair often does better 2–3 times a week. Shampoo the scalp, not the lengths."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Painful, deep or scarring acne, or anything not improving after three months of a consistent routine, is a reason to see a dermatologist — prescription treatments work far better."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Retinoids: texture, fine lines, breakouts. Niacinamide: oil, redness, uneven tone. AHA/BHA acids: dullness and clogged pores (BHA for oily, AHA for dry)."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Round faces suit height on top and shorter sides; long faces suit fuller sides and less height; square faces suit almost anything. The goal is to balance, not exaggerate."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Shave after a warm shower, use a sharp blade and shaving gel, and go in the direction hair grows. Against the grain is closer but causes most ingrown hairs."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Show 2–3 reference photos and say what you like about each. Use guard numbers ('a 2 on the sides') rather than 'short' — everyone's 'short' is different."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Skin cells take about a month to turn over, and treatments take two to three cycles to show results. Switching every two weeks means nothing ever gets a chance to work."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Squeeze sunscreen along your index and middle finger — that's about the right amount for face and neck. Most people use a third of that and get a fraction of the protection."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Stinging, peeling or redness means pull back. Actives go at night, moisturiser after, sunscreen every morning — retinoids and acids increase sun sensitivity."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Towel-dry gently by squeezing, not rubbing. If you blow-dry, use medium heat and keep the dryer moving — high heat is the fastest way to frizz and breakage."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"UVA rays that cause ageing and dark spots pass through clouds and windows. Make SPF 30+ the last step of your morning routine, not a beach-only product."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$"Wash your face, wait an hour with nothing on it, then press a tissue to your forehead, nose and cheeks. Oil everywhere = oily; only the T-zone = combination; tight and flaky = dry."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$drill = "Check how you're applying fragrance: no more than three sprays, pulse points, no rubbing. If you don't own one, sample two at a store on your next visit."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$drill = "If you want to try an active, pick just one based on your main concern and plan a 4-week schedule: 2–3 nights a week, moisturiser after, SPF every morning."</ID>
+    <ID>MaxLineLength:GroomingTrack.kt$drill = "Write your grooming calendar: daily, weekly and monthly tasks, each attached to a specific day or habit. Add the weekly ones to your routines."</ID>
+    <ID>MaxLineLength:HabitsTrack.kt$"Half the plate vegetables, a quarter protein, a quarter carbs. It's a simple guide that works with any cuisine, including home-cooked Indian meals."</ID>
+    <ID>MaxLineLength:HabitsTrack.kt$"Look at how you speak, look, dress and think now compared with day one. Notice the evidence of change — it's easy to forget how far you've come."</ID>
+    <ID>MaxLineLength:HabitsTrack.kt$"Missing once is an accident; missing twice is the start of a new habit. Make the day after a slip non-negotiable, even if it's a tiny version."</ID>
+    <ID>MaxLineLength:HabitsTrack.kt$"Protein at breakfast" to "Eggs, yoghurt, paneer or dal in the morning keep energy steadier than sugary cereals or pastries, which spike and crash."</ID>
+    <ID>MaxLineLength:HomeScreen.kt$text = "7 days in a row! If you miss a day, it'll protect your streak automatically. ${ProgressStore.freezes} of ${ProgressStore.maxFreezes} banked."</ID>
+    <ID>MaxLineLength:LooksRoutines.kt$LooksRoutines$"Forward head and rounded shoulders make the jaw look softer and you look shorter. Five minutes a day of these drills makes a visible difference in weeks."</ID>
+    <ID>MaxLineLength:LooksRoutines.kt$LooksRoutines$"Resting your whole tongue on the roof of your mouth is a popular habit. There's no good evidence it reshapes an adult face — but nasal breathing and a closed mouth at rest are healthy habits anyway."</ID>
+    <ID>MaxLineLength:MindTrack.kt$"'Bad' is vague; 'disappointed', 'anxious' or 'overlooked' are useful. Precise labels calm the emotional brain and point to what you actually need."</ID>
+    <ID>MaxLineLength:MindTrack.kt$"Ask 'What do I know is definitely true here?' and strip away assumptions. 'Cars are expensive' becomes 'What do the materials and parts actually cost?'"</ID>
+    <ID>MaxLineLength:MindTrack.kt$"Continuing something because of what you've already spent — time, money, effort — even when it's no longer worth it. Ask: 'Starting from today, would I choose this?'"</ID>
+    <ID>MaxLineLength:MindTrack.kt$"Every time you jump between tasks, part of your attention stays stuck on the last one. That 'attention residue' makes both tasks slower and sloppier."</ID>
+    <ID>MaxLineLength:MindTrack.kt$"Judging how likely something is by how easily examples come to mind. Plane crashes feel common because they're memorable, not because they are."</ID>
+    <ID>MaxLineLength:MindTrack.kt$"Read it back and delete every word that doesn't change the meaning — 'just', 'really', 'I think that'. Most drafts improve by losing a third of their words."</ID>
+    <ID>MaxLineLength:MindTrack.kt$"The forgetting curve" to "Memory drops fast after learning. Reviewing just before you'd forget resets the curve and makes each memory last longer."</ID>
+    <ID>MaxLineLength:MindTrack.kt$drill = "Pick one 'that's just how it is' belief in your life (e.g. 'I can't save money'). List what's actually true and rebuild a solution from those facts."</ID>
+    <ID>MaxLineLength:PrivacyActions.kt$message = "This permanently deletes your profile, routines, moods, sleep log, notes, wardrobe, photos, reminders and progress from this phone. This can't be undone."</ID>
+    <ID>MaxLineLength:Programmes.kt$Programmes$about = "Short, beginner-friendly sessions that cover everything: legs, push, core and a little cardio. By day 30 you'll do twice what you could on day 1."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"Every 7 days in a row earns a freeze (you can bank 2, or 3 with Pro). If you miss a whole day, a banked freeze is used automatically so your streak survives. Frozen days keep the streak alive but don't add to it."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"From the nights you log: how far short of your sleep need you've been over the last 14 nights. The latest week counts fully, the week before counts half, and extra sleep pays debt back. It's an estimate from your logs, not a medical measurement."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"Make sure notifications are allowed for Re:MakeU. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"No audio is ever saved. In Analyse mode your phone turns your words into text to measure pace and filler words, and only that text and the numbers are kept. Listen-back recordings are deleted as soon as you leave the screen."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"Only on this phone. Re:MakeU has no account and no servers, and nothing is uploaded. Settings → Your data shows everything that's kept, why, and lets you export or delete any of it."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"The full 12-week programme, every fitness programme with auto-progression, strict focus and unlimited app blocking, an unlimited wardrobe with capsule and packing tools, every style guide, all speaking scenarios, every mood pattern, all sleep sounds and an extra streak freeze. Manage or cancel any time in Google Play."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"When you check in, you can tag what's been going on. Re:MakeU also knows which days you focused, did your routines, learned or slept well. Once there are at least 5 days with and 5 without something, it compares your average mood — all on your phone."</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$"You earn points for checking off routines, to-dos, lessons, mood check-ins, sleep logs, confidence cards and practice sessions. Any day you earn points counts towards your streak. Every 100 points is a new level."</ID>
+    <ID>MaxLineLength:SleepLogScreen.kt$message = if (ProfileStore.isMinor) "Teens usually need 8–10 hours a night." else "Most adults need 7–9 hours. If you wake up tired after 8, try a little more."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"'I can't lend money, but I can help you make a budget' sets a limit and still offers care. The earlier you say it, the less resentment builds."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"'That was a really clear way to explain it' or 'You always pick great places' compliments something people chose — it means more than appearance."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"Approach a group, stand at the edge, listen and nod for a minute, then add to the current topic. Jumping in with a new topic feels like an interruption."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"Friendships form through repeated time together. A regular thing — a weekly game, a gym session — builds closeness faster than occasional big plans."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"Instead of firing questions, offer a small detail first: 'I've just started running — do you do anything to switch off?' It feels like a conversation, not an interview."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"Light self-deprecation" to "Gently laughing at yourself makes you approachable. Keep it light — constant self-put-downs make people uncomfortable."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"Most people are waiting for someone else to suggest plans. Specific invitations work: 'Want to grab coffee Saturday at 11?' beats 'We should hang out sometime.'"</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"Never share what someone told you privately. People notice how you talk about others when they're not around and assume you'll do the same to them."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"Share an article, an introduction or a tip without expecting anything back. People remember those who helped them before they asked for anything."</ID>
+    <ID>MaxLineLength:SocialTrack.kt$"The best humour comes from shared situations: the absurdly long queue, the overly enthusiastic waiter. Point out what you're both experiencing."</ID>
+    <ID>MaxLineLength:SpeakingPracticeScreen.kt$"So um I think the best trip I took was to the mountains last year and like we basically hiked every single day you know and the views were amazing I mean honestly it was the the best week"</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"A simple, clean watch adds polish to any outfit. Pick one that matches the formality — metal or leather strap for smart, fabric or rubber for casual."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"A tee under an open shirt, or a knit under a jacket, makes simple outfits look considered. Keep inner layers from hanging below the outer one."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Balance a looser piece with a fitted one: relaxed trousers with a fitted tee, or a boxy jacket over slim trousers. Loose everywhere looks shapeless."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Business: suit or blazer and trousers, collared shirt, leather shoes, tie optional by industry. Formal / black tie: dark suit or tuxedo, tie, polished shoes."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Casual: tees, jeans, sneakers. Smart casual: collared shirt or knit, chinos or dark jeans, leather shoes or clean minimal sneakers, optional blazer."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Choose clothes that fit your largest measurement (shoulders, chest, thighs) and tailor the rest down. Taking in is easy; letting out often isn't possible."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Clean minimal sneakers (white or black), a versatile brown or black leather shoe or boot, and one smarter pair for formal events. That covers most of life."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Contrasting top and bottom colours split your body visually; tonal outfits make you look taller and leaner. Use this to balance your proportions."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"High contrast between skin and hair (pale skin, dark hair) suits strong contrasts like navy and white. Lower contrast suits tonal outfits like beige and olive."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Shirt sleeves end at the wrist bone; t-shirt sleeves hit mid-bicep. Untucked shirts should end around the middle of your fly — longer looks sloppy."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"Start with one patterned item. If you mix two, make them different scales — small check shirt with a wide stripe tie, never two similar-size patterns."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$"e.g. 'white tee + dark jeans + jacket + sneakers', 'oxford shirt + chinos + loafers', 'knit + trousers + boots'. Swap colours, keep the formula."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$drill = "Make one layered outfit today: a base layer, a mid layer (open shirt or knit) and, if it's cold, an outer layer. Check the balance of fitted vs relaxed."</ID>
+    <ID>MaxLineLength:StyleTrack.kt$drill = "Try on your three most-worn tops and two trousers. Check shoulders, sleeve length, shirt length and trouser break. Note what fits and what doesn't."</ID>
+    <ID>MaxLineLength:StylingScreen.kt$"${if (offset == 0) "TODAY'S PICK" else "LOOK ${offset + 1} OF ${options.size}"} · ${occasion.uppercase()} · ${pickGuide.title.uppercase()}"</ID>
+    <ID>MaxLineLength:WorkoutPlayerScreen.kt$message = if (logged.isEmpty()) "Nothing has been logged yet." else "You've done ${logged.size} of ${steps.size} sets. Save what you did so it counts, or throw it away."</ID>
+    <ID>MaxLineLength:YourDataScreen.kt$"Photos are saved only for features you switch on, like progress photos. They stay inside the app: never in your gallery, never backed up, never uploaded."</ID>
+    <ID>MaxLineLength:YourDataScreen.kt$body = "Re:MakeU has no account and no servers. If you've turned on Android backup for your Google account, your phone may include Re:MakeU's data (never photos) in its own encrypted backup, so you can restore it on a new phone. We can't see that backup."</ID>
+    <ID>NestedBlockDepth:FitnessStore.kt$FitnessStore$fun saveWorkout( plan: WorkoutPlan, sets: List&lt;SetLog&gt;, seconds: Int, effort: Int, now: Long = System.currentTimeMillis(), date: LocalDate = LocalDate.now() ): WorkoutResult</ID>
+    <ID>NestedBlockDepth:FitnessTest.kt$FitnessTest$@Test fun everyProgrammeDayBuildsAndGetsHarder()</ID>
+    <ID>NestedBlockDepth:OutfitArt.kt$private fun DrawScope.drawShoe(garment: Garment, r: Rect, color: Color)</ID>
+    <ID>NestedBlockDepth:OutfitEngine.kt$OutfitEngine$fun countOutfits(items: List&lt;WardrobeItem&gt;): Int</ID>
+    <ID>NestedBlockDepth:OutfitEngine.kt$OutfitEngine$fun suggest(items: List&lt;WardrobeItem&gt;, target: Int, limit: Int = 6, avoid: Set&lt;Int&gt; = emptySet(), shuffleSeed: Int = 0): List&lt;ClosetOutfit&gt;</ID>
+    <ID>ReturnCount:FitnessStore.kt$FitnessStore$fun planFor(key: String, today: LocalDate = LocalDate.now()): WorkoutPlan?</ID>
+    <ID>ReturnCount:OutfitEngine.kt$OutfitEngine$fun outfitScore(top: WardrobeItem, bottom: WardrobeItem, shoes: WardrobeItem, layer: WardrobeItem?, target: Int): Int?</ID>
+  </CurrentIssues>
+</SmellBaseline>

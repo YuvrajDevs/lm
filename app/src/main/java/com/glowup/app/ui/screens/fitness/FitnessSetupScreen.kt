@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -20,9 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.glowup.app.R
 import com.glowup.app.ui.components.ConsentSheet
 import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.ReMakeUOptionRow
@@ -33,30 +37,32 @@ import com.glowup.app.ui.data.ConsentStore
 import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.ProfileStore
+import com.glowup.app.ui.data.fitness.BodyEntry
 import com.glowup.app.ui.data.fitness.FitnessGoal
 import com.glowup.app.ui.data.fitness.FitnessLevel
 import com.glowup.app.ui.data.fitness.FitnessStore
 import com.glowup.app.ui.data.fitness.Programmes
 import com.glowup.app.ui.data.fitness.QuickSessions
 import com.glowup.app.ui.data.formatClock
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.ScreenSubtitle
+import com.glowup.app.ui.design.ScreenTitle
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.*
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.roundToInt
-import com.glowup.app.ui.design.LineHeight
-import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.design.ScreenTitle
-import com.glowup.app.ui.design.ScreenSubtitle
-import com.glowup.app.ui.design.Sizes
-import com.glowup.app.ui.data.fitness.BodyEntry
-import java.time.LocalDate
 
 private val reminderOptions = listOf(
     LocalTime.of(6, 30), LocalTime.of(7, 0), LocalTime.of(7, 30), LocalTime.of(8, 0), LocalTime.of(12, 30),
-    LocalTime.of(17, 30), LocalTime.of(18, 0), LocalTime.of(19, 0), LocalTime.of(20, 0), LocalTime.of(21, 0),
+    LocalTime.of(17, 30), LocalTime.of(18, 0), LocalTime.of(19, 0), LocalTime.of(20, 0), LocalTime.of(21, 0)
 )
 
 @Composable
@@ -105,7 +111,7 @@ fun FitnessSetupScreen(navController: NavHostController) {
             useLb = lb,
             startWeightKg = if (addBody && !editing) weight else null,
             waistCm = if (addBody) waist else null,
-            targetKg = if (addBody && !minor) target else null,
+            targetKg = if (addBody && !minor) target else null
         )
         if (editing && addBody && FitnessStore.latestBody() == null) {
             FitnessStore.logBody(BodyEntry(LocalDate.now(), weight, waist))
@@ -122,44 +128,57 @@ fun FitnessSetupScreen(navController: NavHostController) {
     }
 
     Column(Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(24.dp, 24.dp, 24.dp, 0.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth().padding(Space.Gutter, Space.Gutter, Space.Gutter, 0.dp), horizontalArrangement = Arrangement.spacedBy(Space.S)) {
             repeat(lastStep + 1) { i ->
                 Box(Modifier.weight(1f).height(4.dp).clip(Shapes.Pill).background(if (i <= step) Ink else ChipNeutral))
             }
         }
 
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 26.dp, 24.dp, 16.dp)) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(Space.Gutter, Space.Gutter, Space.Gutter, Space.L)) {
             when (step) {
                 0 -> {
-                    ScreenTitle("What's your main goal?")
-                    ScreenSubtitle("We'll shape your sessions around it. You can change it any time.")
-                    Spacer(Modifier.height(18.dp))
+                    ScreenTitle(stringResource(R.string.fitness_setup_what_s_your_main_goal))
+                    ScreenSubtitle(stringResource(R.string.fitness_setup_we_ll_shape_your_sessions))
+                    Spacer(Modifier.height(Space.L))
                     FitnessGoal.entries.filter { !minor || it.minorSafe }.forEach { g ->
                         BigChoice(if (minor) g.minorLabel else g.label, g.blurb.takeIf { !minor || g != FitnessGoal.LOSE_FAT } ?: "", goal == g) { goal = g }
                     }
                 }
                 1 -> {
-                    ScreenTitle("Where are you starting?")
-                    ScreenSubtitle("Be honest — we'd rather start easy and push you up than burn you out on day 1.")
-                    Spacer(Modifier.height(16.dp))
-                    Row(Modifier.fillMaxWidth().clip(Shapes.Pill).background(ChipNeutral).padding(4.dp)) {
+                    ScreenTitle(stringResource(R.string.fitness_setup_where_are_you_starting))
+                    ScreenSubtitle(stringResource(R.string.fitness_setup_be_honest_we_d_rather))
+                    Spacer(Modifier.height(Space.L))
+                    Row(Modifier.fillMaxWidth().clip(Shapes.Pill).background(ChipNeutral).padding(Space.Xs)) {
                         listOf(true to "Quick test", false to "I'll choose").forEach { (mode, label) ->
                             Box(
-                                Modifier.weight(1f).clip(Shapes.Pill).background(if (testMode == mode) Ink else Color.Transparent).clickable { testMode = mode }.padding(vertical = 10.dp),
-                                contentAlignment = Alignment.Center,
+                                Modifier.weight(1f).clip(Shapes.Pill).background(
+                                    if (testMode ==
+                                        mode
+                                    ) {
+                                        Ink
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                ).clickable { testMode = mode }.padding(vertical = Space.S),
+                                contentAlignment = Alignment.Center
                             ) { Text(label, color = if (testMode == mode) Color.White else Ink, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold) }
                         }
                     }
-                    Spacer(Modifier.height(18.dp))
+                    Spacer(Modifier.height(Space.L))
                     if (testMode) {
-                        Text("Do each one now, or answer from memory.", color = TextSecondary, fontSize = TextSize.BodySmall)
-                        Spacer(Modifier.height(12.dp))
-                        TestRow("Push-ups in a row", "Knee push-ups count as half", "$pushups", "reps", { pushups = (pushups - 1).coerceAtLeast(0) }, { pushups++ })
+                        Text(stringResource(R.string.fitness_setup_do_each_one_now_or), color = TextSecondary, fontSize = TextSize.BodySmall)
+                        Spacer(Modifier.height(Space.M))
+                        TestRow("Push-ups in a row", "Knee push-ups count as half", "$pushups", "reps", {
+                            pushups = (pushups - 1).coerceAtLeast(0)
+                        }, { pushups++ })
                         TestRow("Plank hold", "Forearm plank, good form", "$plank", "seconds", { plank = (plank - 5).coerceAtLeast(0) }, { plank += 5 })
                         TestRow("Squats in 60 seconds", "Thighs to about parallel", "$squats", "reps", { squats = (squats - 1).coerceAtLeast(0) }, { squats++ })
-                        Spacer(Modifier.height(6.dp))
-                        Row(Modifier.fillMaxWidth().clip(Shapes.Medium).background(GreenTint).padding(16.dp, 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text("Your level: ", fontSize = TextSize.Body)
+                        Spacer(Modifier.height(Space.S))
+                        Row(
+                            Modifier.fillMaxWidth().clip(Shapes.Medium).background(GreenTint).padding(Space.L, Space.M),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(stringResource(R.string.fitness_setup_your_level), fontSize = TextSize.Body)
                             Text(chosenLevel.label, fontSize = TextSize.Body, fontWeight = FontWeight.Bold, color = Green)
                         }
                     } else {
@@ -171,31 +190,46 @@ fun FitnessSetupScreen(navController: NavHostController) {
                                     FitnessLevel.INTERMEDIATE -> "You can do around 10 push-ups and hold a 45-second plank"
                                     FitnessLevel.ADVANCED -> "20+ push-ups, 90-second plank — you train regularly"
                                 },
-                                level == l,
+                                level == l
                             ) { level = l }
                         }
                     }
                 }
                 2 -> {
-                    ScreenTitle("When will you train?")
-                    ScreenSubtitle("Consistency beats intensity. Most people do best with 3–4 days.")
-                    Spacer(Modifier.height(18.dp))
-                    Text("Days", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    ScreenTitle(stringResource(R.string.fitness_setup_when_will_you_train))
+                    ScreenSubtitle(stringResource(R.string.fitness_setup_consistency_beats_intensity_most_people))
+                    Spacer(Modifier.height(Space.L))
+                    Text(stringResource(R.string.fitness_setup_days), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(Space.S))
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         DayOfWeek.entries.forEach { d ->
                             val on = d in days
                             Box(
-                                Modifier.weight(1f).aspectRatio(1f).clip(CircleShape).background(if (on) Ink else ChipNeutral).clickable { days = if (on) days - d else days + d },
-                                contentAlignment = Alignment.Center,
-                            ) { Text(d.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2), color = if (on) Color.White else Ink, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold) }
+                                Modifier.weight(1f).aspectRatio(1f).clip(CircleShape).background(if (on) Ink else ChipNeutral).clickable {
+                                    days =
+                                        if (on) days - d else days + d
+                                },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    d.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2),
+                                    color = if (on) Color.White else Ink,
+                                    fontSize = TextSize.BodySmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
-                    Text("${days.size} days a week", color = TextSecondary, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 6.dp))
-                    Spacer(Modifier.height(20.dp))
-                    Text("Session length · minutes", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        stringResource(R.string.fitness_setup_1_s_days_a_week, days.size),
+                        color = TextSecondary,
+                        fontSize = TextSize.Caption,
+                        modifier = Modifier.padding(top = Space.S)
+                    )
+                    Spacer(Modifier.height(Space.Xl))
+                    Text(stringResource(R.string.fitness_setup_session_length_minutes), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(Space.S))
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         QuickSessions.minuteOptions.forEach { m ->
                             val locked = ProGate.quickLocked(m)
                             ChoicePill("$m", minutes == m, Modifier.weight(1f)) {
@@ -203,99 +237,153 @@ fun FitnessSetupScreen(navController: NavHostController) {
                             }
                         }
                     }
-                    if (!ProStore.isPro) Text("15–30 minute sessions come with Pro", color = TextSecondary, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 6.dp))
-                    Spacer(Modifier.height(20.dp))
-                    Text("Reminder", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.height(8.dp))
+                    if (!ProStore.isPro) {
+                        Text(
+                            stringResource(R.string.fitness_setup_15_30_minute_sessions_come),
+                            color = TextSecondary,
+                            fontSize = TextSize.Caption,
+                            modifier = Modifier.padding(top = Space.S)
+                        )
+                    }
+                    Spacer(Modifier.height(Space.Xl))
+                    Text(stringResource(R.string.common_reminder), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(Space.S))
                     Row(
-                        Modifier.fillMaxWidth().clip(Shapes.Medium).background(CardNeutral).clickable { showReminder = true }.padding(16.dp, 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                        Modifier.fillMaxWidth().clip(Shapes.Medium).background(CardNeutral).clickable { showReminder = true }.padding(Space.L, Space.M),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(reminder?.let { "On training days at ${formatClock(it)}" } ?: "Off", fontSize = TextSize.Body, modifier = Modifier.weight(1f))
-                        Text("Change", fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, color = Purple)
+                        Text(
+                            reminder?.let {
+                                "On training days at ${formatClock(it)}"
+                            } ?: stringResource(R.string.common_setup_off),
+                            fontSize = TextSize.Body,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(stringResource(R.string.common_setup_change), fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, color = Purple)
                     }
                 }
                 3 -> {
-                    ScreenTitle("Track your progress")
-                    ScreenSubtitle("Optional. A weekly weigh-in shows whether your plan is working — far better than how you feel on a given day.")
-                    Spacer(Modifier.height(18.dp))
+                    ScreenTitle(stringResource(R.string.fitness_setup_track_your_progress))
+                    ScreenSubtitle(stringResource(R.string.fitness_setup_optional_a_weekly_weigh_in))
+                    Spacer(Modifier.height(Space.L))
                     if (!addBody) {
-                        Column(Modifier.fillMaxWidth().clip(Shapes.Card).background(PurpleTint).padding(18.dp)) {
+                        Column(Modifier.fillMaxWidth().clip(Shapes.Card).background(PurpleTint).padding(Space.L)) {
                             Icon(Icons.Filled.MonitorWeight, contentDescription = null, tint = Purple)
-                            Spacer(Modifier.height(8.dp))
-                            Text(if (minor) "Height and weight help us keep exercise right for you." else "Height, weight and waist give you a real trend and a waist-to-height score.", fontSize = TextSize.Body, lineHeight = LineHeight.Body)
-                            Spacer(Modifier.height(14.dp))
-                            Box(
-                                Modifier.fillMaxWidth().height(Sizes.ButtonSmall).clip(Shapes.Pill).background(Ink).clickable {
-                                    if (ConsentStore.has(Consent.BODY)) addBody = true else askBodyConsent = true
+                            Spacer(Modifier.height(Space.S))
+                            Text(
+                                if (minor) {
+                                    stringResource(
+                                        R.string.fitness_setup_height_and_weight_help_us
+                                    )
+                                } else {
+                                    stringResource(R.string.fitness_setup_height_weight_and_waist_give)
                                 },
-                                contentAlignment = Alignment.Center,
-                            ) { Text("Add my measurements", color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold) }
+                                fontSize = TextSize.Body,
+                                lineHeight = LineHeight.Body
+                            )
+                            Spacer(Modifier.height(Space.M))
+                            AppButton(stringResource(R.string.fitness_setup_add_my_measurements), variant = ButtonVariant.Primary) {
+                                if (ConsentStore.has(Consent.BODY)) addBody = true else askBodyConsent = true
+                            }
                         }
                     } else {
-                        Row(Modifier.fillMaxWidth().clip(Shapes.Pill).background(ChipNeutral).padding(4.dp)) {
+                        Row(Modifier.fillMaxWidth().clip(Shapes.Pill).background(ChipNeutral).padding(Space.Xs)) {
                             listOf(false to "kg", true to "lb").forEach { (isLb, label) ->
                                 Box(
-                                    Modifier.weight(1f).clip(Shapes.Pill).background(if (lb == isLb) Ink else Color.Transparent).clickable { lb = isLb }.padding(vertical = 9.dp),
-                                    contentAlignment = Alignment.Center,
+                                    Modifier.weight(1f).clip(Shapes.Pill).background(
+                                        if (lb ==
+                                            isLb
+                                        ) {
+                                            Ink
+                                        } else {
+                                            Color.Transparent
+                                        }
+                                    ).clickable { lb = isLb }.padding(vertical = Space.S),
+                                    contentAlignment = Alignment.Center
                                 ) { Text(label, color = if (lb == isLb) Color.White else Ink, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold) }
                             }
                         }
-                        Spacer(Modifier.height(14.dp))
+                        Spacer(Modifier.height(Space.M))
                         MeasureRow("Height", "$height", "cm", { height = (height - 1).coerceAtLeast(120) }, { height = (height + 1).coerceAtMost(230) })
                         val shown = if (lb) weight * 2.20462 else weight
-                        MeasureRow("Weight", "%.1f".format(shown), if (lb) "lb" else "kg", { weight = (weight - if (lb) 0.4536 else 0.5).coerceAtLeast(30.0) }, { weight += if (lb) 0.4536 else 0.5 })
+                        MeasureRow("Weight", "%.1f".format(shown), if (lb) "lb" else "kg", {
+                            weight = (weight - if (lb) 0.4536 else 0.5).coerceAtLeast(30.0)
+                        }, {
+                            weight +=
+                                if (lb) 0.4536 else 0.5
+                        })
                         MeasureRow(
-                            "Waist (optional)", waist?.let { "%.0f".format(it) } ?: "—", "cm",
-                            { waist = ((waist ?: 80.0) - 1).coerceAtLeast(40.0) }, { waist = (waist ?: 79.0) + 1 },
-                            hint = "Measure at the belly button",
+                            "Waist (optional)",
+                            waist?.let { "%.0f".format(it) } ?: "—",
+                            "cm",
+                            { waist = ((waist ?: 80.0) - 1).coerceAtLeast(40.0) },
+                            { waist = (waist ?: 79.0) + 1 },
+                            hint = "Measure at the belly button"
                         )
                         if (!minor && goal != FitnessGoal.CONSISTENT) {
                             val t = target
                             MeasureRow(
-                                "Target weight (optional)", t?.let { "%.1f".format(if (lb) it * 2.20462 else it) } ?: "—", if (lb) "lb" else "kg",
-                                { target = ((t ?: weight) - if (lb) 0.4536 else 0.5).coerceAtLeast(35.0) }, { target = (t ?: weight) + if (lb) 0.4536 else 0.5 },
+                                "Target weight (optional)",
+                                t?.let { "%.1f".format(if (lb) it * 2.20462 else it) } ?: "—",
+                                if (lb) "lb" else "kg",
+                                {
+                                    target = ((t ?: weight) - if (lb) 0.4536 else 0.5).coerceAtLeast(35.0)
+                                },
+                                { target = (t ?: weight) + if (lb) 0.4536 else 0.5 }
                             )
                             if (t != null && goal == FitnessGoal.LOSE_FAT && weight > t) {
                                 val weeksMin = ((weight - t) / (weight * 0.01)).roundToInt()
                                 Text(
-                                    "At a safe pace (up to 1% a week) that's about $weeksMin+ weeks. Slow loss keeps muscle and stays off.",
-                                    color = TextSecondary, fontSize = TextSize.Caption, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 2.dp),
+                                    stringResource(R.string.fitness_setup_at_a_safe_pace_up, weeksMin),
+                                    color = TextSecondary,
+                                    fontSize = TextSize.Caption,
+                                    lineHeight = LineHeight.Compact,
+                                    modifier = Modifier.padding(top = 2.dp)
                                 )
                             }
                         }
                     }
                 }
                 else -> {
-                    ScreenTitle(if (editing) "Plan updated" else "Your plan is ready")
-                    Spacer(Modifier.height(14.dp))
-                    Column(Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(20.dp)) {
+                    ScreenTitle(if (editing) stringResource(R.string.fitness_setup_plan_updated) else stringResource(R.string.fitness_setup_your_plan_is_ready))
+                    Spacer(Modifier.height(Space.M))
+                    Column(Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(Space.Xl)) {
                         listOf(
                             "Goal" to (goal?.let { if (minor) it.minorLabel else it.label } ?: "—"),
                             "Level" to chosenLevel.label,
                             "Days" to days.sorted().joinToString(" ") { it.getDisplayName(TextStyle.SHORT, Locale.getDefault()) },
                             "Sessions" to "$minutes min",
-                            "Reminder" to (reminder?.let(::formatClock) ?: "Off"),
+                            "Reminder" to (reminder?.let(::formatClock) ?: "Off")
                         ).forEach { (k, v) ->
-                            Row(Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
+                            Row(Modifier.fillMaxWidth().padding(vertical = Space.Xs)) {
                                 Text(k, color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.BodySmall, modifier = Modifier.width(90.dp))
                                 Text(v, color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
                     if (!editing) {
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(Space.L))
                         val programme = Programmes.get(recommendedFree)!!
-                        Text("We recommend", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.height(8.dp))
-                        Column(Modifier.fillMaxWidth().clip(Shapes.Card).background(programme.focus.tint).padding(18.dp)) {
+                        Text(stringResource(R.string.fitness_setup_we_recommend), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(Space.S))
+                        Column(Modifier.fillMaxWidth().clip(Shapes.Card).background(programme.focus.tint).padding(Space.L)) {
                             Text(programme.title, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
-                            Text(programme.about, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 4.dp))
+                            Text(
+                                programme.about,
+                                color = TextSecondary,
+                                fontSize = TextSize.BodySmall,
+                                lineHeight = LineHeight.Compact,
+                                modifier = Modifier.padding(top = Space.Xs)
+                            )
                         }
                         if (recommended != recommendedFree) {
                             Text(
-                                "${Programmes.get(recommended)!!.title} fits your goal best — it's part of Pro.",
-                                color = TextSecondary, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 8.dp).clickable { ProStore.showPaywall("Unlock every 30-day programme") },
+                                stringResource(R.string.fitness_setup_1_s_fits_your_goal, Programmes.get(recommended)!!.title),
+                                color = TextSecondary,
+                                fontSize = TextSize.Caption,
+                                modifier = Modifier.padding(top = Space.S).clickable {
+                                    ProStore.showPaywall("Unlock every 30-day programme")
+                                }
                             )
                         }
                     }
@@ -303,32 +391,47 @@ fun FitnessSetupScreen(navController: NavHostController) {
             }
         }
 
-        Column(Modifier.padding(24.dp, 8.dp, 24.dp, 24.dp)) {
-            Box(
-                Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(if (canContinue) Ink else Disabled)
-                    .clickable(enabled = canContinue) { if (step < lastStep) step++ else finish(if (editing) null else recommendedFree) },
-                contentAlignment = Alignment.Center,
+        Column(Modifier.padding(Space.Gutter, Space.S, Space.Gutter, Space.Gutter)) {
+            AppButton(
+                when {
+                    step == 3 && !addBody -> stringResource(R.string.fitness_setup_skip_for_now)
+                    step < lastStep -> stringResource(R.string.common_setup_continue)
+                    editing -> stringResource(R.string.fitness_setup_save_plan)
+                    else -> stringResource(R.string.common_start_1_s, Programmes.get(recommendedFree)!!.title)
+                },
+                variant = ButtonVariant.Primary,
+                enabled = canContinue
             ) {
-                Text(
-                    when {
-                        step == 3 && !addBody -> "Skip for now"
-                        step < lastStep -> "Continue"
-                        editing -> "Save plan"
-                        else -> "Start ${Programmes.get(recommendedFree)!!.title}"
-                    },
-                    color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold,
-                )
+                if (step <
+                    lastStep
+                ) {
+                    step++
+                } else {
+                    finish(if (editing) null else recommendedFree)
+                }
             }
             Text(
-                if (step == lastStep && !editing) "Just do quick sessions" else if (step == 0) "Cancel" else "Back",
-                color = TextSecondary, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 14.dp).clickable {
+                if (step == lastStep &&
+                    !editing
+                ) {
+                    stringResource(R.string.fitness_setup_just_do_quick_sessions)
+                } else if (step ==
+                    0
+                ) {
+                    stringResource(R.string.common_cancel)
+                } else {
+                    stringResource(R.string.common_back)
+                },
+                color = TextSecondary,
+                fontSize = TextSize.Body,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = Space.M).clickable {
                     when {
                         step == lastStep && !editing -> finish(null)
                         step == 0 -> navController.goBack()
                         else -> step--
                     }
-                },
+                }
             )
         }
     }
@@ -344,25 +447,37 @@ fun FitnessSetupScreen(navController: NavHostController) {
                     ReMakeUOptionRow("Off", reminder == null) { reminder = null }
                     reminderOptions.forEach { t -> ReMakeUOptionRow(formatClock(t), reminder == t) { reminder = t } }
                 }
-            },
+            }
         )
     }
     if (askBodyConsent) {
-        ConsentSheet(Consent.BODY, Icons.Filled.MonitorWeight, onAllow = { askBodyConsent = false; addBody = true }, onDecline = { askBodyConsent = false })
+        ConsentSheet(Consent.BODY, Icons.Filled.MonitorWeight, onAllow = {
+            askBodyConsent = false
+            addBody = true
+        }, onDecline = { askBodyConsent = false })
     }
 }
-
-
 
 @Composable
 private fun BigChoice(title: String, body: String, selected: Boolean, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(Shapes.Card).background(if (selected) Ink else CardNeutral).clickable(onClick = onClick).padding(18.dp, 15.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        Modifier.fillMaxWidth().padding(
+            bottom = Space.S
+        ).clip(
+            Shapes.Card
+        ).background(if (selected) Ink else CardNeutral).selectable(selected = selected, role = Role.RadioButton, onClick = onClick).padding(Space.L, Space.L),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
             Text(title, color = if (selected) Color.White else Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
-            if (body.isNotBlank()) Text(body, color = if (selected) Color.White.copy(alpha = 0.65f) else TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
+            if (body.isNotBlank()) {
+                Text(
+                    body,
+                    color = if (selected) Color.White.copy(alpha = 0.65f) else TextSecondary,
+                    fontSize = TextSize.BodySmall,
+                    lineHeight = LineHeight.Compact
+                )
+            }
         }
         if (selected) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White)
     }
@@ -371,8 +486,8 @@ private fun BigChoice(title: String, body: String, selected: Boolean, onClick: (
 @Composable
 private fun TestRow(title: String, hint: String, value: String, unit: String, onMinus: () -> Unit, onPlus: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(Shapes.Card).background(CardNeutral).padding(16.dp, 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        Modifier.fillMaxWidth().padding(bottom = Space.S).clip(Shapes.Card).background(CardNeutral).padding(Space.L, Space.M),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
             Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
@@ -385,8 +500,8 @@ private fun TestRow(title: String, hint: String, value: String, unit: String, on
 @Composable
 internal fun MeasureRow(title: String, value: String, unit: String, onMinus: () -> Unit, onPlus: () -> Unit, hint: String? = null) {
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(Shapes.Card).background(CardNeutral).padding(16.dp, 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        Modifier.fillMaxWidth().padding(bottom = Space.S).clip(Shapes.Card).background(CardNeutral).padding(Space.L, Space.M),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
             Text(title, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)

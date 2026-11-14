@@ -45,6 +45,6 @@ fun DeleteEverythingDialog(navController: NavHostController, onDismiss: () -> Un
             Stores.deleteAll()
             Billing.refreshPurchases()
             navController.navigate("onboarding") { popUpTo(navController.graph.id) { inclusive = true } }
-        },
+        }
     )
 }

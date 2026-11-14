@@ -1,10 +1,10 @@
 package com.glowup.app.ui.data
 
 import androidx.compose.runtime.mutableStateListOf
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.LocalTime
+import org.json.JSONArray
+import org.json.JSONObject
 
 data class Reminder(val id: Int, val title: String, val schedule: Schedule, val enabled: Boolean, val builtIn: Boolean = false)
 
@@ -21,12 +21,12 @@ object ReminderStore {
         "Drink water" to Schedule.EveryHours(2),
         "Lay out tomorrow's outfit" to Schedule.Daily(LocalTime.of(20, 0)),
         "Wind down — screens off" to Schedule.Daily(LocalTime.of(22, 30)),
-        "Weekly wardrobe refresh" to Schedule.Weekly(DayOfWeek.SUNDAY, LocalTime.of(10, 0)),
+        "Weekly wardrobe refresh" to Schedule.Weekly(DayOfWeek.SUNDAY, LocalTime.of(10, 0))
     )
 
     private fun seed() = listOf(
         Reminder(1, "Sunscreen reapply", Schedule.EveryHours(2), enabled = false, builtIn = true),
-        Reminder(2, "Eating nudge", Schedule.Daily(LocalTime.of(13, 0)), enabled = false, builtIn = true),
+        Reminder(2, "Eating nudge", Schedule.Daily(LocalTime.of(13, 0)), enabled = false, builtIn = true)
     )
 
     val custom: List<Reminder> get() = items.filter { !it.builtIn }
@@ -88,7 +88,7 @@ object ReminderStore {
                     .put("title", it.title)
                     .put("schedule", it.schedule.encode())
                     .put("enabled", it.enabled)
-                    .put("builtIn", it.builtIn),
+                    .put("builtIn", it.builtIn)
             )
         }
         Storage.write(KEY, array.toString())

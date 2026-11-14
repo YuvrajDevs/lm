@@ -3,6 +3,7 @@ package com.glowup.app.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -17,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
-import androidx.compose.foundation.layout.Spacer
 
 /** Small pill showing a day-streak count with a flame icon, used across routines, habits, and goals. */
 @Composable
@@ -32,8 +33,8 @@ fun StreakChip(days: Int, accent: Color, modifier: Modifier = Modifier) {
         modifier = modifier
             .clip(Shapes.Pill)
             .background(Color.White.copy(alpha = 0.55f))
-            .padding(9.dp, 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(Space.S, Space.Xs),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (days > 0) {
             Icon(Icons.Filled.LocalFireDepartment, contentDescription = null, tint = accent, modifier = Modifier.size(14.dp).padding(end = 2.dp))
@@ -51,10 +52,10 @@ fun WeekStreakDots(completedDays: List<Boolean>, accent: Color, modifier: Modifi
         completedDays.forEachIndexed { index, done ->
             Box(
                 modifier = Modifier
-                    .padding(end = if (index == 6) 0.dp else 5.dp)
+                    .padding(end = if (index == 6) 0.dp else Space.Xs)
                     .size(8.dp)
                     .clip(Shapes.Pill)
-                    .background(if (done) accent else accent.copy(alpha = 0.18f)),
+                    .background(if (done) accent else accent.copy(alpha = 0.18f))
             )
         }
     }

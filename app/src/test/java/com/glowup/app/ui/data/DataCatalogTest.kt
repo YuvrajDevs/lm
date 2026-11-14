@@ -1,5 +1,9 @@
 package com.glowup.app.ui.data
 
+import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -7,10 +11,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 class DataCatalogTest {
     @get:Rule

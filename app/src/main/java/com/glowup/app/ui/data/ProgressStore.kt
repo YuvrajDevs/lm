@@ -4,10 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
+import org.json.JSONObject
 
 /** Shown once after freezes quietly protect the streak over missed days. */
 data class FreezeNotice(val daysCovered: Int, val streak: Int)
@@ -148,7 +148,7 @@ object ProgressStore {
                 .put("freezes", freezes)
                 .put("frozen", frozenDays.map { it.toString() }.sorted().toJsonArray())
                 .put("lastEarned", lastFreezeEarned?.toString() ?: JSONObject.NULL)
-                .toString(),
+                .toString()
         )
     }
 

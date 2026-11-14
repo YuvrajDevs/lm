@@ -2,30 +2,30 @@ package com.glowup.app.ui.screens.fitness
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.AccessibilityNew
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.SportsGymnastics
 import androidx.compose.material.icons.filled.SportsMartialArts
-import androidx.compose.material.icons.filled.AccessibilityNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.foundation.gestures.detectTapGestures
-import kotlinx.coroutines.launch
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,14 +35,15 @@ import androidx.compose.ui.unit.sp
 import com.glowup.app.ui.components.artworkOrNull
 import com.glowup.app.ui.data.fitness.Exercise
 import com.glowup.app.ui.data.fitness.Muscle
+import com.glowup.app.ui.design.Chip
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.ChipNeutral
 import com.glowup.app.ui.theme.Ink
 import com.glowup.app.ui.theme.TextMuted
 import com.glowup.app.ui.theme.TextSecondary
-import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
-import androidx.compose.runtime.rememberUpdatedState
-import com.glowup.app.ui.design.Chip
+import kotlinx.coroutines.launch
 
 /** Resource name for a real exercise illustration, e.g. `exercise_glute_bridge`. */
 fun exerciseArtworkName(id: String) = "exercise_" + id.replace('-', '_')
@@ -65,7 +66,7 @@ fun ExerciseArt(exercise: Exercise, size: Dp, corner: Dp = 18.dp, modifier: Modi
     val art = artworkOrNull(exerciseArtworkName(exercise.id))
     Box(
         modifier = modifier.size(size).clip(RoundedCornerShape(corner)).background(exercise.primary.tint),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         if (art != null) {
             Image(painterResource(art), contentDescription = exercise.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
@@ -85,14 +86,14 @@ fun MuscleChip(muscle: Muscle, onDark: Boolean = false) {
         modifier = Modifier
             .clip(Shapes.Pill)
             .background(if (onDark) Color.White.copy(alpha = 0.14f) else muscle.tint)
-            .padding(9.dp, 4.dp),
-        maxLines = 1,
+            .padding(Space.S, Space.Xs),
+        maxLines = 1
     )
 }
 
 @Composable
 fun LevelDots(level: Int, color: Color = Ink) {
-    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(horizontalArrangement = Arrangement.spacedBy(Space.Xs), verticalAlignment = Alignment.CenterVertically) {
         repeat(3) { i ->
             Box(Modifier.size(6.dp).clip(CircleShape).background(if (i < level) color else TextMuted.copy(alpha = 0.5f)))
         }
@@ -108,7 +109,7 @@ fun NumberStepper(
     modifier: Modifier = Modifier,
     unit: String? = null,
     onDark: Boolean = false,
-    big: Boolean = false,
+    big: Boolean = false
 ) {
     val buttonBg = if (onDark) Color.White.copy(alpha = 0.14f) else ChipNeutral
     val tint = if (onDark) Color.White else Ink
@@ -150,7 +151,7 @@ private fun RepeatButton(icon: ImageVector, description: String, bg: Color, tint
                 })
             }
         },
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = description, tint = tint)
     }

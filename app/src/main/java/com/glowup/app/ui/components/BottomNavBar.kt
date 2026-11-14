@@ -2,6 +2,7 @@ package com.glowup.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -21,12 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.theme.Ink
 import com.glowup.app.ui.design.Shapes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.theme.Ink
 
 enum class NavTab(val route: String) { HOME("home"), LEARN("learn"), ROUTINES("routines"), STYLING("styling"), SETTINGS("settings") }
 
@@ -35,15 +36,15 @@ fun ReMakeUBottomNav(navController: NavHostController, current: NavTab) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 18.dp)
+            .padding(horizontal = Space.Xl, vertical = Space.L)
             .height(68.dp)
             .background(Ink, shape = Shapes.Pill),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Space.M),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             NavIcon(selected = current == NavTab.HOME, icon = Icons.Filled.Home) {
                 if (current != NavTab.HOME) navController.navigate(NavTab.HOME.route)
@@ -71,13 +72,13 @@ private fun RowScope.NavIcon(selected: Boolean, icon: ImageVector, onClick: () -
             .size(48.dp)
             .clickable(onClick = onClick)
             .background(if (selected) Color.White else Color.Transparent, CircleShape),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = if (selected) Ink else Color.White,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(20.dp)
         )
     }
 }

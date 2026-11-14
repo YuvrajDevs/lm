@@ -25,11 +25,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.components.ProBadge
 import com.glowup.app.ui.components.goBack
@@ -39,6 +41,11 @@ import com.glowup.app.ui.data.MoodStore
 import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.moodOptions
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.SectionHeader
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.*
 import java.time.LocalDate
 import java.time.Month
@@ -47,10 +54,6 @@ import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import com.glowup.app.ui.design.LineHeight
-import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.design.SectionHeader
 
 /** 1 (low) → 5 (great). Shared by the pixels grid and its legend. */
 val moodScoreColors = listOf(Maroon, Coral, Sun, Color(0xFF8FD6A8), Green)
@@ -67,24 +70,24 @@ fun MoodInsightsScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            DetailHeader("Mood") { navController.goBack() }
+            DetailHeader(stringResource(R.string.common_mood)) { navController.goBack() }
 
-            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 18.dp, 24.dp, 28.dp)) {
+            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(Space.Gutter, Space.L, Space.Gutter, Space.Section)) {
                 MonthSummary(today, todayMood) { navController.navigate("mood_checkin") }
 
-                Spacer(Modifier.height(26.dp))
+                Spacer(Modifier.height(Space.Gutter))
                 SectionTitle("What moves your mood", "Compared across your own check-ins — nothing leaves your phone")
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(Space.M))
                 InsightsSection(insights)
 
                 if (bestTags.isNotEmpty()) {
-                    Spacer(Modifier.height(26.dp))
+                    Spacer(Modifier.height(Space.Gutter))
                     SectionTitle("Your best days usually include", "From days you felt happy or grateful")
-                    Spacer(Modifier.height(12.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Spacer(Modifier.height(Space.M))
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         bestTags.forEach { (tag, count) ->
                             Column(
-                                modifier = Modifier.weight(1f).clip(Shapes.Medium).background(GreenTint).padding(12.dp, 12.dp),
+                                modifier = Modifier.weight(1f).clip(Shapes.Medium).background(GreenTint).padding(Space.M, Space.M)
                             ) {
                                 Text(tag, fontSize = TextSize.Body, fontWeight = FontWeight.Bold, maxLines = 1)
                                 Text("$count great day${if (count == 1) "" else "s"}", color = GreenDeep, fontSize = TextSize.Caption)
@@ -94,14 +97,14 @@ fun MoodInsightsScreen(navController: NavHostController) {
                     }
                 }
 
-                Spacer(Modifier.height(26.dp))
+                Spacer(Modifier.height(Space.Gutter))
                 SectionTitle("${today.year} in pixels", "Every check-in, one square")
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(Space.M))
                 YearInPixels(today)
 
-                Spacer(Modifier.height(26.dp))
+                Spacer(Modifier.height(Space.Gutter))
                 SectionTitle("Last 30 days", "How often you felt each mood")
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(Space.M))
                 MoodBreakdown(today)
             }
         }
@@ -119,20 +122,31 @@ private fun MonthSummary(today: LocalDate, todayMood: String?, onCheckIn: () -> 
     val thisMonth = MoodInsights.averageScore(month.atDay(1), today)
     val lastMonth = month.minusMonths(1).let { MoodInsights.averageScore(it.atDay(1), it.atEndOfMonth()) }
     val count = MoodStore.moodLog.keys.count { YearMonth.from(LocalDate.parse(it)) == month }
-    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(20.dp, 18.dp)) {
-        Text(month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()).uppercase() + " SO FAR", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-        Spacer(Modifier.height(6.dp))
+    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(Space.Xl, Space.L)) {
+        Text(
+            month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()).uppercase() + " SO FAR",
+            color = Color.White.copy(alpha = 0.55f),
+            fontSize = TextSize.Micro,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.4.sp
+        )
+        Spacer(Modifier.height(Space.S))
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (thisMonth != null) {
                 val idx = (thisMonth.roundToInt() - 1).coerceIn(0, 4)
                 Box(Modifier.size(14.dp).clip(CircleShape).background(moodScoreColors[idx]))
-                Spacer(Modifier.width(8.dp))
-                Text("Mostly ${moodScoreNames[idx].lowercase()}", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.width(Space.S))
+                Text(
+                    stringResource(R.string.mood_insights_mostly_1_s, moodScoreNames[idx].lowercase()),
+                    color = Color.White,
+                    fontSize = TextSize.TitleLarge,
+                    fontWeight = FontWeight.Bold
+                )
             } else {
-                Text("No check-ins yet", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.mood_insights_no_check_ins_yet), color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
             }
         }
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(Space.Xs))
         val trend = if (thisMonth != null && lastMonth != null) {
             val delta = thisMonth - lastMonth
             when {
@@ -140,22 +154,36 @@ private fun MonthSummary(today: LocalDate, todayMood: String?, onCheckIn: () -> 
                 delta <= -0.3 -> " · a little lower than last month"
                 else -> " · steady with last month"
             }
-        } else ""
+        } else {
+            ""
+        }
         Text(
-            (if (thisMonth != null) "Average %.1f of 5".format(thisMonth) + " · " else "") + "$count check-in${if (count == 1) "" else "s"}$trend",
+            (if (thisMonth != null) stringResource(R.string.mood_insights_average_1f_of_5).format(thisMonth) + " · " else "") +
+                "$count check-in${if (count == 1) "" else "s"}$trend",
             color = Color.White.copy(alpha = 0.65f),
-            fontSize = TextSize.BodySmall,
+            fontSize = TextSize.BodySmall
         )
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(Space.M))
         Row(
-            modifier = Modifier.clip(Shapes.Pill).background(Color.White).clickable(onClick = onCheckIn).padding(16.dp, 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clip(Shapes.Pill).background(Color.White).clickable(onClick = onCheckIn).padding(Space.L, Space.S),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             todayMood?.let { MoodStore.iconFor(it) }?.let {
                 Image(painterResource(it), contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(Space.S))
             }
-            Text(if (todayMood == null) "Check in for today" else "Today: $todayMood · edit", color = Ink, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
+            Text(
+                if (todayMood ==
+                    null
+                ) {
+                    stringResource(R.string.mood_insights_check_in_for_today)
+                } else {
+                    stringResource(R.string.mood_insights_today_1_s_edit, todayMood)
+                },
+                color = Ink,
+                fontSize = TextSize.BodySmall,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
@@ -167,33 +195,47 @@ private fun InsightsSection(insights: List<MoodInsight>) {
         needed > 0 -> {
             val have = MoodStore.checkInCount
             val total = have + needed
-            Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(PurpleTint).padding(18.dp, 16.dp)) {
-                Text("$needed more check-in${if (needed == 1) "" else "s"} to unlock your patterns", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(6.dp))
+            Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(PurpleTint).padding(Space.L, Space.L)) {
                 Text(
-                    "Re:MakeU compares your mood on days you focused, did your routines, learned, slept well — and anything you tag. It needs at least 5 days on each side before it calls something a pattern.",
-                    color = PurpleDeep, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact,
+                    "$needed more check-in${if (needed == 1) "" else "s"} to unlock your patterns",
+                    fontSize = TextSize.BodyLarge,
+                    fontWeight = FontWeight.Bold
                 )
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(Space.S))
+                Text(
+                    stringResource(R.string.mood_insights_re_makeu_compares_your_mood),
+                    color = PurpleDeep,
+                    fontSize = TextSize.BodySmall,
+                    lineHeight = LineHeight.Compact
+                )
+                Spacer(Modifier.height(Space.M))
                 Box(Modifier.fillMaxWidth().height(8.dp).clip(Shapes.Pill).background(Color.White)) {
                     Box(Modifier.fillMaxWidth(have / total.toFloat()).fillMaxHeight().clip(Shapes.Pill).background(Purple))
                 }
-                Text("$have of $total", color = PurpleDeep, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
+                Text(
+                    stringResource(R.string.mood_insights_1_s_of_2_s, have, total),
+                    color = PurpleDeep,
+                    fontSize = TextSize.Caption,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = Space.S)
+                )
             }
         }
         insights.isEmpty() -> {
-            Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(18.dp, 16.dp)) {
-                Text("No clear patterns yet", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(6.dp))
+            Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(Space.L, Space.L)) {
+                Text(stringResource(R.string.mood_insights_no_clear_patterns_yet), fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(Space.S))
                 Text(
-                    "Nothing makes a big enough difference so far. Keep tagging your days — patterns usually show up after two or three weeks.",
-                    color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact,
+                    stringResource(R.string.mood_insights_nothing_makes_a_big_enough),
+                    color = TextSecondary,
+                    fontSize = TextSize.BodySmall,
+                    lineHeight = LineHeight.Compact
                 )
             }
         }
         else -> {
             val free = if (ProStore.isPro) insights.size else ProGate.FREE_MOOD_INSIGHTS
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Space.S)) {
                 insights.take(free).forEach { InsightCard(it) }
                 val hidden = insights.size - free
                 if (hidden > 0) {
@@ -203,14 +245,14 @@ private fun InsightsSection(insights: List<MoodInsight>) {
                             .clip(Shapes.Card)
                             .background(Yellow)
                             .clickable { ProStore.showPaywall("See every pattern behind your mood") }
-                            .padding(18.dp, 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                            .padding(Space.L, Space.L),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(Icons.Filled.Lock, contentDescription = null, tint = Ink, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(Space.M))
                         Column(modifier = Modifier.weight(1f)) {
                             Text("$hidden more pattern${if (hidden == 1) "" else "s"} found", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
-                            Text("Unlock every pattern with Pro", color = Amber, fontSize = TextSize.BodySmall)
+                            Text(stringResource(R.string.mood_insights_unlock_every_pattern_with_pro), color = Amber, fontSize = TextSize.BodySmall)
                         }
                         ProBadge()
                     }
@@ -224,31 +266,42 @@ private fun InsightsSection(insights: List<MoodInsight>) {
 private fun InsightCard(insight: MoodInsight) {
     val accent = if (insight.lifts) Green else Coral
     val tint = if (insight.lifts) GreenTint else CoralTint
-    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(tint).padding(18.dp, 16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(tint).padding(Space.L, Space.L)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(30.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
                 Icon(
                     if (insight.lifts) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
-                    contentDescription = null, tint = accent, modifier = Modifier.size(17.dp),
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(17.dp)
                 )
             }
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(Space.S))
             Text(
-                if (insight.lifts) "LIFTS YOUR MOOD" else "WEIGHS ON YOUR MOOD",
-                color = accent, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp,
+                if (insight.lifts) stringResource(R.string.mood_insights_lifts_your_mood) else stringResource(R.string.mood_insights_weighs_on_your_mood),
+                color = accent,
+                fontSize = TextSize.Micro,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.4.sp
             )
         }
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(Space.S))
         Text(
             "On days ${insight.phrase}, your mood is ${"%.1f".format(abs(insight.difference))} points ${if (insight.lifts) "higher" else "lower"}.",
-            fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, lineHeight = LineHeight.Relaxed,
+            fontSize = TextSize.BodyLarge,
+            fontWeight = FontWeight.SemiBold,
+            lineHeight = LineHeight.Relaxed
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Space.M))
         CompareBar("With", insight.withAvg, accent)
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(Space.S))
         CompareBar("Without", insight.withoutAvg, TextMuted)
-        Spacer(Modifier.height(8.dp))
-        Text("Based on ${insight.withDays} days with and ${insight.withoutDays} without", color = TextSecondary, fontSize = TextSize.Caption)
+        Spacer(Modifier.height(Space.S))
+        Text(
+            stringResource(R.string.mood_insights_based_on_1_s_days, insight.withDays, insight.withoutDays),
+            color = TextSecondary,
+            fontSize = TextSize.Caption
+        )
     }
 }
 
@@ -266,12 +319,18 @@ private fun CompareBar(label: String, value: Double, color: Color) {
 @Composable
 private fun YearInPixels(today: LocalDate) {
     val year = today.year
-    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(14.dp, 16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(Space.M, Space.L)) {
         Row {
-            Column(modifier = Modifier.padding(end = 6.dp)) {
+            Column(modifier = Modifier.padding(end = Space.S)) {
                 Month.entries.forEach { month ->
                     Box(Modifier.height(11.dp).padding(bottom = 0.dp), contentAlignment = Alignment.CenterStart) {
-                        Text(month.getDisplayName(TextStyle.NARROW, Locale.getDefault()), color = TextSecondary, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold, lineHeight = LineHeight.Tight)
+                        Text(
+                            month.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
+                            color = TextSecondary,
+                            fontSize = 8.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = LineHeight.Tight
+                        )
                     }
                 }
             }
@@ -301,12 +360,12 @@ private fun YearInPixels(today: LocalDate) {
                 }
             }
         }
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Spacer(Modifier.height(Space.M))
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.S), verticalAlignment = Alignment.CenterVertically) {
             moodScoreColors.forEachIndexed { i, color ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(9.dp).clip(RoundedCornerShape(2.dp)).background(color))
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(Space.Xs))
                     Text(moodScoreNames[i], color = TextSecondary, fontSize = TextSize.Micro, fontWeight = FontWeight.Medium)
                 }
             }
@@ -321,15 +380,15 @@ private fun MoodBreakdown(today: LocalDate) {
         .values.groupingBy { it }.eachCount()
     val max = counts.values.maxOrNull() ?: 0
     if (max == 0) {
-        Text("Check in a few times and your mood mix will show here.", color = TextSecondary, fontSize = TextSize.BodySmall)
+        Text(stringResource(R.string.mood_insights_check_in_a_few_times), color = TextSecondary, fontSize = TextSize.BodySmall)
         return
     }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Space.S)) {
         moodOptions.sortedByDescending { counts[it.label] ?: 0 }.filter { (counts[it.label] ?: 0) > 0 }.forEach { mood ->
             val n = counts[mood.label] ?: 0
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(painterResource(mood.icon), contentDescription = null, modifier = Modifier.size(26.dp))
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(Space.S))
                 Text(mood.label, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(72.dp))
                 Box(Modifier.weight(1f).height(12.dp).clip(Shapes.Pill).background(ChipNeutral)) {
                     Box(Modifier.fillMaxWidth(n / max.toFloat()).fillMaxHeight().clip(Shapes.Pill).background(moodScoreColors[mood.score - 1]))

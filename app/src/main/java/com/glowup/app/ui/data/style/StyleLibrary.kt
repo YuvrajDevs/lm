@@ -4,8 +4,8 @@ import androidx.compose.runtime.mutableStateListOf
 import com.glowup.app.ui.data.Storage
 import com.glowup.app.ui.data.strings
 import com.glowup.app.ui.data.toJsonArray
-import org.json.JSONArray
 import java.time.LocalDate
+import org.json.JSONArray
 
 object StyleLibrary {
     val guides: List<StyleGuide> = listOf(oldMoney, smartCasual, minimal, streetwear, athleisure, formal, festive, jewellery)

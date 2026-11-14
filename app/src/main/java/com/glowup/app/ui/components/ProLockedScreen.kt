@@ -12,46 +12,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
 import com.glowup.app.ui.data.ProStore
-import com.glowup.app.ui.theme.*
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.*
 
 /** Shown when a link (notification, saved item) leads to something that needs Pro. */
 @Composable
 fun ProLockedScreen(navController: NavHostController, title: String, reason: String) {
     Column(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
-        DetailHeader("Re:MakeU Pro") { navController.goBack() }
+        DetailHeader(stringResource(R.string.common_pro_locked_re_makeu_pro)) { navController.goBack() }
         Column(
-            modifier = Modifier.weight(1f).fillMaxWidth().padding(32.dp),
+            modifier = Modifier.weight(1f).fillMaxWidth().padding(Space.Xxl),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Center
         ) {
             Box(modifier = Modifier.size(84.dp).clip(CircleShape).background(Gold), contentAlignment = Alignment.Center) {
                 Image(painterResource(R.drawable.ic_crown), contentDescription = null, modifier = Modifier.size(42.dp))
             }
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Space.Xl))
             Text(title, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Space.S))
             Text(reason, color = TextSecondary, fontSize = TextSize.Body, textAlign = TextAlign.Center, lineHeight = LineHeight.Body)
         }
         Box(
             modifier = Modifier
-                .padding(24.dp, 8.dp, 24.dp, 28.dp)
+                .padding(Space.Gutter, Space.S, Space.Gutter, Space.Section)
                 .fillMaxWidth()
                 .height(58.dp)
                 .clip(Shapes.Pill)
                 .background(Ink)
                 .clickable { ProStore.showPaywall(reason) },
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
-            Text("See Pro plans", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.pro_locked_see_pro_plans), color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
         }
     }
 }

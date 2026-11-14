@@ -1,12 +1,12 @@
 package com.glowup.app.ui.data
 
+import java.time.LocalDate
+import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class FocusTest {
     private val zone = ZoneOffset.UTC

@@ -19,16 +19,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.glowup.app.ui.theme.Ink
+import com.glowup.app.R
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.Ink
 
 @Composable
 fun DetailHeader(title: String, onBack: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(24.dp, 32.dp, 24.dp, 0.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(Space.Gutter, Space.Xxl, Space.Gutter, 0.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
@@ -36,16 +39,21 @@ fun DetailHeader(title: String, onBack: () -> Unit) {
                 .clip(CircleShape)
                 .background(Ink)
                 .clickable(onClick = onBack),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.common_back),
+                tint = Color.White,
+                modifier = Modifier.size(18.dp)
+            )
         }
         Text(
             title,
             style = MaterialTheme.typography.headlineMedium,
             fontSize = TextSize.TitleLarge,
             modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
         Spacer(Modifier.size(48.dp))
     }

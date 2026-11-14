@@ -1,5 +1,6 @@
 package com.glowup.app.ui.screens.speaking
 
+import android.app.Activity
 import android.content.Intent
 import android.media.MediaPlayer
 import android.media.MediaRecorder
@@ -38,6 +39,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +48,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.glowup.app.BuildConfig
+import com.glowup.app.R
 import com.glowup.app.ui.components.ConsentSheet
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.rememberMicPermission
@@ -58,27 +63,26 @@ import com.glowup.app.ui.data.Scenario
 import com.glowup.app.ui.data.SpeechAnalysis
 import com.glowup.app.ui.data.SpeechReport
 import com.glowup.app.ui.data.SpeechStore
-import com.glowup.app.ui.theme.Coral
-import com.glowup.app.ui.theme.Ink
-import kotlinx.coroutines.delay
-import java.io.File
-import kotlin.random.Random
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
-import com.glowup.app.ui.design.Sizes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.Coral
+import com.glowup.app.ui.theme.Ink
 import com.glowup.app.ui.theme.Lilac
 import com.glowup.app.ui.theme.Mint
 import com.glowup.app.ui.theme.Peach
 import com.glowup.app.ui.theme.Sun
-import android.app.Activity
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
+import java.io.File
+import kotlin.random.Random
+import kotlinx.coroutines.delay
 
 private val randomTopics = listOf(
     "Weekend", "A food you love", "Your favourite season", "A skill you want to learn",
     "The last trip you took", "A movie that stuck with you", "Your morning routine",
-    "Someone who inspires you", "A small win this week", "Your ideal day off",
+    "Someone who inspires you", "A small win this week", "Your ideal day off"
 )
 
 private const val COMPLETION_POINTS = 5
@@ -128,14 +132,14 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
     fun startRecognizer() {
         val r = recognizer ?: SpeechRecognizer.createSpeechRecognizer(context).also { recognizer = it }
         r.setRecognitionListener(object : RecognitionListener {
-            override fun onReadyForSpeech(params: Bundle?) {}
-            override fun onBeginningOfSpeech() {}
+            override fun onReadyForSpeech(params: Bundle?) = Unit
+            override fun onBeginningOfSpeech() = Unit
             override fun onRmsChanged(rmsdB: Float) {
                 level = ((rmsdB + 2f) / 12f).coerceIn(0f, 1f)
                 if (phase == Phase.RECORDING) levels += LevelSample(System.currentTimeMillis() - startedAt, rmsdB)
             }
-            override fun onBufferReceived(buffer: ByteArray?) {}
-            override fun onEndOfSpeech() {}
+            override fun onBufferReceived(buffer: ByteArray?) = Unit
+            override fun onEndOfSpeech() = Unit
             override fun onError(error: Int) {
                 if (phase == Phase.RECORDING) runCatching { r.startListening(recognizerIntent()) }
             }
@@ -147,7 +151,7 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
             override fun onPartialResults(partialResults: Bundle?) {
                 partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()?.let { partial = it }
             }
-            override fun onEvent(eventType: Int, params: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) = Unit
         })
         runCatching { r.startListening(recognizerIntent()) }
     }
@@ -175,30 +179,48 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
     fun beginSpeaking(withMic: Boolean) {
         remaining = totalSeconds
         hasRecording = false
-        finalText = ""; partial = ""; levels.clear(); report = null
+        finalText = ""
+        partial = ""
+        levels.clear()
+        report = null
         startedAt = System.currentTimeMillis()
         phase = Phase.RECORDING
         if (!withMic) return
-        if (mode == Mode.ANALYSE) startRecognizer()
-        else recorder = runCatching {
-            (if (Build.VERSION.SDK_INT >= 31) MediaRecorder(context) else @Suppress("DEPRECATION") MediaRecorder()).apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setAudioSamplingRate(44_100)
-                setAudioEncodingBitRate(96_000)
-                setOutputFile(file.absolutePath)
-                prepare()
-                start()
-            }
-        }.getOrNull()
+        if (mode == Mode.ANALYSE) {
+            startRecognizer()
+        } else {
+            recorder = runCatching {
+                (
+                    if (Build.VERSION.SDK_INT >= 31) {
+                        MediaRecorder(context)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaRecorder()
+                    }
+                    ).apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setAudioSamplingRate(44_100)
+                    setAudioEncodingBitRate(96_000)
+                    setOutputFile(file.absolutePath)
+                    prepare()
+                    start()
+                }
+            }.getOrNull()
+        }
     }
 
     var micGranted by remember { mutableStateOf(false) }
     fun afterPermission(granted: Boolean) {
         micGranted = granted
         micDenied = !granted
-        if (scenario != null && scenario.thinkSeconds > 0) { thinkLeft = scenario.thinkSeconds; phase = Phase.THINK } else beginSpeaking(granted)
+        if (scenario != null && scenario.thinkSeconds > 0) {
+            thinkLeft = scenario.thinkSeconds
+            phase = Phase.THINK
+        } else {
+            beginSpeaking(granted)
+        }
     }
     val requestMic = rememberMicPermission { afterPermission(it) }
     fun startPractice() {
@@ -207,7 +229,10 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
 
     LaunchedEffect(phase) {
         if (phase == Phase.THINK) {
-            while (thinkLeft > 0 && phase == Phase.THINK) { delay(1000); thinkLeft-- }
+            while (thinkLeft > 0 && phase == Phase.THINK) {
+                delay(1000)
+                thinkLeft--
+            }
             if (phase == Phase.THINK) beginSpeaking(micGranted)
         }
         if (phase != Phase.RECORDING) return@LaunchedEffect
@@ -231,7 +256,10 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
             bars?.isAppearanceLightStatusBars = true
             bars?.isAppearanceLightNavigationBars = true
             view.keepScreenOn = false
-            recorder?.let { runCatching { it.stop() }; it.release() }
+            recorder?.let {
+                runCatching { it.stop() }
+                it.release()
+            }
             recognizer?.destroy()
             player?.release()
             file.delete()
@@ -239,7 +267,11 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
     }
 
     fun togglePlayback() {
-        if (isPlayingBack) { player?.pause(); isPlayingBack = false; return }
+        if (isPlayingBack) {
+            player?.pause()
+            isPlayingBack = false
+            return
+        }
         val active = player ?: MediaPlayer().apply {
             setDataSource(file.absolutePath)
             prepare()
@@ -261,18 +293,40 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
 
     Box(modifier = Modifier.fillMaxSize().background(Ink).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(Modifier.fillMaxWidth().padding(24.dp, 24.dp, 24.dp, 0.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFF1F1F22)).clickable { navController.goBack() }, contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))
+            Row(
+                Modifier.fillMaxWidth().padding(Space.Gutter, Space.Gutter, Space.Gutter, 0.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier.size(48.dp).clip(CircleShape).background(Color(0xFF1F1F22)).clickable {
+                        navController.goBack()
+                    },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.common_back),
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
                 Text(
                     when (phase) {
-                        Phase.READY -> if (totalSeconds >= 60) "${totalSeconds / 60} minute" else "$totalSeconds seconds"
-                        Phase.THINK -> "Think · $thinkLeft"
-                        Phase.RECORDING -> "%d:%02d left".format(remaining / 60, remaining % 60)
-                        Phase.REVIEW -> "You spoke for ${recordedSeconds}s"
+                        Phase.READY -> if (totalSeconds >=
+                            60
+                        ) {
+                            stringResource(R.string.speaking_practice_1_s_minute, totalSeconds / 60)
+                        } else {
+                            stringResource(R.string.speaking_practice_1_s_seconds, totalSeconds)
+                        }
+                        Phase.THINK -> stringResource(R.string.speaking_practice_think_1_s, thinkLeft)
+                        Phase.RECORDING -> stringResource(R.string.speaking_practice_d_02d_left).format(remaining / 60, remaining % 60)
+                        Phase.REVIEW -> stringResource(R.string.speaking_practice_you_spoke_for_1_ss, recordedSeconds)
                     },
-                    color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = TextSize.Body,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Spacer(Modifier.size(48.dp))
             }
@@ -281,97 +335,170 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                 ReportView(report, transcript(), Modifier.weight(1f), onHistory = { navController.navigate("speech_history") })
             } else {
                 Column(
-                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,
+                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = Space.Gutter),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(Space.Gutter))
                     Text(
-                        (scenario?.category?.uppercase() ?: "TALK FOR 1 MINUTE ABOUT"),
-                        color = Color.White.copy(alpha = 0.45f), fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp, textAlign = TextAlign.Center,
+                        (scenario?.category?.uppercase() ?: stringResource(R.string.speaking_practice_talk_for_1_minute_about)),
+                        color = Color.White.copy(alpha = 0.45f),
+                        fontSize = TextSize.Caption,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.5.sp,
+                        textAlign = TextAlign.Center
                     )
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(Space.S))
                     Text(
                         if (scenario != null) displayTopic else "\"$displayTopic\"",
-                        color = Color.White, fontSize = if (displayTopic.length > 40) 21.sp else if (displayTopic.length > 16) 24.sp else 34.sp,
-                        fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, lineHeight = LineHeight.Display,
+                        color = Color.White,
+                        fontSize = if (displayTopic.length > 40) {
+                            21.sp
+                        } else if (displayTopic.length > 16) {
+                            24.sp
+                        } else {
+                            34.sp
+                        },
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        lineHeight = LineHeight.Display
                     )
                     scenario?.let {
-                        Spacer(Modifier.height(10.dp))
-                        Text("Tip: ${it.tip}", color = Mint, fontSize = TextSize.BodySmall, textAlign = TextAlign.Center, lineHeight = LineHeight.Compact)
+                        Spacer(Modifier.height(Space.S))
+                        Text(
+                            stringResource(R.string.speaking_practice_tip_1_s, it.tip),
+                            color = Mint,
+                            fontSize = TextSize.BodySmall,
+                            textAlign = TextAlign.Center,
+                            lineHeight = LineHeight.Compact
+                        )
                     }
-                    Spacer(Modifier.height(28.dp))
+                    Spacer(Modifier.height(Space.Section))
                     Box(Modifier.size(170.dp), contentAlignment = Alignment.Center) {
                         if (phase == Phase.RECORDING) Box(Modifier.size(130.dp).scale(pulse).alpha(0.3f).clip(CircleShape).background(Coral))
                         val canPlay = phase == Phase.REVIEW && hasRecording
                         Box(
-                            Modifier.size(110.dp).clip(CircleShape).background(if (canPlay) Color.White else if (phase == Phase.THINK) Color(0xFF2A2A2E) else Coral)
-                                .clickable(enabled = canPlay) { togglePlayback() },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            if (phase == Phase.THINK) Text("$thinkLeft", color = Color.White, fontSize = TextSize.Number, fontWeight = FontWeight.Bold)
-                            else Icon(
-                                when { !canPlay -> Icons.Filled.Mic; isPlayingBack -> Icons.Filled.Pause; else -> Icons.Filled.PlayArrow },
-                                contentDescription = if (canPlay) "Play recording" else null,
-                                tint = if (canPlay) Ink else Color.White, modifier = Modifier.size(36.dp),
+                            Modifier.size(110.dp).clip(CircleShape).background(
+                                if (canPlay) {
+                                    Color.White
+                                } else if (phase ==
+                                    Phase.THINK
+                                ) {
+                                    Color(0xFF2A2A2E)
+                                } else {
+                                    Coral
+                                }
                             )
+                                .clickable(enabled = canPlay) { togglePlayback() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (phase == Phase.THINK) {
+                                Text("$thinkLeft", color = Color.White, fontSize = TextSize.Number, fontWeight = FontWeight.Bold)
+                            } else {
+                                Icon(
+                                    when {
+                                        !canPlay -> Icons.Filled.Mic
+                                        isPlayingBack -> Icons.Filled.Pause
+                                        else -> Icons.Filled.PlayArrow
+                                    },
+                                    contentDescription = if (canPlay) "Play recording" else null,
+                                    tint = if (canPlay) Ink else Color.White,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
                         }
                     }
-                    Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(Space.Xl))
                     if (phase == Phase.RECORDING && mode == Mode.ANALYSE) {
                         Text(
                             transcript().ifBlank { "Start talking — your words will appear here" }.takeLast(220),
                             color = if (transcript().isBlank()) Color.White.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.85f),
-                            fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 320.dp),
+                            fontSize = TextSize.BodyLarge,
+                            lineHeight = LineHeight.Relaxed,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.widthIn(max = 320.dp)
                         )
                     } else {
                         Text(
                             when {
-                                phase == Phase.THINK -> "Plan your first sentence and your last one. Recording starts automatically."
-                                phase == Phase.REVIEW && hasRecording -> "Tap play to listen back. Notice your pace, pauses and filler words."
-                                micDenied -> "No microphone access, so nothing is recorded — you can still practise against the timer."
-                                mode == Mode.ANALYSE -> "Re:MakeU turns your words into text on your phone to measure pace, filler words and pauses. No audio is saved."
-                                else -> "The recording stays on this phone and is deleted the moment you leave this screen."
+                                phase == Phase.THINK -> stringResource(R.string.speaking_practice_plan_your_first_sentence_and)
+                                phase == Phase.REVIEW && hasRecording -> stringResource(R.string.speaking_practice_tap_play_to_listen_back)
+                                micDenied -> stringResource(R.string.speaking_practice_no_microphone_access_so_nothing)
+                                mode == Mode.ANALYSE -> stringResource(R.string.speaking_practice_re_makeu_turns_your_words)
+                                else -> stringResource(R.string.speaking_practice_the_recording_stays_on_this)
                             },
-                            color = Color.White.copy(alpha = 0.45f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Body, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 290.dp),
+                            color = Color.White.copy(alpha = 0.45f),
+                            fontSize = TextSize.BodySmall,
+                            lineHeight = LineHeight.Body,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.widthIn(max = 290.dp)
                         )
                     }
                     if (phase == Phase.READY && recognitionAvailable) {
-                        Spacer(Modifier.height(18.dp))
-                        Row(Modifier.clip(Shapes.Pill).background(Color.White.copy(alpha = 0.08f)).padding(4.dp)) {
+                        Spacer(Modifier.height(Space.L))
+                        Row(Modifier.clip(Shapes.Pill).background(Color.White.copy(alpha = 0.08f)).padding(Space.Xs)) {
                             listOf(Mode.ANALYSE to "Analyse", Mode.LISTEN to "Listen back").forEach { (m, label) ->
                                 Text(
-                                    label, color = if (mode == m) Ink else Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.clip(Shapes.Pill).background(if (mode == m) Color.White else Color.Transparent).clickable { mode = m }.padding(16.dp, 8.dp),
+                                    label,
+                                    color = if (mode == m) Ink else Color.White,
+                                    fontSize = TextSize.BodySmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.clip(Shapes.Pill).background(
+                                        if (mode ==
+                                            m
+                                        ) {
+                                            Color.White
+                                        } else {
+                                            Color.Transparent
+                                        }
+                                    ).clickable { mode = m }.padding(Space.L, Space.S)
                                 )
                             }
                         }
                     }
                     if (BuildConfig.DEBUG && phase == Phase.RECORDING && mode == Mode.ANALYSE) {
                         Text(
-                            "Developer: use sample speech", color = Lilac, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 12.dp).clickable {
-                                finalText = "So um I think the best trip I took was to the mountains last year and like we basically hiked every single day you know and the views were amazing I mean honestly it was the the best week"
+                            stringResource(R.string.speaking_practice_developer_use_sample_speech),
+                            color = Lilac,
+                            fontSize = TextSize.Caption,
+                            modifier = Modifier.padding(top = Space.M).clickable {
+                                finalText =
+                                    "So um I think the best trip I took was to the mountains last year and like we basically hiked every single day you know and the views were amazing I mean honestly it was the the best week"
                                 (0 until 300).forEach { i -> levels += LevelSample(i * 100L, if (i in 120..150) -1f else 4f + (i % 9)) }
                                 remaining = totalSeconds - 32
-                            },
+                            }
                         )
                     }
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(Space.Gutter))
                 }
             }
 
-            Column(Modifier.padding(24.dp, 0.dp, 24.dp, 32.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.padding(Space.Gutter, 0.dp, Space.Gutter, Space.Xxl), verticalArrangement = Arrangement.spacedBy(Space.S)) {
                 when (phase) {
-                    Phase.READY -> WhiteButton(if (scenario != null && scenario.thinkSeconds > 0) "Start · ${scenario.thinkSeconds}s to think" else "Start speaking") { startPractice() }
-                    Phase.THINK -> WhiteButton("I'm ready — start now") { beginSpeaking(micGranted) }
-                    Phase.RECORDING -> WhiteButton("Stop") { stop() }
+                    Phase.READY -> WhiteButton(
+                        if (scenario != null &&
+                            scenario.thinkSeconds > 0
+                        ) {
+                            stringResource(R.string.speaking_practice_start_1_ss_to_think, scenario.thinkSeconds)
+                        } else {
+                            stringResource(R.string.speaking_practice_start_speaking)
+                        }
+                    ) { startPractice() }
+                    Phase.THINK -> WhiteButton(stringResource(R.string.speaking_practice_i_m_ready_start_now)) { beginSpeaking(micGranted) }
+                    Phase.RECORDING -> WhiteButton(stringResource(R.string.speaking_practice_stop)) { stop() }
                     Phase.REVIEW -> {
-                        WhiteButton("Done") { finish() }
+                        WhiteButton(stringResource(R.string.common_done)) { finish() }
                         Text(
-                            "Try again", color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
+                            stringResource(R.string.speaking_practice_try_again),
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = TextSize.Body,
+                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
-                                player?.release(); player = null; isPlayingBack = false
+                                player?.release()
+                                player = null
+                                isPlayingBack = false
                                 phase = Phase.READY
-                            }.padding(8.dp),
+                            }.padding(Space.S)
                         )
                     }
                 }
@@ -380,9 +507,16 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
 
         if (askConsent) {
             ConsentSheet(
-                Consent.MICROPHONE, Icons.Filled.Mic,
-                onAllow = { askConsent = false; requestMic() },
-                onDecline = { askConsent = false; afterPermission(false) },
+                Consent.MICROPHONE,
+                Icons.Filled.Mic,
+                onAllow = {
+                    askConsent = false
+                    requestMic()
+                },
+                onDecline = {
+                    askConsent = false
+                    afterPermission(false)
+                }
             )
         }
     }
@@ -390,50 +524,109 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
 
 @Composable
 private fun ReportView(report: SpeechReport?, transcript: String, modifier: Modifier, onHistory: () -> Unit) {
-    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp, 20.dp, 24.dp, 16.dp)) {
+    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(Space.Gutter, Space.Xl, Space.Gutter, Space.L)) {
         if (report == null || transcript.isBlank()) {
-            Text("We couldn't hear any words", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
             Text(
-                "Check your microphone isn't muted and speak a little louder. Speech recognition needs your phone's speech services — or switch to Listen back.",
-                color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, lineHeight = LineHeight.Body, modifier = Modifier.padding(top = 6.dp),
+                stringResource(R.string.speaking_practice_we_couldn_t_hear_any),
+                color = Color.White,
+                fontSize = TextSize.TitleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                stringResource(R.string.speaking_practice_check_your_microphone_isn_t),
+                color = Color.White.copy(alpha = 0.6f),
+                fontSize = TextSize.Body,
+                lineHeight = LineHeight.Body,
+                modifier = Modifier.padding(top = Space.S)
             )
             return@Column
         }
-        Text("YOUR REPORT", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.Caption, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp)
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Metric("${report.wpm}", "words / min", when { report.wpm in 125..165 -> Mint; report.wpm > 175 || report.wpm < 100 -> Peach; else -> Sun }, Modifier.weight(1f))
-            Metric("${report.fillerTotal}", "fillers", if (report.fillersPerMinute < 2) Mint else if (report.fillersPerMinute < 4) Sun else Peach, Modifier.weight(1f))
+        Text(
+            stringResource(R.string.speaking_practice_your_report),
+            color = Color.White.copy(alpha = 0.5f),
+            fontSize = TextSize.Caption,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.6.sp
+        )
+        Spacer(Modifier.height(Space.M))
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
+            Metric(
+                "${report.wpm}",
+                "words / min",
+                when {
+                    report.wpm in 125..165 -> Mint
+                    report.wpm > 175 || report.wpm < 100 -> Peach
+                    else -> Sun
+                },
+                Modifier.weight(1f)
+            )
+            Metric(
+                "${report.fillerTotal}",
+                "fillers",
+                if (report.fillersPerMinute <
+                    2
+                ) {
+                    Mint
+                } else if (report.fillersPerMinute < 4) {
+                    Sun
+                } else {
+                    Peach
+                },
+                Modifier.weight(1f)
+            )
             Metric("${report.longPauses}", "long pauses", if (report.longPauses <= 3) Mint else Sun, Modifier.weight(1f))
         }
-        Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Metric("${report.variety}", "voice variety", if (report.variety >= 55) Mint else if (report.variety >= 35) Sun else Peach, Modifier.weight(1f))
+        Spacer(Modifier.height(Space.S))
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
+            Metric(
+                "${report.variety}",
+                "voice variety",
+                if (report.variety >= 55) {
+                    Mint
+                } else if (report.variety >= 35) {
+                    Sun
+                } else {
+                    Peach
+                },
+                Modifier.weight(1f)
+            )
             Metric("${report.words}", "words", Color.White, Modifier.weight(1f))
             Metric("${report.longestPauseSeconds}s", "longest pause", Color.White, Modifier.weight(1f))
         }
-        Text("Target pace: 130–160 words a minute.", color = Color.White.copy(alpha = 0.45f), fontSize = TextSize.Caption, modifier = Modifier.padding(top = 8.dp))
+        Text(
+            stringResource(R.string.speaking_practice_target_pace_130_160_words),
+            color = Color.White.copy(alpha = 0.45f),
+            fontSize = TextSize.Caption,
+            modifier = Modifier.padding(top = Space.S)
+        )
 
         val good = report.wentWell()
         if (good.isNotEmpty()) {
-            Spacer(Modifier.height(20.dp))
-            Text("What went well", color = Mint, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(Space.Xl))
+            Text(stringResource(R.string.speaking_practice_what_went_well), color = Mint, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
             good.forEach { Note(it.title, it.body) }
         }
         val work = report.workOn()
         if (work.isNotEmpty()) {
-            Spacer(Modifier.height(16.dp))
-            Text("Work on next", color = Sun, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(Space.L))
+            Text(stringResource(R.string.speaking_practice_work_on_next), color = Sun, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
             work.forEach { Note(it.title, it.body) }
         }
         if (report.fillers.isNotEmpty()) {
-            Spacer(Modifier.height(16.dp))
-            Text("Filler words: " + report.fillers.joinToString(" · ") { "\"${it.word}\" ×${it.count}" }, color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
+            Spacer(Modifier.height(Space.L))
+            Text(
+                stringResource(R.string.speaking_practice_filler_words) + report.fillers.joinToString(" · ") {
+                    "\"${it.word}\" ×${it.count}"
+                },
+                color = Color.White.copy(alpha = 0.7f),
+                fontSize = TextSize.BodySmall,
+                lineHeight = LineHeight.Compact
+            )
         }
 
-        Spacer(Modifier.height(20.dp))
-        Text("Transcript", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(Space.Xl))
+        Text(stringResource(R.string.speaking_practice_transcript), color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(Space.S))
         val fillerWords = report.fillers.map { it.word }.toSet()
         Text(
             buildAnnotatedString {
@@ -441,25 +634,41 @@ private fun ReportView(report: SpeechReport?, transcript: String, modifier: Modi
                 val clean = tokens.map { it.lowercase().trim(',', '.', '?', '!') }
                 // Mark single fillers and both words of two-word fillers ("you know", "I mean").
                 val marked = BooleanArray(tokens.size) { clean[it] in fillerWords }
-                for (i in 0 until tokens.size - 1) if ("${clean[i]} ${clean[i + 1]}" in fillerWords) { marked[i] = true; marked[i + 1] = true }
+                for (i in 0 until tokens.size - 1) {
+                    if ("${clean[i]} ${clean[i + 1]}" in fillerWords) {
+                        marked[i] = true
+                        marked[i + 1] = true
+                    }
+                }
                 tokens.forEachIndexed { i, w ->
                     if (marked[i]) withStyle(SpanStyle(color = Peach, fontWeight = FontWeight.Bold)) { append(w) } else append(w)
                     append(" ")
                 }
             },
-            color = Color.White.copy(alpha = 0.8f), fontSize = TextSize.Body, lineHeight = LineHeight.Relaxed,
+            color = Color.White.copy(alpha = 0.8f),
+            fontSize = TextSize.Body,
+            lineHeight = LineHeight.Relaxed
         )
-        Text("Speech recognition can miss \"um\" and \"uh\", so the real filler count may be a little higher.", color = Color.White.copy(alpha = 0.4f), fontSize = TextSize.Caption, lineHeight = LineHeight.Tight, modifier = Modifier.padding(top = 10.dp))
         Text(
-            "See your progress over time →", color = Lilac, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(top = 16.dp).clickable(onClick = onHistory),
+            stringResource(R.string.speaking_practice_speech_recognition_can_miss_um),
+            color = Color.White.copy(alpha = 0.4f),
+            fontSize = TextSize.Caption,
+            lineHeight = LineHeight.Tight,
+            modifier = Modifier.padding(top = Space.S)
+        )
+        Text(
+            stringResource(R.string.speaking_practice_see_your_progress_over_time),
+            color = Lilac,
+            fontSize = TextSize.Body,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = Space.L).clickable(onClick = onHistory)
         )
     }
 }
 
 @Composable
 private fun Metric(value: String, label: String, color: Color, modifier: Modifier) {
-    Column(modifier.clip(Shapes.Medium).background(Color.White.copy(alpha = 0.07f)).padding(12.dp)) {
+    Column(modifier.clip(Shapes.Medium).background(Color.White.copy(alpha = 0.07f)).padding(Space.M)) {
         Text(value, color = color, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold)
         Text(label, color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Caption)
     }
@@ -467,7 +676,7 @@ private fun Metric(value: String, label: String, color: Color, modifier: Modifie
 
 @Composable
 private fun Note(title: String, body: String) {
-    Column(Modifier.fillMaxWidth().padding(top = 8.dp).clip(Shapes.Medium).background(Color.White.copy(alpha = 0.07f)).padding(14.dp, 12.dp)) {
+    Column(Modifier.fillMaxWidth().padding(top = Space.S).clip(Shapes.Medium).background(Color.White.copy(alpha = 0.07f)).padding(Space.M, Space.M)) {
         Text(title, color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
         Text(body, color = Color.White.copy(alpha = 0.65f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
     }
@@ -475,7 +684,5 @@ private fun Note(title: String, body: String) {
 
 @Composable
 private fun WhiteButton(label: String, onClick: () -> Unit) {
-    Box(Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Color.White).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-        Text(label, color = Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-    }
+    AppButton(label, variant = ButtonVariant.OnDarkPrimary, onClick = onClick)
 }

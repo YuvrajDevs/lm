@@ -1,9 +1,9 @@
 package com.glowup.app.ui.data
 
 import androidx.compose.runtime.mutableStateListOf
+import java.time.LocalDate
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.LocalDate
 
 data class UserNote(val id: Int, val body: String, val date: LocalDate, val pinned: Boolean = false)
 

@@ -15,9 +15,9 @@ import com.glowup.app.ui.theme.Maroon
 import com.glowup.app.ui.theme.MaroonTint
 import com.glowup.app.ui.theme.Navy
 import com.glowup.app.ui.theme.NavyTint
+import java.time.LocalDate
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.LocalDate
 
 /**
  * One piece of the user's own clothing. [photo] is a file name in the private photo vault.
@@ -32,7 +32,7 @@ data class WardrobeItem(
     val photo: String? = null,
     val price: Double? = null,
     val worn: List<LocalDate> = emptyList(),
-    val addedOn: LocalDate = LocalDate.now(),
+    val addedOn: LocalDate = LocalDate.now()
 ) {
     val slot: Slot get() = garment.slot
     val category: String get() = slot.label
@@ -73,7 +73,7 @@ object WardrobeStore {
         Palette.Brown, Palette.DarkBrown, Palette.LightGrey, Palette.Grey, Palette.Charcoal, Palette.Black, Palette.Navy,
         Palette.LightBlue, Palette.Sky, Palette.Denim, Palette.DarkDenim, Palette.Olive, Palette.Sage, Palette.Forest,
         Palette.Emerald, Palette.Rust, Palette.Mustard, Palette.Burgundy, Palette.Maroon, Palette.Blush, Palette.Lavender,
-        Palette.Gold, Palette.Silver,
+        Palette.Gold, Palette.Silver
     )
 
     val items = mutableStateListOf<WardrobeItem>()
@@ -90,9 +90,27 @@ object WardrobeStore {
 
     val atFreeLimit: Boolean get() = !ProStore.isPro && items.size >= FREE_MAX_ITEMS
 
-    fun add(garment: Garment, colour: Swatch, title: String, formality: Int = defaultFormality(garment), photo: String? = null, price: Double? = null): WardrobeItem {
+    fun add(
+        garment: Garment,
+        colour: Swatch,
+        title: String,
+        formality: Int = defaultFormality(garment),
+        photo: String? = null,
+        price: Double? = null
+    ): WardrobeItem {
         val nextId = (items.maxOfOrNull { it.id } ?: 0) + 1
-        val item = WardrobeItem(nextId, garment, colour, title.trim().ifBlank { "${colour.name} ${garmentLabel(garment).lowercase()}" }, formality.coerceIn(1, 3), photo, price)
+        val item =
+            WardrobeItem(
+                nextId,
+                garment,
+                colour,
+                title.trim().ifBlank {
+                    "${colour.name} ${garmentLabel(garment).lowercase()}"
+                },
+                formality.coerceIn(1, 3),
+                photo,
+                price
+            )
         items.add(item)
         save()
         return item
@@ -145,8 +163,8 @@ object WardrobeStore {
                         j.getInt("id"), garment, swatchNamed(j.getString("colour")), j.getString("title"), j.optInt("formality", defaultFormality(garment)),
                         j.optStringOrNull("photo"), if (j.isNull("price") || !j.has("price")) null else j.getDouble("price"),
                         j.optJSONArray("worn")?.strings()?.map(LocalDate::parse).orEmpty(),
-                        j.optStringOrNull("added")?.let(LocalDate::parse) ?: LocalDate.now(),
-                    ),
+                        j.optStringOrNull("added")?.let(LocalDate::parse) ?: LocalDate.now()
+                    )
                 )
             } else {
                 // Before photos: free-text items with a category. Guess the garment and colour.
@@ -163,7 +181,7 @@ object WardrobeStore {
             array.put(
                 JSONObject().put("id", it.id).put("garment", it.garment.name).put("colour", it.colour.name).put("title", it.title)
                     .put("formality", it.formality).put("photo", it.photo ?: JSONObject.NULL).put("price", it.price ?: JSONObject.NULL)
-                    .put("worn", it.worn.map(LocalDate::toString).toJsonArray()).put("added", it.addedOn.toString()),
+                    .put("worn", it.worn.map(LocalDate::toString).toJsonArray()).put("added", it.addedOn.toString())
             )
         }
         Storage.write(KEY, array.toString())

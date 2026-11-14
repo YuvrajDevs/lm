@@ -3,8 +3,8 @@ package com.glowup.app.ui.data
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import org.json.JSONObject
 import java.time.LocalTime
+import org.json.JSONObject
 
 object SleepStore {
     private const val KEY = "sleep"
@@ -76,7 +76,7 @@ object SleepStore {
                 .put("wakeOn", wakeAlarmOn)
                 .put("sound", sound)
                 .put("timer", timerMinutes)
-                .toString(),
+                .toString()
         )
     }
 }

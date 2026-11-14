@@ -21,7 +21,7 @@ data class FaceGeometry(
     val rightBrow: List<Pt>,
     val noseBridge: List<Pt>,
     val noseBottom: List<Pt>,
-    val upperLip: List<Pt>,
+    val upperLip: List<Pt>
 )
 
 /** Measurements only — never the image. All of these are approximate and explained as such. */
@@ -33,7 +33,7 @@ data class FaceMetrics(
     /** 0–100. Real faces typically land around 88–97; nobody is perfectly symmetrical. */
     val symmetry: Int,
     /** Lower face (nose to chin) relative to mid face (eyes to nose). Fixed trait, used for beard advice. */
-    val lowerFaceRatio: Double,
+    val lowerFaceRatio: Double
 )
 
 object FaceAnalysis {
@@ -49,7 +49,7 @@ object FaceAnalysis {
             foreheadToCheek = fc,
             jawToCheek = jc,
             symmetry = frames.map { it.symmetry }.average().roundToInt(),
-            lowerFaceRatio = frames.map { it.lowerFaceRatio }.average(),
+            lowerFaceRatio = frames.map { it.lowerFaceRatio }.average()
         )
     }
 
@@ -61,8 +61,10 @@ object FaceAnalysis {
         val angle = atan2((re.y - le.y).toDouble(), (re.x - le.x).toDouble())
         val pivot = centre(g.oval)
         fun r(p: Pt): Pt {
-            val c = cos(-angle); val s = sin(-angle)
-            val dx = p.x - pivot.x; val dy = p.y - pivot.y
+            val c = cos(-angle)
+            val s = sin(-angle)
+            val dx = p.x - pivot.x
+            val dy = p.y - pivot.y
             return Pt((pivot.x + dx * c - dy * s).toFloat(), (pivot.y + dx * s + dy * c).toFloat())
         }
         val oval = g.oval.map(::r)

@@ -40,7 +40,16 @@ fun OutfitArt(outfit: Outfit, modifier: Modifier = Modifier) {
             top?.let { drawTop(it.garment, topBox, it.swatch.color) }
             drawVest(topBox, layer.swatch.color, longTop)
         } else if (layer != null) {
-            drawLayer(layer.garment, topBox, layer.swatch.color, top?.swatch?.color ?: layer.swatch.color, outfit.accessories.firstOrNull { it.garment == Garment.TIE }?.swatch?.color)
+            drawLayer(
+                layer.garment,
+                topBox,
+                layer.swatch.color,
+                top?.swatch?.color ?: layer.swatch.color,
+                outfit.accessories.firstOrNull {
+                    it.garment ==
+                        Garment.TIE
+                }?.swatch?.color
+            )
         } else if (top != null) {
             drawTop(top.garment, topBox, top.swatch.color)
             outfit.accessories.firstOrNull { it.garment == Garment.TIE }?.let { drawTie(topBox, it.swatch.color) }
@@ -123,7 +132,13 @@ private fun DrawScope.drawTop(garment: Garment, r: Rect, color: Color) {
     val detail = detailFor(color)
     when (garment) {
         Garment.TEE -> fillOutlined(shortSleeve(r), color)
-        Garment.TANK -> fillOutlined(shape(r, 0.30f to 0f, 0.40f to 0f, 0.5f to 0.18f, 0.60f to 0f, 0.70f to 0f, 0.80f to 0.30f, 0.80f to 1f, 0.20f to 1f, 0.20f to 0.30f), color)
+        Garment.TANK -> fillOutlined(
+            shape(
+                r, 0.30f to 0f, 0.40f to 0f, 0.5f to 0.18f, 0.60f to 0f, 0.70f to 0f, 0.80f to 0.30f, 0.80f to 1f, 0.20f to 1f,
+                0.20f to 0.30f
+            ),
+            color
+        )
         Garment.POLO -> {
             fillOutlined(shortSleeve(r), color)
             fillOutlined(shape(r, 0.36f to 0f, 0.46f to 0.12f, 0.5f to 0.05f), detail)
@@ -199,7 +214,13 @@ private fun DrawScope.drawLayer(garment: Garment, r: Rect, color: Color, inner: 
 
 private fun DrawScope.drawVest(r: Rect, color: Color, overLongTop: Boolean) {
     val hem = if (overLongTop) 0.70f else 0.96f
-    fillOutlined(shape(r, 0.27f to 0.02f, 0.40f to 0.02f, 0.5f to 0.10f, 0.60f to 0.02f, 0.73f to 0.02f, 0.80f to 0.24f, 0.80f to hem, 0.20f to hem, 0.20f to 0.24f), color)
+    fillOutlined(
+        shape(
+            r, 0.27f to 0.02f, 0.40f to 0.02f, 0.5f to 0.10f, 0.60f to 0.02f, 0.73f to 0.02f, 0.80f to 0.24f, 0.80f to hem, 0.20f to hem,
+            0.20f to 0.24f
+        ),
+        color
+    )
     val detail = detailFor(color)
     line(r, 0.5f, 0.10f, 0.5f, hem, detail, 1.4f)
     listOf(0.22f, 0.36f, 0.50f, 0.64f).filter { it < hem - 0.04f }.forEach { drawCircle(lerp(detail, Color(0xFFCBA24C), 0.6f), 2f * density, r.at(0.53f, it)) }
@@ -219,7 +240,13 @@ private fun DrawScope.drawBottom(garment: Garment, r: Rect, color: Color) {
             fillOutlined(shape(r, 0.04f to 0f, 0.96f to 0f, 0.96f to 0.10f, 0.04f to 0.10f), color)
         }
         Garment.JOGGERS -> {
-            fillOutlined(shape(r, 0.06f to 0.06f, 0.94f to 0.06f, 0.96f to 0.40f, 0.86f to 0.94f, 0.60f to 0.94f, 0.5f to 0.30f, 0.40f to 0.94f, 0.14f to 0.94f, 0.04f to 0.40f), color)
+            fillOutlined(
+                shape(
+                    r, 0.06f to 0.06f, 0.94f to 0.06f, 0.96f to 0.40f, 0.86f to 0.94f, 0.60f to 0.94f, 0.5f to 0.30f, 0.40f to 0.94f, 0.14f to 0.94f,
+                    0.04f to 0.40f
+                ),
+                color
+            )
             fillOutlined(shape(r, 0.06f to 0f, 0.94f to 0f, 0.94f to 0.07f, 0.06f to 0.07f), detail)
             fillOutlined(shape(r, 0.14f to 0.94f, 0.40f to 0.94f, 0.40f to 1f, 0.14f to 1f), detail)
             fillOutlined(shape(r, 0.60f to 0.94f, 0.86f to 0.94f, 0.86f to 1f, 0.60f to 1f), detail)
@@ -313,7 +340,15 @@ private fun DrawScope.drawAccessory(garment: Garment, r: Rect, color: Color) {
         }
         Garment.BELT -> {
             drawRoundRect(color, Offset(r.left, c.y - s * 0.12f), Size(r.width, s * 0.24f), CornerRadius(3f * density))
-            drawRoundRect(Color(0xFFC9CDD2), Offset(c.x - s * 0.18f, c.y - s * 0.20f), Size(s * 0.36f, s * 0.40f), CornerRadius(2f * density), style = Stroke(2f * density))
+            drawRoundRect(
+                Color(0xFFC9CDD2),
+                Offset(c.x - s * 0.18f, c.y - s * 0.20f),
+                Size(s * 0.36f, s * 0.40f),
+                CornerRadius(2f * density),
+                style = Stroke(
+                    2f * density
+                )
+            )
         }
         Garment.CAP -> {
             val dome = Path().apply {
@@ -322,12 +357,27 @@ private fun DrawScope.drawAccessory(garment: Garment, r: Rect, color: Color) {
                 close()
             }
             fillOutlined(dome, color)
-            drawRoundRect(lerp(color, Color.Black, 0.2f), Offset(r.right - r.width * 0.32f, c.y + s * 0.08f), Size(r.width * 0.32f, s * 0.12f), CornerRadius(4f * density))
+            drawRoundRect(
+                lerp(color, Color.Black, 0.2f),
+                Offset(r.right - r.width * 0.32f, c.y + s * 0.08f),
+                Size(r.width * 0.32f, s * 0.12f),
+                CornerRadius(
+                    4f * density
+                )
+            )
         }
         Garment.BAG -> {
             drawArc(outline, 180f, 180f, false, Offset(c.x - s * 0.22f, r.top), Size(s * 0.44f, s * 0.44f), style = Stroke(2f * density))
             drawRoundRect(color, Offset(r.left + r.width * 0.12f, c.y - s * 0.12f), Size(r.width * 0.76f, s * 0.58f), CornerRadius(4f * density))
-            drawRoundRect(outline, Offset(r.left + r.width * 0.12f, c.y - s * 0.12f), Size(r.width * 0.76f, s * 0.58f), CornerRadius(4f * density), style = Stroke(1.2f * density))
+            drawRoundRect(
+                outline,
+                Offset(r.left + r.width * 0.12f, c.y - s * 0.12f),
+                Size(r.width * 0.76f, s * 0.58f),
+                CornerRadius(4f * density),
+                style = Stroke(
+                    1.2f * density
+                )
+            )
         }
         Garment.CHAIN -> {
             drawArc(color, 20f, 140f, false, Offset(c.x - s * 0.40f, r.top - s * 0.30f), Size(s * 0.80f, s * 0.95f), style = Stroke(2.4f * density))

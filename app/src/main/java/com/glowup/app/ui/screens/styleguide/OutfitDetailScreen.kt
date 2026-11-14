@@ -23,25 +23,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.glowup.app.R
 import com.glowup.app.ui.components.OutfitBoard
 import com.glowup.app.ui.components.OutfitCard
+import com.glowup.app.ui.components.ProLockedScreen
 import com.glowup.app.ui.components.SwatchDot
 import com.glowup.app.ui.components.goBack
+import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoStore
 import com.glowup.app.ui.data.style.SavedLooksStore
 import com.glowup.app.ui.data.style.StyleLibrary
-import com.glowup.app.ui.theme.*
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.components.ProLockedScreen
-import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.screens.wardrobe.MakeThisLook
+import com.glowup.app.ui.theme.*
 
 @Composable
 fun OutfitDetailScreen(navController: NavHostController, id: String) {
@@ -57,78 +60,90 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
 
     Column(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(24.dp, 24.dp, 24.dp, 0.dp),
+            modifier = Modifier.fillMaxWidth().padding(Space.Gutter, Space.Gutter, Space.Gutter, 0.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             CircleButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", Ink, Color.White) { navController.goBack() }
             CircleButton(
                 if (saved) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                 if (saved) "Remove from saved looks" else "Save look",
                 ChipNeutral,
-                if (saved) Coral else Ink,
+                if (saved) Coral else Ink
             ) { SavedLooksStore.toggle(outfit.id) }
         }
 
-        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 16.dp)) {
-            OutfitBoard(outfit, Modifier.padding(horizontal = 24.dp), height = 330.dp)
+        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = Space.L)) {
+            OutfitBoard(outfit, Modifier.padding(horizontal = Space.Gutter), height = 330.dp)
 
-            Column(modifier = Modifier.padding(24.dp, 18.dp, 24.dp, 0.dp)) {
+            Column(modifier = Modifier.padding(Space.Gutter, Space.L, Space.Gutter, 0.dp)) {
                 Text(
                     guide.title.uppercase(),
                     color = guide.accent,
                     fontSize = TextSize.Micro,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.5.sp,
-                    modifier = Modifier.clickable { navController.navigate("style_guide_detail/${guide.key}") },
+                    modifier = Modifier.clickable { navController.navigate("style_guide_detail/${guide.key}") }
                 )
                 Text(outfit.name, fontSize = TextSize.Display, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Spacer(Modifier.height(Space.S))
+                Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                     outfit.occasions.forEach { occasion ->
-                        Box(modifier = Modifier.clip(Shapes.Pill).background(ChipNeutral).padding(12.dp, 6.dp)) {
+                        Box(modifier = Modifier.clip(Shapes.Pill).background(ChipNeutral).padding(Space.M, Space.S)) {
                             Text(occasion, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(Space.L))
                 MakeThisLook(outfit, navController)
 
-                Spacer(Modifier.height(24.dp))
-                Text("The pieces", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(Space.Gutter))
+                Text(stringResource(R.string.outfit_detail_the_pieces), fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(Space.S))
                 outfit.pieces.forEach { piece ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = Space.S)
                             .clip(Shapes.Medium)
                             .background(CardNeutral)
-                            .padding(14.dp, 12.dp),
+                            .padding(Space.M, Space.M),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(Space.M)
                     ) {
                         SwatchDot(piece.swatch.color, 34.dp)
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(piece.garment.slot.label.uppercase(), color = TextSecondary, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Text(
+                                piece.garment.slot.label.uppercase(),
+                                color = TextSecondary,
+                                fontSize = TextSize.Micro,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 0.4.sp
+                            )
                             Text(piece.name, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                         }
                         Text(piece.swatch.name, color = TextSecondary, fontSize = TextSize.Caption)
                     }
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(Space.L))
                 Column(
-                    modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(guide.tint).padding(18.dp),
+                    modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(guide.tint).padding(Space.L)
                 ) {
-                    Text("WHY IT WORKS", color = guide.accent, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
-                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        stringResource(R.string.outfit_detail_why_it_works),
+                        color = guide.accent,
+                        fontSize = TextSize.Micro,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.5.sp
+                    )
+                    Spacer(Modifier.height(Space.S))
                     Text(outfit.why, color = guide.heroText, fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed, fontWeight = FontWeight.Medium)
                 }
 
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.height(IntrinsicSize.Min)) {
+                Spacer(Modifier.height(Space.S))
+                Row(horizontalArrangement = Arrangement.spacedBy(Space.S), modifier = Modifier.height(IntrinsicSize.Min)) {
                     AdjustCard("Dress it up", outfit.dressUp, Icons.Filled.ArrowUpward, Modifier.weight(1f).fillMaxHeight())
                     AdjustCard("Dress it down", outfit.dressDown, Icons.Filled.ArrowDownward, Modifier.weight(1f).fillMaxHeight())
                 }
@@ -136,39 +151,39 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
 
             val more = guide.outfits.filter { it.id != outfit.id }
             Text(
-                "More ${guide.title} looks",
+                stringResource(R.string.outfit_detail_more_1_s_looks, guide.title),
                 fontSize = TextSize.Title,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(24.dp, 26.dp, 24.dp, 12.dp),
+                modifier = Modifier.padding(Space.Gutter, Space.Gutter, Space.Gutter, Space.M)
             )
-            LazyRow(contentPadding = PaddingValues(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            LazyRow(contentPadding = PaddingValues(horizontal = Space.Gutter), horizontalArrangement = Arrangement.spacedBy(Space.M)) {
                 items(more, key = { it.id }) { other ->
                     OutfitCard(other, Modifier.width(200.dp)) {
                         navController.navigate("outfit/${other.id}") { popUpTo("outfit/{id}") { inclusive = true } }
                     }
                 }
             }
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Space.Xl))
         }
 
         Box(
             modifier = Modifier
-                .padding(24.dp, 8.dp, 24.dp, 24.dp)
+                .padding(Space.Gutter, Space.S, Space.Gutter, Space.Gutter)
                 .fillMaxWidth()
                 .height(58.dp)
                 .clip(Shapes.Pill)
                 .background(if (planned) GreenTint else Ink)
                 .clickable(enabled = !planned) { TodoStore.add(todoTitle, TodoBucket.TODAY, "${guide.title} · Outfit") },
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (planned) Icon(Icons.Filled.Check, contentDescription = null, tint = Green, modifier = Modifier.size(18.dp))
-                if (planned) Spacer(Modifier.width(6.dp))
+                if (planned) Spacer(Modifier.width(Space.S))
                 Text(
-                    if (planned) "In today's plan" else "Wear it today",
+                    if (planned) stringResource(R.string.outfit_detail_in_today_s_plan) else stringResource(R.string.outfit_detail_wear_it_today),
                     color = if (planned) Green else Color.White,
                     fontSize = TextSize.BodyLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -177,13 +192,13 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
 
 @Composable
 private fun AdjustCard(title: String, body: String, icon: ImageVector, modifier: Modifier) {
-    Column(modifier = modifier.clip(Shapes.Card).background(CardNeutral).padding(16.dp)) {
+    Column(modifier = modifier.clip(Shapes.Card).background(CardNeutral).padding(Space.L)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = Ink, modifier = Modifier.size(15.dp))
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(Space.Xs))
             Text(title, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(Space.S))
         Text(body, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
     }
 }
@@ -192,7 +207,7 @@ private fun AdjustCard(title: String, body: String, icon: ImageVector, modifier:
 private fun CircleButton(icon: ImageVector, description: String, background: Color, tint: Color, onClick: () -> Unit) {
     Box(
         modifier = Modifier.size(48.dp).clip(CircleShape).background(background).clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = description, tint = tint, modifier = Modifier.size(20.dp))
     }

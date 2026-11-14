@@ -3,6 +3,7 @@ package com.glowup.app.blocker
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -38,23 +39,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.glowup.app.MainActivity
+import com.glowup.app.R
 import com.glowup.app.notify.Notifications
 import com.glowup.app.ui.data.BlockStore
 import com.glowup.app.ui.data.FocusStore
-import com.glowup.app.ui.theme.ReMakeUTheme
-import com.glowup.app.ui.theme.Ink
-import kotlinx.coroutines.delay
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.Ink
 import com.glowup.app.ui.theme.Mint
 import com.glowup.app.ui.theme.Peach
+import com.glowup.app.ui.theme.ReMakeUTheme
 import com.glowup.app.ui.theme.Sky
-import com.glowup.app.ui.design.Sizes
-import androidx.activity.SystemBarStyle
+import kotlinx.coroutines.delay
 
 /** The block screen (during focus or a schedule) and the mindful pause screen. */
 class InterventionActivity : ComponentActivity() {
@@ -73,7 +77,7 @@ class InterventionActivity : ComponentActivity() {
         // Dark screens: light status and navigation bar icons.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
         )
         read(intent)
         setContent {
@@ -100,7 +104,12 @@ class InterventionActivity : ComponentActivity() {
     }
 
     private fun openGlowUp(route: String) {
-        startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Notifications.EXTRA_ROUTE, route))
+        startActivity(
+            Intent(
+                this,
+                MainActivity::class.java
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Notifications.EXTRA_ROUTE, route)
+        )
         finish()
     }
 
@@ -117,11 +126,16 @@ class InterventionActivity : ComponentActivity() {
         BackHandler { home() }
         val label = remember(pkg) { Blocker.label(this, pkg) }
         var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
-        LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
+        LaunchedEffect(Unit) {
+            while (true) {
+                now = System.currentTimeMillis()
+                delay(1000)
+            }
+        }
         val focus = FocusStore.active?.takeIf { it.isRunning && it.blockApps }
         Column(
-            Modifier.fillMaxSize().background(Ink).systemBarsPadding().padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            Modifier.fillMaxSize().background(Ink).systemBarsPadding().padding(Space.Section),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.weight(1f))
             Box(contentAlignment = Alignment.BottomEnd) {
@@ -130,35 +144,54 @@ class InterventionActivity : ComponentActivity() {
                     Icon(Icons.Filled.Lock, contentDescription = null, tint = Ink, modifier = Modifier.size(16.dp))
                 }
             }
-            Spacer(Modifier.height(24.dp))
-            Text(if (focus != null) "You're in focus" else "$label is blocked", color = Color.White, fontSize = TextSize.Display, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Space.Gutter))
+            Text(
+                if (focus !=
+                    null
+                ) {
+                    stringResource(R.string.intervention_you_re_in_focus)
+                } else {
+                    stringResource(R.string.intervention_1_s_is_blocked, label)
+                },
+                color = Color.White,
+                fontSize = TextSize.Display,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(Space.S))
             if (focus != null) {
                 val left = focus.remaining(now)
                 Text("%d:%02d".format(left / 60_000, left / 1000 % 60), color = Mint, fontSize = TextSize.NumberLarge, fontWeight = FontWeight.Bold)
-                Text("left on ${focus.label.lowercase()} · $label opens after", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, textAlign = TextAlign.Center)
+                Text(
+                    stringResource(R.string.intervention_left_on_1_s_2, focus.label.lowercase(), label),
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = TextSize.Body,
+                    textAlign = TextAlign.Center
+                )
             } else {
                 Text(detail ?: "", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodyLarge, textAlign = TextAlign.Center)
             }
             Spacer(Modifier.weight(1.2f))
             if (focus != null) {
-                Box(
-                    Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Color.White).clickable { openGlowUp("focus") },
-                    contentAlignment = Alignment.Center,
-                ) { Text("Back to focus", color = Ink, fontSize = TextSize.Title, fontWeight = FontWeight.Bold) }
-                Spacer(Modifier.height(10.dp))
+                AppButton(stringResource(R.string.intervention_back_to_focus), variant = ButtonVariant.OnDarkPrimary) { openGlowUp("focus") }
+                Spacer(Modifier.height(Space.S))
             }
-            Box(
-                Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Color.White.copy(alpha = 0.12f)).clickable { home() },
-                contentAlignment = Alignment.Center,
-            ) { Text("Go to home screen", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold) }
+            AppButton(stringResource(R.string.intervention_go_to_home_screen), variant = ButtonVariant.OnDarkSecondary) { home() }
             if (focus != null && !focus.strict) {
                 Text(
-                    "End focus early", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(top = 14.dp).clickable { openGlowUp("focus") },
+                    stringResource(R.string.intervention_end_focus_early),
+                    color = Color.White.copy(alpha = 0.5f),
+                    fontSize = TextSize.BodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = Space.M).clickable { openGlowUp("focus") }
                 )
             } else if (focus?.strict == true) {
-                Text("Strict mode — this can't be skipped.", color = Color.White.copy(alpha = 0.45f), fontSize = TextSize.BodySmall, modifier = Modifier.padding(top = 14.dp))
+                Text(
+                    stringResource(R.string.intervention_strict_mode_this_can_t),
+                    color = Color.White.copy(alpha = 0.45f),
+                    fontSize = TextSize.BodySmall,
+                    modifier = Modifier.padding(top = Space.M)
+                )
             }
         }
     }
@@ -167,17 +200,25 @@ class InterventionActivity : ComponentActivity() {
     private fun PauseContent() {
         val label = remember(pkg) { Blocker.label(this, pkg) }
         var secondsLeft by remember(pkg) { mutableIntStateOf(BlockStore.pauseSeconds) }
-        LaunchedEffect(pkg) { while (secondsLeft > 0) { delay(1000); secondsLeft-- } }
+        LaunchedEffect(pkg) {
+            while (secondsLeft > 0) {
+                delay(1000)
+                secondsLeft--
+            }
+        }
         BackHandler {
-            if (secondsLeft == 0) { BlockStore.recordResisted(); home() }
+            if (secondsLeft == 0) {
+                BlockStore.recordResisted()
+                home()
+            }
         }
         val breath = rememberInfiniteTransition(label = "breath")
         val scale by breath.animateFloat(0.7f, 1.05f, infiniteRepeatable(tween(4000, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "scale")
         val opens = BlockStore.opensToday[pkg] ?: 1
 
         Column(
-            Modifier.fillMaxSize().background(Color(0xFF1B1F2E)).systemBarsPadding().padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            Modifier.fillMaxSize().background(Color(0xFF1B1F2E)).systemBarsPadding().padding(Space.Section),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.weight(1f))
             Box(Modifier.size(200.dp), contentAlignment = Alignment.Center) {
@@ -185,36 +226,63 @@ class InterventionActivity : ComponentActivity() {
                 Box(Modifier.size(130.dp).scale(scale).clip(CircleShape).background(Sky.copy(alpha = 0.3f)))
                 AppBadge(64)
             }
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(Space.Section))
             if (secondsLeft > 0) {
-                Text(if (scale > 0.88f) "Breathe out…" else "Breathe in…", color = Color.White, fontSize = TextSize.Display, fontWeight = FontWeight.Bold)
-                Text("Take a moment before opening $label", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, modifier = Modifier.padding(top = 6.dp))
-            } else {
-                Text("Still want to open $label?", color = Color.White, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                 Text(
-                    if (opens <= 1) "First time today." else "That's $opens times today.",
-                    color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, modifier = Modifier.padding(top = 6.dp),
+                    if (scale >
+                        0.88f
+                    ) {
+                        stringResource(R.string.intervention_breathe_out)
+                    } else {
+                        stringResource(R.string.intervention_breathe_in)
+                    },
+                    color = Color.White,
+                    fontSize = TextSize.Display,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    stringResource(R.string.intervention_take_a_moment_before_opening, label),
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = TextSize.Body,
+                    modifier = Modifier.padding(top = Space.S)
+                )
+            } else {
+                Text(
+                    stringResource(R.string.intervention_still_want_to_open_1, label),
+                    color = Color.White,
+                    fontSize = TextSize.Headline,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    if (opens <= 1) stringResource(R.string.intervention_first_time_today) else stringResource(R.string.intervention_that_s_1_s_times, opens),
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = TextSize.Body,
+                    modifier = Modifier.padding(top = Space.S)
                 )
             }
             Spacer(Modifier.weight(1.2f))
             AnimatedVisibility(secondsLeft == 0, enter = fadeIn()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(
-                        Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Color.White).clickable { BlockStore.recordResisted(); home() },
-                        contentAlignment = Alignment.Center,
-                    ) { Text("Not now", color = Ink, fontSize = TextSize.Title, fontWeight = FontWeight.Bold) }
-                    Spacer(Modifier.height(12.dp))
-                    Text("Open for…", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.BodySmall)
-                    Spacer(Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AppButton(stringResource(R.string.common_not_now), variant = ButtonVariant.OnDarkPrimary) {
+                        BlockStore.recordResisted()
+                        home()
+                    }
+                    Spacer(Modifier.height(Space.M))
+                    Text(stringResource(R.string.intervention_open_for), color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.BodySmall)
+                    Spacer(Modifier.height(Space.S))
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         listOf(1, 5, 15).forEach { m ->
                             Text(
-                                "$m min", color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
+                                stringResource(R.string.common_1_s_min, m),
+                                color = Color.White,
+                                fontSize = TextSize.Body,
+                                fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.clip(Shapes.Pill).background(Color.White.copy(alpha = 0.12f)).clickable {
                                     BlockStore.allow(pkg, m)
                                     packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
                                     finish()
-                                }.padding(18.dp, 10.dp),
+                                }.padding(Space.L, Space.S)
                             )
                         }
                     }

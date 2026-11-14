@@ -5,12 +5,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import org.json.JSONArray
+import org.json.JSONObject
 
 /** A recurring window when chosen apps are blocked, e.g. weekdays 9:00–17:00. */
 data class BlockSchedule(val id: Int, val label: String, val days: Set<DayOfWeek>, val start: LocalTime, val end: LocalTime, val enabled: Boolean = true) {
@@ -18,8 +18,11 @@ data class BlockSchedule(val id: Int, val label: String, val days: Set<DayOfWeek
     fun isActive(at: LocalDateTime): Boolean {
         if (!enabled) return false
         val t = at.toLocalTime()
-        return if (start <= end) at.dayOfWeek in days && t >= start && t < end
-        else (at.dayOfWeek in days && t >= start) || (at.minusDays(1).dayOfWeek in days && t < end)
+        return if (start <= end) {
+            at.dayOfWeek in days && t >= start && t < end
+        } else {
+            (at.dayOfWeek in days && t >= start) || (at.minusDays(1).dayOfWeek in days && t < end)
+        }
     }
 }
 
@@ -41,6 +44,7 @@ data class DayStats(val blocks: Int = 0, val pauses: Int = 0, val resisted: Int 
 object BlockStore {
     private const val KEY = "blocker"
     const val FREE_MAX_APPS = 3
+
     /** Rough time a resisted app open would otherwise have cost, for the "time saved" estimate. */
     const val MINUTES_PER_RESISTED_OPEN = 7
 
@@ -50,6 +54,7 @@ object BlockStore {
     var scheduleApps = mutableStateListOf<String>()
         private set
     val stats = mutableStateMapOf<String, DayStats>()
+
     /** Package → per-day open counts for paused apps (only today's is kept). */
     val opensToday = mutableStateMapOf<String, Int>()
     private var opensDay: String = LocalDate.now().toString()
@@ -72,10 +77,9 @@ object BlockStore {
     }
 
     /** Whether the background watcher needs to run at all. */
-    fun needsWatcher(focus: ActiveFocus?): Boolean =
-        (focus?.isRunning == true && focus.blockApps && focusApps.isNotEmpty()) ||
-            (schedules.any { it.enabled } && scheduleApps.isNotEmpty()) ||
-            pauseApps.isNotEmpty()
+    fun needsWatcher(focus: ActiveFocus?): Boolean = (focus?.isRunning == true && focus.blockApps && focusApps.isNotEmpty()) ||
+        (schedules.any { it.enabled } && scheduleApps.isNotEmpty()) ||
+        pauseApps.isNotEmpty()
 
     fun allow(packageName: String, minutes: Int, nowMillis: Long = System.currentTimeMillis()) {
         grace[packageName] = nowMillis + minutes * 60_000L
@@ -104,9 +108,8 @@ object BlockStore {
 
     fun recordResisted(today: LocalDate = LocalDate.now()) = bump(today) { it.copy(resisted = it.resisted + 1) }
 
-    fun weekTotals(today: LocalDate = LocalDate.now()): DayStats =
-        (0..6).map { stats[today.minusDays(it.toLong()).toString()] ?: DayStats() }
-            .fold(DayStats()) { a, b -> DayStats(a.blocks + b.blocks, a.pauses + b.pauses, a.resisted + b.resisted) }
+    fun weekTotals(today: LocalDate = LocalDate.now()): DayStats = (0..6).map { stats[today.minusDays(it.toLong()).toString()] ?: DayStats() }
+        .fold(DayStats()) { a, b -> DayStats(a.blocks + b.blocks, a.pauses + b.pauses, a.resisted + b.resisted) }
 
     fun minutesSaved(s: DayStats) = (s.blocks + s.resisted) * MINUTES_PER_RESISTED_OPEN
 
@@ -120,7 +123,9 @@ object BlockStore {
 
     /** Returns false when adding would go over the free limit. */
     private fun toggle(list: MutableList<String>, pkg: String): Boolean {
-        if (pkg in list) list.remove(pkg) else {
+        if (pkg in list) {
+            list.remove(pkg)
+        } else {
             if (appLimitReached(list)) return false
             list.add(pkg)
         }
@@ -162,7 +167,13 @@ object BlockStore {
     }
 
     fun load() {
-        focusApps.clear(); pauseApps.clear(); schedules.clear(); scheduleApps.clear(); stats.clear(); opensToday.clear(); grace.clear()
+        focusApps.clear()
+        pauseApps.clear()
+        schedules.clear()
+        scheduleApps.clear()
+        stats.clear()
+        opensToday.clear()
+        grace.clear()
         val json = Storage.read(KEY)?.let(::JSONObject)
         json?.optJSONArray("focus")?.strings()?.let(focusApps::addAll)
         json?.optJSONArray("pause")?.strings()?.let(pauseApps::addAll)
@@ -171,10 +182,13 @@ object BlockStore {
         json?.optJSONArray("schedules")?.objects()?.forEach { s ->
             schedules.add(
                 BlockSchedule(
-                    s.getInt("id"), s.getString("label"),
+                    s.getInt("id"),
+                    s.getString("label"),
                     s.getJSONArray("days").strings().mapNotNull { runCatching { DayOfWeek.valueOf(it) }.getOrNull() }.toSet(),
-                    LocalTime.parse(s.getString("start")), LocalTime.parse(s.getString("end")), s.optBoolean("enabled", true),
-                ),
+                    LocalTime.parse(s.getString("start")),
+                    LocalTime.parse(s.getString("end")),
+                    s.optBoolean("enabled", true)
+                )
             )
         }
         json?.optJSONObject("stats")?.let { st ->
@@ -201,13 +215,21 @@ object BlockStore {
                     schedules.forEach {
                         arr.put(
                             JSONObject().put("id", it.id).put("label", it.label).put("days", it.days.map { d -> d.name }.toJsonArray())
-                                .put("start", it.start.toString()).put("end", it.end.toString()).put("enabled", it.enabled),
+                                .put("start", it.start.toString()).put("end", it.end.toString()).put("enabled", it.enabled)
                         )
                     }
-                },
+                }
             )
             // Only the last 30 days of counts are kept.
-            .put("stats", JSONObject().also { st -> stats.filterKeys { runCatching { LocalDate.parse(it) }.getOrNull()?.isAfter(LocalDate.now().minusDays(30)) == true }.forEach { (d, s) -> st.put(d, JSONObject().put("b", s.blocks).put("p", s.pauses).put("r", s.resisted)) } })
+            .put(
+                "stats",
+                JSONObject().also { st ->
+                    stats.filterKeys {
+                        runCatching { LocalDate.parse(it) }.getOrNull()?.isAfter(LocalDate.now().minusDays(30)) ==
+                            true
+                    }.forEach { (d, s) -> st.put(d, JSONObject().put("b", s.blocks).put("p", s.pauses).put("r", s.resisted)) }
+                }
+            )
             .put("opensDay", opensDay)
             .put("opens", JSONObject(opensToday.toMap()))
         Storage.write(KEY, json.toString())

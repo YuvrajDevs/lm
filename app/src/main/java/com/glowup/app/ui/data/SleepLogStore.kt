@@ -4,12 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import org.json.JSONObject
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import org.json.JSONObject
 
 /** One night, filed under the morning the user woke up. [quality] is 1 (awful) – 5 (great). */
 data class SleepEntry(val date: LocalDate, val bed: LocalTime, val wake: LocalTime, val quality: Int) {

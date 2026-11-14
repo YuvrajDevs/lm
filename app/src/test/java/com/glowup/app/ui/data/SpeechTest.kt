@@ -1,10 +1,10 @@
 package com.glowup.app.ui.data
 
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
 
 class SpeechTest {
     @Before

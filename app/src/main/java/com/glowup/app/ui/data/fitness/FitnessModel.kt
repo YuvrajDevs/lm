@@ -24,7 +24,7 @@ enum class Muscle(val label: String, val tint: Color, val accent: Color) {
     GLUTES("Glutes", TealTint, Teal),
     LEGS("Legs", GreenTint, Green),
     CARDIO("Cardio", CoralTint, Color(0xFFD9572B)),
-    MOBILITY("Mobility", BlueTint, Color(0xFF4F8FE8)),
+    MOBILITY("Mobility", BlueTint, Color(0xFF4F8FE8))
 }
 
 enum class Measure { REPS, SECONDS }
@@ -33,14 +33,14 @@ enum class Measure { REPS, SECONDS }
 enum class FitnessLevel(val label: String, val doseScale: Double) {
     BEGINNER("Beginner", 0.8),
     INTERMEDIATE("Intermediate", 1.0),
-    ADVANCED("Advanced", 1.25),
+    ADVANCED("Advanced", 1.25)
 }
 
 enum class FitnessGoal(val label: String, val blurb: String, val minorSafe: Boolean) {
     LOSE_FAT("Lose fat", "Burn more, keep muscle, see your jawline", false),
     BUILD_MUSCLE("Build muscle", "Get stronger and fill out your frame", true),
     GET_TONED("Get fit & toned", "A bit of everything — strength and conditioning", true),
-    CONSISTENT("Just be consistent", "Short daily sessions that stick", true),
+    CONSISTENT("Just be consistent", "Short daily sessions that stick", true)
     ;
 
     /** Label shown to under-18s — no weight-loss framing. */
@@ -61,13 +61,17 @@ data class Exercise(
     val cue: String,
     val easier: String? = null,
     val harder: String? = null,
-    val safety: String? = null,
+    val safety: String? = null
 ) {
     val muscles: Set<Muscle> get() = also + primary
 
     /** Intermediate starting dose; scaled by level and week. */
     val baseDose: Int get() = when (measure) {
-        Measure.REPS -> when (level) { 1 -> 12; 2 -> 10; else -> 8 }
+        Measure.REPS -> when (level) {
+            1 -> 12
+            2 -> 10
+            else -> 8
+        }
         Measure.SECONDS -> when (primary) {
             Muscle.CARDIO -> 30
             Muscle.MOBILITY -> 30
@@ -95,13 +99,7 @@ data class Block(val exerciseId: String, val sets: Int, val target: Int, val res
     val exercise: Exercise get() = ExerciseLibrary.get(exerciseId)
 }
 
-data class WorkoutPlan(
-    val key: String,
-    val title: String,
-    val subtitle: String,
-    val blocks: List<Block>,
-    val restDay: Boolean = false,
-) {
+data class WorkoutPlan(val key: String, val title: String, val subtitle: String, val blocks: List<Block>, val restDay: Boolean = false) {
     val estimatedSeconds: Int
         get() = blocks.sumOf { b -> b.sets * (b.exercise.workSeconds(b.target) + b.restSeconds) } + 30
     val minutes: Int get() = ((estimatedSeconds + 59) / 60).coerceAtLeast(1)

@@ -1,8 +1,5 @@
 package com.glowup.app.ui.screens.morning
 
-import com.glowup.app.ui.components.ProBadge
-import com.glowup.app.ui.data.ProStore
-import com.glowup.app.ui.data.ProGate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,14 +22,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.glowup.app.R
+import com.glowup.app.ui.components.ProBadge
 import com.glowup.app.ui.components.goBack
-import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.data.ProGate
+import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.*
 
 private data class MorningActivity(val session: MorningSession, val tint: Color, val iconTint: Color, val icon: ImageVector)
 
@@ -40,18 +43,17 @@ private val activities = listOf(
     MorningActivity(morningSessions[0], PurpleTint, Purple, Icons.Filled.SelfImprovement),
     MorningActivity(morningSessions[1], BlueTint, Navy, Icons.Filled.Air),
     MorningActivity(morningSessions[2], GreenTint, Green, Icons.Filled.SportsGymnastics),
-    MorningActivity(morningSessions[3], CoralTint, Coral, Icons.Filled.SelfImprovement),
+    MorningActivity(morningSessions[3], CoralTint, Coral, Icons.Filled.SelfImprovement)
 )
 
 @Composable
 fun MorningScreen(navController: NavHostController) {
-
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(24.dp, 24.dp, 24.dp, 0.dp),
+                modifier = Modifier.fillMaxWidth().padding(Space.Gutter, Space.Gutter, Space.Gutter, 0.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
@@ -59,26 +61,31 @@ fun MorningScreen(navController: NavHostController) {
                         .clip(CircleShape)
                         .background(Ink)
                         .clickable { navController.goBack() },
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.common_back),
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
-                Text("Good morning", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.morning_good_morning), fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.size(48.dp))
             }
 
             Text(
-                "A few minutes to start the day right — pick what fits.",
+                stringResource(R.string.morning_a_few_minutes_to_start),
                 color = TextSecondary,
                 fontSize = TextSize.Body,
                 lineHeight = LineHeight.Body,
-                modifier = Modifier.padding(24.dp, 14.dp, 24.dp, 0.dp),
+                modifier = Modifier.padding(Space.Gutter, Space.M, Space.Gutter, 0.dp)
             )
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(24.dp, 18.dp, 24.dp, 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(Space.Gutter, Space.L, Space.Gutter, Space.Gutter),
+                verticalArrangement = Arrangement.spacedBy(Space.M)
             ) {
                 items(activities.size) { index ->
                     val activity = activities[index]
@@ -88,16 +95,19 @@ fun MorningScreen(navController: NavHostController) {
                             .clip(Shapes.Card)
                             .background(activity.tint)
                             .clickable {
-                                if (ProGate.morningSessionLocked(index)) ProStore.showPaywall("${activity.session.title} is a Pro session")
-                                else navController.navigate("morning_session/$index")
+                                if (ProGate.morningSessionLocked(index)) {
+                                    ProStore.showPaywall("${activity.session.title} is a Pro session")
+                                } else {
+                                    navController.navigate("morning_session/$index")
+                                }
                             }
-                            .padding(16.dp),
+                            .padding(Space.L),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(Space.M)
                     ) {
                         Box(
                             modifier = Modifier.size(48.dp).clip(CircleShape).background(Color.White),
-                            contentAlignment = Alignment.Center,
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(activity.icon, contentDescription = null, tint = activity.iconTint, modifier = Modifier.size(22.dp))
                         }
@@ -108,13 +118,13 @@ fun MorningScreen(navController: NavHostController) {
                         if (ProGate.morningSessionLocked(index)) ProBadge()
                         Box(
                             modifier = Modifier.size(36.dp).clip(CircleShape).background(Ink),
-                            contentAlignment = Alignment.Center,
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Filled.PlayArrow,
-                                contentDescription = "Start",
+                                contentDescription = stringResource(R.string.common_start),
                                 tint = Color.White,
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -124,19 +134,24 @@ fun MorningScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 6.dp)
+                            .padding(top = Space.S)
                             .clip(Shapes.Card)
                             .background(CardNeutral)
-                            .padding(16.dp, 14.dp),
+                            .padding(Space.L, Space.M),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Attach any of these to a routine card", color = TextSecondary, fontSize = TextSize.BodySmall, modifier = Modifier.weight(1f))
                         Text(
-                            "Add →",
+                            stringResource(R.string.morning_attach_any_of_these_to),
+                            color = TextSecondary,
+                            fontSize = TextSize.BodySmall,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            stringResource(R.string.morning_add),
                             fontSize = TextSize.BodySmall,
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.clickable { navController.navigate("add_routine") },
+                            modifier = Modifier.clickable { navController.navigate("add_routine") }
                         )
                     }
                 }

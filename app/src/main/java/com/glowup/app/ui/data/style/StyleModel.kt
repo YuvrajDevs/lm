@@ -41,12 +41,36 @@ object Palette {
 
 /** The silhouette used to draw a piece in an outfit's flat lay. */
 enum class Garment(val slot: Slot) {
-    TEE(Slot.TOP), POLO(Slot.TOP), SHIRT(Slot.TOP), KNIT(Slot.TOP), HOODIE(Slot.TOP), KURTA(Slot.TOP), TANK(Slot.TOP),
-    BLAZER(Slot.LAYER), JACKET(Slot.LAYER), OVERSHIRT(Slot.LAYER), NEHRU(Slot.LAYER), BANDHGALA(Slot.LAYER),
-    TROUSERS(Slot.BOTTOM), JEANS(Slot.BOTTOM), SHORTS(Slot.BOTTOM), JOGGERS(Slot.BOTTOM),
-    SNEAKERS(Slot.SHOES), LOAFERS(Slot.SHOES), BOOTS(Slot.SHOES), DERBIES(Slot.SHOES), SANDALS(Slot.SHOES),
-    WATCH(Slot.ACCESSORY), BELT(Slot.ACCESSORY), CAP(Slot.ACCESSORY), BAG(Slot.ACCESSORY), CHAIN(Slot.ACCESSORY),
-    SUNGLASSES(Slot.ACCESSORY), TIE(Slot.ACCESSORY), RING(Slot.ACCESSORY), BRACELET(Slot.ACCESSORY),
+    TEE(Slot.TOP),
+    POLO(Slot.TOP),
+    SHIRT(Slot.TOP),
+    KNIT(Slot.TOP),
+    HOODIE(Slot.TOP),
+    KURTA(Slot.TOP),
+    TANK(Slot.TOP),
+    BLAZER(Slot.LAYER),
+    JACKET(Slot.LAYER),
+    OVERSHIRT(Slot.LAYER),
+    NEHRU(Slot.LAYER),
+    BANDHGALA(Slot.LAYER),
+    TROUSERS(Slot.BOTTOM),
+    JEANS(Slot.BOTTOM),
+    SHORTS(Slot.BOTTOM),
+    JOGGERS(Slot.BOTTOM),
+    SNEAKERS(Slot.SHOES),
+    LOAFERS(Slot.SHOES),
+    BOOTS(Slot.SHOES),
+    DERBIES(Slot.SHOES),
+    SANDALS(Slot.SHOES),
+    WATCH(Slot.ACCESSORY),
+    BELT(Slot.ACCESSORY),
+    CAP(Slot.ACCESSORY),
+    BAG(Slot.ACCESSORY),
+    CHAIN(Slot.ACCESSORY),
+    SUNGLASSES(Slot.ACCESSORY),
+    TIE(Slot.ACCESSORY),
+    RING(Slot.ACCESSORY),
+    BRACELET(Slot.ACCESSORY)
 }
 
 enum class Slot(val label: String) { TOP("Top"), LAYER("Layer"), BOTTOM("Bottom"), SHOES("Shoes"), ACCESSORY("Accessory") }
@@ -61,7 +85,7 @@ data class Outfit(
     val occasions: List<String>,
     val why: String,
     val dressUp: String,
-    val dressDown: String,
+    val dressDown: String
 ) {
     val top: Piece? get() = pieces.firstOrNull { it.garment.slot == Slot.TOP }
     val layer: Piece? get() = pieces.firstOrNull { it.garment.slot == Slot.LAYER }
@@ -86,7 +110,7 @@ data class StyleGuide(
     val stylingTips: List<String>,
     val keepInMind: List<String>,
     val pairings: List<Pairing>,
-    val outfits: List<Outfit>,
+    val outfits: List<Outfit>
 )
 
 internal fun piece(name: String, garment: Garment, swatch: Swatch) = Piece(name, garment, swatch)

@@ -4,10 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.glowup.app.BuildConfig
-import com.glowup.app.ui.data.style.Outfit
-import org.json.JSONObject
 import com.glowup.app.ui.data.fitness.Programmes
 import com.glowup.app.ui.data.fitness.QuickSessions
+import com.glowup.app.ui.data.style.Outfit
+import org.json.JSONObject
 
 enum class PlanType { SUBSCRIPTION, ONE_TIME }
 
@@ -18,7 +18,7 @@ data class ProPlan(
     val fallbackPrice: String,
     val period: String,
     val note: String,
-    val badge: String? = null,
+    val badge: String? = null
 )
 
 /** Whether the user has Pro, and the single place that decides what Pro unlocks. */
@@ -29,7 +29,7 @@ object ProStore {
     val plans = listOf(
         ProPlan("glowup_pro_yearly", PlanType.SUBSCRIPTION, "Yearly", "₹1,999", "/ year", "Just ₹167 a month", badge = "Best value"),
         ProPlan("glowup_pro_monthly", PlanType.SUBSCRIPTION, "Monthly", "₹299", "/ month", "Cancel anytime"),
-        ProPlan("glowup_pro_lifetime", PlanType.ONE_TIME, "Lifetime", "₹4,999", "once", "Pay once, keep Pro forever"),
+        ProPlan("glowup_pro_lifetime", PlanType.ONE_TIME, "Lifetime", "₹4,999", "once", "Pay once, keep Pro forever")
     )
 
     /** Confirmed by Google Play; cached so Pro works offline between launches. */
@@ -85,6 +85,7 @@ object ProGate {
     val proGroomingLessons = setOf(7, 12)
     val proSleepSounds = setOf("Crackling Fire", "Deep Space", "Soft Wind", "Brown Noise")
     val proMorningSessions = setOf(2, 3)
+
     /** Free users see their strongest mood pattern; Pro shows every one. */
     const val FREE_MOOD_INSIGHTS = 1
 
@@ -100,6 +101,7 @@ object ProGate {
 
     fun programmeLocked(id: String) = locked && Programmes.get(id)?.free == false
     fun quickLocked(minutes: Int) = locked && minutes > QuickSessions.FREE_MAX_MINUTES
+
     /** Auto-progression and per-exercise charts. */
     val progressionLocked: Boolean get() = locked
 }

@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GlowUp"
+rootProject.name = "ReMakeU"
 include(":app")

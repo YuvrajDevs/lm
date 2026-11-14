@@ -11,15 +11,15 @@ import com.glowup.app.ui.data.glow.LooksRoutines
 import com.glowup.app.ui.data.glow.PostureAnalysis
 import com.glowup.app.ui.data.glow.PostureLevel
 import com.glowup.app.ui.data.glow.Pt
+import java.time.LocalDate
+import kotlin.math.cos
+import kotlin.math.sin
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
-import kotlin.math.cos
-import kotlin.math.sin
 
 class GlowCheckTest {
     private val today = LocalDate.of(2026, 7, 1)
@@ -32,7 +32,8 @@ class GlowCheckTest {
     /** A synthetic face outline: half-width varies with height to mimic forehead, cheeks and jaw. */
     private fun face(length: Float, forehead: Float, cheek: Float, jaw: Float, skew: Float = 0f, roll: Double = 0.0): FaceGeometry {
         val n = 36
-        val cx = 500f; val top = 200f
+        val cx = 500f
+        val top = 200f
         fun halfWidth(f: Float): Float = when {
             f < 0.18f -> forehead / 2 * (0.6f + f / 0.18f * 0.4f)
             f < 0.45f -> forehead / 2 + (cheek / 2 - forehead / 2) * ((f - 0.18f) / 0.27f)
@@ -48,8 +49,10 @@ class GlowCheckTest {
             Pt(cx + side * hw, y)
         }
         fun rot(p: Pt): Pt {
-            val c = cos(roll); val s = sin(roll)
-            val dx = p.x - cx; val dy = p.y - 500f
+            val c = cos(roll)
+            val s = sin(roll)
+            val dx = p.x - cx
+            val dy = p.y - 500f
             return Pt((cx + dx * c - dy * s).toFloat(), (500f + dx * s + dy * c).toFloat())
         }
         val eyeY = top + length * 0.42f
@@ -62,7 +65,7 @@ class GlowCheckTest {
             rightBrow = listOf(Pt(cx - 40, eyeY - 30), Pt(cx - 90, eyeY - 32)).map(::rot),
             noseBridge = listOf(Pt(cx, eyeY), Pt(cx, eyeY + 60)).map(::rot),
             noseBottom = listOf(Pt(cx - 20, top + length * 0.66f), Pt(cx, top + length * 0.68f), Pt(cx + 20, top + length * 0.66f)).map(::rot),
-            upperLip = listOf(Pt(cx - 50, top + length * 0.78f), Pt(cx, top + length * 0.76f), Pt(cx + 50, top + length * 0.78f)).map(::rot),
+            upperLip = listOf(Pt(cx - 50, top + length * 0.78f), Pt(cx, top + length * 0.76f), Pt(cx + 50, top + length * 0.78f)).map(::rot)
         )
     }
 
@@ -98,8 +101,13 @@ class GlowCheckTest {
     }
 
     private val answers = mapOf(
-        "skincare" to "Nothing", "breakouts" to "Sometimes", "haircut" to "Every 3–5 weeks", "sleep" to "7–8 hours",
-        "exercise" to "0", "screen" to "9+ hours", "style" to "Very",
+        "skincare" to "Nothing",
+        "breakouts" to "Sometimes",
+        "haircut" to "Every 3–5 weeks",
+        "sleep" to "7–8 hours",
+        "exercise" to "0",
+        "screen" to "9+ hours",
+        "style" to "Very"
     )
 
     @Test
@@ -131,7 +139,12 @@ class GlowCheckTest {
         val first = GlowCheckStore.build(setOf("Posture"), 10, answers, null, null, 60, 178, 85.0, 98.0, today)
         GlowCheckStore.save(first)
         assertEquals(GlowCheckStore.RESCAN_DAYS, GlowCheckStore.daysUntilRescan(today))
-        val second = GlowCheckStore.build(setOf("Posture"), 10, answers + ("skincare" to "Wash, moisturiser & SPF"), null, null, 70, 178, 83.0, 95.0, today.plusDays(30))
+        val second = GlowCheckStore.build(
+            setOf(
+                "Posture"
+            ),
+            10, answers + ("skincare" to "Wash, moisturiser & SPF"), null, null, 70, 178, 83.0, 95.0, today.plusDays(30)
+        )
         GlowCheckStore.save(second)
         val lines = GlowScoring.changes(first, second)
         assertTrue(lines.any { it.startsWith("Posture improved by 10°") })
