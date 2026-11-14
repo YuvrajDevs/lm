@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import androidx.compose.runtime.getValue
@@ -25,8 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
-import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.components.ReMakeUDialog
+import com.glowup.app.ui.components.ReMakeUOptionRow
 import com.glowup.app.ui.components.StreakChip
 import com.glowup.app.ui.components.WeekStreakDots
 import com.glowup.app.ui.components.rememberNotificationPermission
@@ -37,6 +35,10 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import androidx.compose.ui.text.style.TextAlign
+import java.time.LocalTime
 
 @Composable
 fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
@@ -59,13 +61,13 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(26.dp))
+                        .clip(Shapes.Large)
                         .background(routine.tint)
                         .padding(20.dp, 18.dp),
                 ) {
                     Column(modifier = Modifier.fillMaxWidth(0.7f)) {
-                        Text(routine.area, color = routine.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                        Text(routine.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
+                        Text(routine.area, color = routine.accent, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
+                        Text(routine.title, fontSize = TextSize.Title, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
                         StreakChip(routine.streakDays(today), routine.accent)
                         Spacer(Modifier.height(10.dp))
                         WeekStreakDots(routine.week(today), routine.accent)
@@ -79,12 +81,12 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
 
                 Spacer(Modifier.height(22.dp))
 
-                Text(monthLabel, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(monthLabel, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     listOf("M", "T", "W", "T", "F", "S", "S").forEach {
-                        Text(it, color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Text(it, color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -113,7 +115,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                                         Text(
                                             day.toString(),
                                             color = if (isCompleted) Color.White else if (day > today.dayOfMonth) TextMuted else Ink,
-                                            fontSize = 12.5.sp,
+                                            fontSize = TextSize.BodySmall,
                                             fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
                                         )
                                     }
@@ -128,7 +130,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(18.dp))
+                        .clip(Shapes.Medium)
                         .background(CardNeutral)
                         .clickable { showReminderPicker = true }
                         .padding(16.dp, 14.dp),
@@ -136,14 +138,14 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column {
-                        Text("Daily reminder", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Daily reminder", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                         Text(
                             routine.reminderTime?.let { "Every day at ${formatClock(it)} · skipped once you're done" } ?: "Off",
                             color = TextSecondary,
-                            fontSize = 12.sp,
+                            fontSize = TextSize.Caption,
                         )
                     }
-                    Text("Change", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Change", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(Modifier.height(14.dp))
@@ -152,7 +154,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(Shapes.Pill)
                         .background(if (doneToday) ChipNeutral else Ink)
                         .clickable { RoutineStore.toggleToday(routine.id) }
                         .padding(vertical = 16.dp),
@@ -161,7 +163,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                     Text(
                         if (doneToday) "Mark as not done today" else "Mark today as done",
                         color = if (doneToday) Ink else Color.White,
-                        fontSize = 14.5.sp,
+                        fontSize = TextSize.BodyLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -169,7 +171,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
                 Text(
                     "Delete routine",
                     color = Maroon,
-                    fontSize = 14.sp,
+                    fontSize = TextSize.Body,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
@@ -182,16 +184,16 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
         }
 
         if (showReminderPicker) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showReminderPicker = false },
                 title = "Daily reminder",
                 primaryText = "Close",
                 secondaryText = null,
                 content = {
                     Column {
-                        GlowUpOptionRow("Off", selected = routine.reminderTime == null) { RoutineStore.setReminder(routine.id, null) }
+                        ReMakeUOptionRow("Off", selected = routine.reminderTime == null) { RoutineStore.setReminder(routine.id, null) }
                         routineReminderTimes.forEach { time ->
-                            GlowUpOptionRow(formatClock(time), selected = routine.reminderTime == time) {
+                            ReMakeUOptionRow(formatClock(time), selected = routine.reminderTime == time) {
                                 RoutineStore.setReminder(routine.id, time)
                                 askPermission()
                             }
@@ -202,7 +204,7 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
         }
 
         if (showDeleteConfirm) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showDeleteConfirm = false },
                 title = "Delete this routine?",
                 message = "Its streak and history will be removed. Points you've already earned stay.",
@@ -219,5 +221,5 @@ fun RoutineDetailScreen(navController: NavHostController, routineId: Int) {
     }
 }
 
-private val routineReminderTimes = listOf(6, 7, 8, 9, 12, 18, 19, 20, 21, 22).map { java.time.LocalTime.of(it, 0) } +
-    java.time.LocalTime.of(21, 30)
+private val routineReminderTimes = listOf(6, 7, 8, 9, 12, 18, 19, 20, 21, 22).map { LocalTime.of(it, 0) } +
+    LocalTime.of(21, 30)

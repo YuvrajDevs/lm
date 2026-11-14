@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -48,6 +47,9 @@ import com.glowup.app.ui.data.fitness.FitnessStore
 import com.glowup.app.ui.data.fitness.Measure
 import com.glowup.app.ui.data.fitness.Muscle
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 @Composable
 fun ExerciseLibraryScreen(navController: NavHostController) {
@@ -68,7 +70,7 @@ fun ExerciseLibraryScreen(navController: NavHostController) {
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 trailingIcon = if (query.isNotEmpty()) ({ Icon(Icons.Filled.Close, contentDescription = "Clear", modifier = Modifier.clickable { query = "" }) }) else null,
                 singleLine = true,
-                shape = RoundedCornerShape(999.dp),
+                shape = Shapes.Pill,
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = Color.Transparent, unfocusedContainerColor = CardNeutral, focusedContainerColor = CardNeutral),
                 modifier = Modifier.fillMaxWidth().padding(24.dp, 16.dp, 24.dp, 0.dp),
             )
@@ -86,23 +88,23 @@ fun ExerciseLibraryScreen(navController: NavHostController) {
 
 @Composable
 private fun ExerciseRow(e: Exercise, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(CardNeutral).clickable(onClick = onClick).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).clickable(onClick = onClick).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
         ExerciseArt(e, 54.dp, 14.dp)
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
-            Text(e.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-            Text(e.muscles.sortedBy { if (it == e.primary) 0 else 1 }.joinToString(" · ") { it.label }, color = TextSecondary, fontSize = 12.sp, maxLines = 1)
+            Text(e.name, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(e.muscles.sortedBy { if (it == e.primary) 0 else 1 }.joinToString(" · ") { it.label }, color = TextSecondary, fontSize = TextSize.Caption, maxLines = 1)
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LevelDots(e.level)
                 Spacer(Modifier.width(8.dp))
-                Text(if (e.measure == Measure.REPS) "Reps" else "Timed", color = TextSecondary, fontSize = 11.sp)
+                Text(if (e.measure == Measure.REPS) "Reps" else "Timed", color = TextSecondary, fontSize = TextSize.Micro)
             }
         }
         FitnessStore.bestFor(e.id)?.let {
             Column(horizontalAlignment = Alignment.End) {
-                Text("$it", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Green)
-                Text("best", color = TextSecondary, fontSize = 10.sp)
+                Text("$it", fontSize = TextSize.Title, fontWeight = FontWeight.Bold, color = Green)
+                Text("best", color = TextSecondary, fontSize = TextSize.Micro)
             }
         }
     }
@@ -118,7 +120,7 @@ fun ExerciseDetailScreen(navController: NavHostController, id: String) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 18.dp, 24.dp, 28.dp)) {
                 ExerciseArt(e, 240.dp, 28.dp, Modifier.fillMaxWidth())
                 Spacer(Modifier.height(16.dp))
-                Text(e.name, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                Text(e.name, fontSize = TextSize.Display, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     e.muscles.sortedBy { if (it == e.primary) 0 else 1 }.forEach { MuscleChip(it) }
@@ -127,17 +129,17 @@ fun ExerciseDetailScreen(navController: NavHostController, id: String) {
                 }
                 Text(
                     listOf("Beginner", "Intermediate", "Advanced")[e.level - 1] + " · " + (if (e.measure == Measure.REPS) "counted in reps" else "timed") + if (e.perSide) " · each side" else "",
-                    color = TextSecondary, fontSize = 12.5.sp, modifier = Modifier.padding(top = 6.dp),
+                    color = TextSecondary, fontSize = TextSize.BodySmall, modifier = Modifier.padding(top = 6.dp),
                 )
 
                 Section("How to do it")
                 e.steps.forEachIndexed { i, step ->
                     Row(Modifier.padding(vertical = 5.dp)) {
                         Box(Modifier.size(24.dp).clip(CircleShape).background(Ink), contentAlignment = Alignment.Center) {
-                            Text("${i + 1}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("${i + 1}", color = Color.White, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold)
                         }
                         Spacer(Modifier.width(12.dp))
-                        Text(step, fontSize = 14.5.sp, lineHeight = 21.sp, modifier = Modifier.weight(1f))
+                        Text(step, fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed, modifier = Modifier.weight(1f))
                     }
                 }
 
@@ -146,22 +148,22 @@ fun ExerciseDetailScreen(navController: NavHostController, id: String) {
                     Row(Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.Top) {
                         Icon(Icons.Filled.Close, contentDescription = null, tint = Coral, modifier = Modifier.padding(top = 2.dp).size(16.dp))
                         Spacer(Modifier.width(10.dp))
-                        Text(m, fontSize = 14.sp, lineHeight = 20.sp)
+                        Text(m, fontSize = TextSize.Body, lineHeight = LineHeight.Body)
                     }
                 }
 
                 Spacer(Modifier.height(16.dp))
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(BlueTint).padding(16.dp, 14.dp)) {
+                Row(Modifier.fillMaxWidth().clip(Shapes.Medium).background(BlueTint).padding(16.dp, 14.dp)) {
                     Icon(Icons.Filled.Air, contentDescription = null, tint = Navy, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(10.dp))
-                    Text(e.cue, color = Navy, fontSize = 13.5.sp, lineHeight = 19.sp)
+                    Text(e.cue, color = Navy, fontSize = TextSize.Body, lineHeight = LineHeight.Body)
                 }
                 e.safety?.let {
                     Spacer(Modifier.height(10.dp))
-                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaroonTint).padding(16.dp, 14.dp)) {
+                    Row(Modifier.fillMaxWidth().clip(Shapes.Medium).background(MaroonTint).padding(16.dp, 14.dp)) {
                         Icon(Icons.Outlined.WarningAmber, contentDescription = null, tint = Maroon, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(10.dp))
-                        Text(it, color = Maroon, fontSize = 13.5.sp, lineHeight = 19.sp)
+                        Text(it, color = Maroon, fontSize = TextSize.Body, lineHeight = LineHeight.Body)
                     }
                 }
 
@@ -171,14 +173,14 @@ fun ExerciseDetailScreen(navController: NavHostController, id: String) {
                     variations.forEach { (label, vid) ->
                         val v = ExerciseLibrary.get(vid)
                         Row(
-                            Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(18.dp)).background(CardNeutral).clickable { navController.navigate("exercise/$vid") }.padding(12.dp),
+                            Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(Shapes.Medium).background(CardNeutral).clickable { navController.navigate("exercise/$vid") }.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             ExerciseArt(v, 44.dp, 12.dp)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(label.uppercase(), color = TextSecondary, fontSize = 10.5.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
-                                Text(v.name, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text(label.uppercase(), color = TextSecondary, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
+                                Text(v.name, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                             }
                             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
                         }
@@ -187,23 +189,23 @@ fun ExerciseDetailScreen(navController: NavHostController, id: String) {
 
                 Section("Your progress")
                 if (history.isEmpty()) {
-                    Text("Do this in a workout and your best sets will chart here.", color = TextSecondary, fontSize = 13.sp)
+                    Text("Do this in a workout and your best sets will chart here.", color = TextSecondary, fontSize = TextSize.BodySmall)
                 } else {
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text("${history.maxOf { it.second }}", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Green)
-                        Text(if (e.measure == Measure.REPS) " reps best" else " sec best", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(bottom = 5.dp))
+                        Text("${history.maxOf { it.second }}", fontSize = TextSize.Display, fontWeight = FontWeight.Bold, color = Green)
+                        Text(if (e.measure == Measure.REPS) " reps best" else " sec best", color = TextSecondary, fontSize = TextSize.BodySmall, modifier = Modifier.padding(bottom = 5.dp))
                         Spacer(Modifier.weight(1f))
-                        Text("${history.size} workout${if (history.size == 1) "" else "s"}", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(bottom = 5.dp))
+                        Text("${history.size} workout${if (history.size == 1) "" else "s"}", color = TextSecondary, fontSize = TextSize.Caption, modifier = Modifier.padding(bottom = 5.dp))
                     }
                     Spacer(Modifier.height(10.dp))
                     if (ProGate.progressionLocked) {
                         Row(
-                            Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(YellowTint).clickable { ProStore.showPaywall("See your progress chart for every exercise") }.padding(16.dp, 14.dp),
+                            Modifier.fillMaxWidth().clip(Shapes.Medium).background(YellowTint).clickable { ProStore.showPaywall("See your progress chart for every exercise") }.padding(16.dp, 14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFF8A6A00), modifier = Modifier.size(16.dp))
+                            Icon(Icons.Filled.Lock, contentDescription = null, tint = Amber, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(10.dp))
-                            Text("Progress charts for every exercise come with Pro", fontSize = 13.sp, color = Color(0xFF7A6600))
+                            Text("Progress charts for every exercise come with Pro", fontSize = TextSize.BodySmall, color = Amber)
                         }
                     } else {
                         HistoryChart(history.map { it.second }, e.primary.accent)
@@ -217,7 +219,7 @@ fun ExerciseDetailScreen(navController: NavHostController, id: String) {
 @Composable
 private fun Section(title: String) {
     Spacer(Modifier.height(22.dp))
-    Text(title, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+    Text(title, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
     Spacer(Modifier.height(8.dp))
 }
 
@@ -225,7 +227,7 @@ private fun Section(title: String) {
 @Composable
 fun HistoryChart(values: List<Int>, color: Color) {
     val points = values.takeLast(20)
-    Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(16.dp)) {
+    Box(Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(16.dp)) {
         Canvas(Modifier.fillMaxWidth().height(110.dp)) {
             if (points.size == 1) {
                 drawCircle(color, 5.dp.toPx(), Offset(size.width / 2, size.height / 2))

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Glow-Up</string>
+    <string name="app_name">Re:MakeU</string>
     <string name="widget_today_name">Today\'s routines</string>
     <string name="widget_today_desc">Tick off today\'s routines without opening the app</string>
     <string name="widget_streak_name">Streak &amp; mood</string>

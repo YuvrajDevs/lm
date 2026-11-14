@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
@@ -22,7 +21,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
@@ -34,6 +32,10 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.data.ProStore
 
 @Composable
 fun StreakDetailScreen(navController: NavHostController) {
@@ -53,21 +55,21 @@ fun StreakDetailScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(26.dp))
+                        .clip(Shapes.Large)
                         .background(Ink)
                         .padding(20.dp, 18.dp),
                 ) {
                     Column {
-                        Text("${ProgressStore.pointsThisWeek(today)} points this week", color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
+                        Text("${ProgressStore.pointsThisWeek(today)} points this week", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Caption)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(if (streak == 1) "1-day streak" else "$streak-day streak", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                            Text(if (streak == 1) "1-day streak" else "$streak-day streak", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.width(6.dp))
                             Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(20.dp))
                         }
                         Text(
                             "${ProgressStore.points} points · Level ${ProgressStore.level} · ${ProgressStore.POINTS_PER_LEVEL - ProgressStore.pointsIntoLevel} to next level",
                             color = Color.White.copy(alpha = 0.65f),
-                            fontSize = 12.5.sp,
+                            fontSize = TextSize.BodySmall,
                         )
                     }
                     Image(painterResource(R.drawable.ic_streak), contentDescription = null, modifier = Modifier.align(Alignment.BottomEnd).size(58.dp))
@@ -79,19 +81,19 @@ fun StreakDetailScreen(navController: NavHostController) {
                 Spacer(Modifier.height(22.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(monthLabel, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(monthLabel, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(8.dp).clip(CircleShape).background(Green))
-                        Text(" Active  ", color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                        Text(" Active  ", color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
                         Box(Modifier.size(8.dp).clip(CircleShape).background(Blue))
-                        Text(" Frozen", color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                        Text(" Frozen", color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
                     }
                 }
                 Spacer(Modifier.height(12.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     listOf("M", "T", "W", "T", "F", "S", "S").forEach {
-                        Text(it, color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                        Text(it, color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -136,7 +138,7 @@ fun StreakDetailScreen(navController: NavHostController) {
                                             Text(
                                                 day.toString(),
                                                 color = if (day > today.dayOfMonth) TextMuted else Ink,
-                                                fontSize = 12.5.sp,
+                                                fontSize = TextSize.BodySmall,
                                                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
                                             )
                                         }
@@ -153,15 +155,15 @@ fun StreakDetailScreen(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 10.dp)
-                        .clip(RoundedCornerShape(22.dp))
+                        .clip(Shapes.Card)
                         .background(PurpleTint)
                         .clickable { navController.navigate("mood_insights") }
                         .padding(18.dp, 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Mood patterns & Year in Pixels", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-                        Text("See what lifts your mood", color = Color(0xFF5A4A8C), fontSize = 12.sp)
+                        Text("Mood patterns & Year in Pixels", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                        Text("See what lifts your mood", color = PurpleDeep, fontSize = TextSize.Caption)
                     }
                     Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Ink, modifier = Modifier.size(18.dp))
                 }
@@ -169,7 +171,7 @@ fun StreakDetailScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(Shapes.Pill)
                         .background(if (todayLogged) ChipNeutral else Ink)
                         .clickable { navController.navigate("mood_checkin") }
                         .padding(vertical = 16.dp),
@@ -178,7 +180,7 @@ fun StreakDetailScreen(navController: NavHostController) {
                     Text(
                         if (todayLogged) "Update today's mood" else "Log today's mood",
                         color = if (todayLogged) Ink else Color.White,
-                        fontSize = 14.5.sp,
+                        fontSize = TextSize.BodyLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -194,10 +196,10 @@ private fun FreezeCard(today: LocalDate) {
     val banked = ProgressStore.freezes
     val max = ProgressStore.maxFreezes
     val next = ProgressStore.daysToNextFreeze(today)
-    Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(BlueTint).padding(18.dp, 16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(BlueTint).padding(18.dp, 16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Streak freezes", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("Streak freezes", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
                 Text(
                     when {
                         next == null -> "Bank full — you're covered for $banked missed day${if (banked == 1) "" else "s"}"
@@ -207,7 +209,7 @@ private fun FreezeCard(today: LocalDate) {
                         else -> "Next freeze in $next days"
                     },
                     color = Navy,
-                    fontSize = 12.5.sp,
+                    fontSize = TextSize.BodySmall,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -226,10 +228,10 @@ private fun FreezeCard(today: LocalDate) {
         Spacer(Modifier.height(10.dp))
         Text(
             "Every 7 days in a row earns a freeze. Miss a whole day and one is used automatically, so your streak survives." +
-                if (!com.glowup.app.ui.data.ProStore.isPro) " Pro banks up to ${ProgressStore.PRO_MAX_FREEZES}." else "",
+                if (!ProStore.isPro) " Pro banks up to ${ProgressStore.PRO_MAX_FREEZES}." else "",
             color = TextSecondary,
-            fontSize = 12.sp,
-            lineHeight = 17.sp,
+            fontSize = TextSize.Caption,
+            lineHeight = LineHeight.Compact,
         )
     }
 }

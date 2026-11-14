@@ -41,7 +41,6 @@ class ProTest {
         ProStore.updatePurchased(true)
         assertTrue(Program.sessions.none { ProGate.sessionLocked(it.index) })
         assertTrue(StyleLibrary.outfits.none { ProGate.outfitLocked(it) })
-        assertFalse(ProGate.stylistLocked)
         Stores.loadAll()
         assertTrue(ProStore.isPro)
         ProStore.updatePurchased(false)

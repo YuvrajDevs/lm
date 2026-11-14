@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.AcUnit
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
-import com.glowup.app.ui.components.GlowUpBottomNav
+import com.glowup.app.ui.components.ReMakeUBottomNav
 import com.glowup.app.ui.components.NavTab
 import com.glowup.app.ui.data.DailyContent
 import com.glowup.app.ui.data.FocusStore
@@ -44,6 +43,21 @@ import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.RoutineLinks
 import com.glowup.app.ui.data.RoutineSession
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.design.Space
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.LaunchedEffect
+import com.glowup.app.ui.components.ProCrownButton
+import com.glowup.app.ui.data.MoodStore
+import com.glowup.app.ui.data.ProGate
+import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.data.SleepLogStore
+import com.glowup.app.ui.data.fitness.FitnessStore
+import com.glowup.app.ui.data.formatDuration
+import com.glowup.app.ui.data.glow.GlowCheckStore
+import java.time.LocalDate
 
 private data class QuickAccess(val label: String, val icon: Int, val bg: Color, val route: String)
 
@@ -71,9 +85,9 @@ fun HomeScreen(navController: NavHostController) {
         }
     }
     val streak = ProgressStore.streakDays()
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        if (com.glowup.app.ui.data.glow.GlowCheckStore.openAfterOnboarding) {
-            com.glowup.app.ui.data.glow.GlowCheckStore.openAfterOnboarding = false
+    LaunchedEffect(Unit) {
+        if (GlowCheckStore.openAfterOnboarding) {
+            GlowCheckStore.openAfterOnboarding = false
             navController.navigate("glow_check")
         }
     }
@@ -89,11 +103,11 @@ fun HomeScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
-                    Text(DailyContent.greeting(), color = TextSecondary, fontSize = 13.sp)
-                    Text("Hey, ${ProfileStore.firstName}", style = MaterialTheme.typography.headlineMedium, fontSize = 24.sp)
+                    Text(DailyContent.greeting(), color = TextSecondary, fontSize = TextSize.BodySmall)
+                    Text("Hey, ${ProfileStore.firstName}", style = MaterialTheme.typography.headlineMedium, fontSize = TextSize.Headline)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    com.glowup.app.ui.components.ProCrownButton { com.glowup.app.ui.data.ProStore.showPaywall() }
+                    ProCrownButton { ProStore.showPaywall() }
                     Box(
                         modifier = Modifier
                             .size(52.dp)
@@ -111,11 +125,11 @@ fun HomeScreen(navController: NavHostController) {
 
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(18.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(orderedQuickAccess) { item ->
                     Column(
-                        modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { navController.navigate(item.route) }.padding(horizontal = 4.dp),
+                        modifier = Modifier.clip(Shapes.Medium).clickable { navController.navigate(item.route) }.padding(horizontal = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Box(
@@ -128,7 +142,7 @@ fun HomeScreen(navController: NavHostController) {
                             Image(painterResource(item.icon), contentDescription = null, modifier = Modifier.size(22.dp), contentScale = ContentScale.Fit)
                         }
                         Spacer(Modifier.height(6.dp))
-                        Text(item.label, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                        Text(item.label, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -176,15 +190,15 @@ fun HomeScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("Today's plan", style = MaterialTheme.typography.titleLarge, fontSize = 17.sp)
-                        Text("$doneCount of ${planItems.size} done", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
+                        Text("Today's plan", style = MaterialTheme.typography.titleLarge, fontSize = TextSize.Title)
+                        Text("$doneCount of ${planItems.size} done", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium)
                     }
                 }
                 items(planItems, key = { it.id }) { plan ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(Shapes.Card)
                             .background(plan.tint)
                             .clickable { TodoStore.toggle(plan.id) }
                             .padding(14.dp, 12.dp),
@@ -196,10 +210,10 @@ fun HomeScreen(navController: NavHostController) {
                             Text(
                                 plan.title,
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 14.sp,
+                                fontSize = TextSize.Body,
                                 textDecoration = if (plan.done) TextDecoration.LineThrough else null,
                             )
-                            plan.meta?.let { Text(it, color = TextSecondary, fontSize = 11.5.sp) }
+                            plan.meta?.let { Text(it, color = TextSecondary, fontSize = TextSize.Caption) }
                         }
                         val icon = plan.icon
                         if (!plan.done && icon != null) {
@@ -212,7 +226,7 @@ fun HomeScreen(navController: NavHostController) {
                         Text(
                             "Nothing planned yet — add a to-do or pick up today's goal below.",
                             color = TextSecondary,
-                            fontSize = 13.sp,
+                            fontSize = TextSize.BodySmall,
                             modifier = Modifier.padding(vertical = 8.dp),
                         )
                     }
@@ -222,7 +236,7 @@ fun HomeScreen(navController: NavHostController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
-                            .clip(RoundedCornerShape(24.dp))
+                            .clip(Shapes.Large)
                             .background(PurpleTint)
                             .clickable(enabled = !goalAdded) { TodoStore.add(goal, TodoBucket.TODAY, "Goal of the day · $goalArea") }
                             .padding(18.dp, 16.dp),
@@ -231,19 +245,19 @@ fun HomeScreen(navController: NavHostController) {
                     ) {
                         Image(painterResource(R.drawable.ic_social), contentDescription = null, modifier = Modifier.size(40.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("GOAL OF THE DAY · ${goalArea.uppercase()}", color = Color(0xFF6B4FD1), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                            Text(goal, fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp)
+                            Text("GOAL OF THE DAY · ${goalArea.uppercase()}", color = PurpleText, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
+                            Text(goal, fontWeight = FontWeight.SemiBold, fontSize = TextSize.BodyLarge)
                             Text(
                                 if (goalAdded) "Added to today's plan" else "Tap to add it to today's plan",
-                                color = Color(0xFF6B4FD1),
-                                fontSize = 11.5.sp,
+                                color = PurpleText,
+                                fontSize = TextSize.Caption,
                                 modifier = Modifier.padding(top = 2.dp),
                             )
                         }
                     }
                 }
                 val routines = RoutineStore.items.toList()
-                val today = java.time.LocalDate.now()
+                val today = LocalDate.now()
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 4.dp),
@@ -251,19 +265,19 @@ fun HomeScreen(navController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column {
-                            Text("Routines", style = MaterialTheme.typography.titleLarge, fontSize = 17.sp)
+                            Text("Routines", style = MaterialTheme.typography.titleLarge, fontSize = TextSize.Title)
                             Text(
                                 if (routines.isEmpty()) "Habits you repeat every day"
                                 else "${routines.count { it.isDoneOn(today) }} of ${routines.size} done today",
-                                color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.Medium,
+                                color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium,
                             )
                         }
                         Text(
                             if (routines.isEmpty()) "Add" else "See all",
-                            fontSize = 13.sp,
+                            fontSize = TextSize.BodySmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier
-                                .clip(RoundedCornerShape(999.dp))
+                                .clip(Shapes.Pill)
                                 .background(ChipNeutral)
                                 .clickable { navController.navigate(if (routines.isEmpty()) "add_routine" else "routines") }
                                 .padding(14.dp, 7.dp),
@@ -276,7 +290,7 @@ fun HomeScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(Shapes.Card)
                             .background(CardNeutral)
                             .clickable {
                                 val route = RoutineLinks.routeFor(routine)
@@ -297,7 +311,7 @@ fun HomeScreen(navController: NavHostController) {
                             Text(
                                 routine.title,
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 14.sp,
+                                fontSize = TextSize.Body,
                                 color = if (done) TextSecondary else Ink,
                                 textDecoration = if (done) TextDecoration.LineThrough else null,
                             )
@@ -305,14 +319,14 @@ fun HomeScreen(navController: NavHostController) {
                             Text(
                                 routine.category + (if (routine.frequency == "WEEKLY") " · Weekly" else "") +
                                     if (!done && route != null) " · Tap to start" else "",
-                                color = TextSecondary, fontSize = 11.5.sp,
+                                color = TextSecondary, fontSize = TextSize.Caption,
                             )
                         }
                         if (routineStreak > 0) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(14.dp))
                                 Spacer(Modifier.width(3.dp))
-                                Text("$routineStreak", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text("$routineStreak", fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
                             }
                         }
                         Box(
@@ -328,7 +342,7 @@ fun HomeScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
+                            .clip(Shapes.Large)
                             .background(MaroonTint)
                             .clickable { navController.navigate("quotes_notes") }
                             .padding(18.dp, 14.dp),
@@ -337,8 +351,8 @@ fun HomeScreen(navController: NavHostController) {
                     ) {
                         Image(painterResource(R.drawable.ic_quote), contentDescription = null, modifier = Modifier.size(26.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("QUOTE OF THE DAY", color = Maroon, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                            Text(DailyContent.quoteOfTheDay().text, fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
+                            Text("QUOTE OF THE DAY", color = Maroon, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Text(DailyContent.quoteOfTheDay().text, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 2.dp))
                         }
                     }
                 }
@@ -347,7 +361,7 @@ fun HomeScreen(navController: NavHostController) {
         }
 
         Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-            GlowUpBottomNav(navController, NavTab.HOME)
+            ReMakeUBottomNav(navController, NavTab.HOME)
         }
     }
 }
@@ -356,15 +370,15 @@ fun HomeScreen(navController: NavHostController) {
 private fun TodaySessionCard(navController: NavHostController) {
     val next = ProgramStore.next ?: return
     val doneToday = ProgramStore.doneToday()
-    val locked = com.glowup.app.ui.data.ProGate.sessionLocked(next.index)
+    val locked = ProGate.sessionLocked(next.index)
     val learningStreak = ProgramStore.streakDays()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
+            .clip(Shapes.Hero)
             .background(next.area.tint)
             .clickable {
-                if (locked) com.glowup.app.ui.data.ProStore.showPaywall("You've finished the free weeks — keep going with the full programme")
+                if (locked) ProStore.showPaywall("You've finished the free weeks — keep going with the full programme")
                 else navController.navigate("session/${next.index}")
             }
             .padding(20.dp, 18.dp),
@@ -374,39 +388,40 @@ private fun TodaySessionCard(navController: NavHostController) {
                 Text(
                     (if (doneToday) "UP NEXT" else "TODAY") + " · DAY ${next.day} OF ${Program.TOTAL}",
                     color = next.area.accent,
-                    fontSize = 11.sp,
+                    fontSize = TextSize.Micro,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.4.sp,
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(next.title, fontSize = 19.sp, fontWeight = FontWeight.Bold, lineHeight = 24.sp)
+                Text(next.title, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Title)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     "${next.area.label} · ${next.minutes} min · +${next.points} points",
                     color = TextSecondary,
-                    fontSize = 12.5.sp,
+                    fontSize = TextSize.BodySmall,
                 )
             }
+            Spacer(Modifier.width(Space.M))
             Image(painterResource(next.area.icon), contentDescription = null, modifier = Modifier.size(52.dp))
         }
         Spacer(Modifier.height(14.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(18.dp, 10.dp),
+                modifier = Modifier.clip(Shapes.Pill).background(Ink).padding(18.dp, 10.dp),
             ) {
-                Text(if (locked) "Unlock with Pro" else if (doneToday) "Keep going" else "Start session", color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+                Text(if (locked) "Unlock with Pro" else if (doneToday) "Keep going" else "Start session", color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.width(12.dp))
             when {
                 doneToday -> {
                     Image(painterResource(R.drawable.ic_check), contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Today's streak secured", color = Green, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Today's streak secured", color = Green, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                 }
                 learningStreak > 0 -> {
                     Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Keep your $learningStreak-day streak", color = Coral, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Keep your $learningStreak-day streak", color = Coral, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -417,7 +432,7 @@ private fun TodaySessionCard(navController: NavHostController) {
 private fun StreakTile(streak: Int, modifier: Modifier, onClick: () -> Unit) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
+            .clip(Shapes.Large)
             .background(Ink)
             .clickable(onClick = onClick)
             .padding(16.dp),
@@ -425,18 +440,18 @@ private fun StreakTile(streak: Int, modifier: Modifier, onClick: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(4.dp))
-            Text("$streak", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text("$streak", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("day streak", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+            Text("day streak", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Caption)
             if (ProgressStore.freezes > 0) {
                 Spacer(Modifier.width(6.dp))
-                Icon(androidx.compose.material.icons.Icons.Filled.AcUnit, contentDescription = "Streak freezes", tint = Color(0xFF8DB8F5), modifier = Modifier.size(12.dp))
-                Text("${ProgressStore.freezes}", color = Color(0xFF8DB8F5), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Icon(Icons.Filled.AcUnit, contentDescription = "Streak freezes", tint = Sky, modifier = Modifier.size(12.dp))
+                Text("${ProgressStore.freezes}", color = Sky, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold)
             }
         }
         Spacer(Modifier.height(6.dp))
-        Text("Level ${ProgressStore.level} · ${ProgressStore.points} pts", color = Color.White, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+        Text("Level ${ProgressStore.level} · ${ProgressStore.points} pts", color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -446,27 +461,27 @@ private fun FocusTile(modifier: Modifier, onClick: () -> Unit) {
     val focusStreak = FocusStore.streakDays()
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
+            .clip(Shapes.Large)
             .background(BlueTint)
             .clickable(onClick = onClick)
             .padding(16.dp),
     ) {
         Text(
             when {
-                active == null -> "${FocusStore.minutesOn(java.time.LocalDate.now())} min"
+                active == null -> "${FocusStore.minutesOn(LocalDate.now())} min"
                 active.isRunning -> "Focusing"
                 else -> "Paused"
             },
-            fontSize = 22.sp,
+            fontSize = TextSize.TitleLarge,
             fontWeight = FontWeight.Bold,
             color = Navy,
         )
-        Text(if (active == null) "focused today" else active.label, color = TextSecondary, fontSize = 12.sp)
+        Text(if (active == null) "focused today" else active.label, color = TextSecondary, fontSize = TextSize.Caption)
         Spacer(Modifier.height(6.dp))
         Text(
             if (active != null) "Tap to return" else if (focusStreak > 0) "$focusStreak-day focus streak" else "Start a focus block",
             color = Navy,
-            fontSize = 12.5.sp,
+            fontSize = TextSize.BodySmall,
             fontWeight = FontWeight.SemiBold,
         )
     }
@@ -475,22 +490,22 @@ private fun FocusTile(modifier: Modifier, onClick: () -> Unit) {
 @Composable
 private fun FreezeBanner(title: String, text: String, onDismiss: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(BlueTint).padding(16.dp, 14.dp),
+        modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(BlueTint).padding(16.dp, 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(38.dp).clip(CircleShape).background(Blue), contentAlignment = Alignment.Center) {
-            Icon(androidx.compose.material.icons.Icons.Filled.AcUnit, contentDescription = null, tint = Color.White, modifier = Modifier.size(19.dp))
+            Icon(Icons.Filled.AcUnit, contentDescription = null, tint = Color.White, modifier = Modifier.size(19.dp))
         }
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 14.5.sp, fontWeight = FontWeight.Bold)
-            Text(text, color = Navy, fontSize = 12.5.sp, lineHeight = 17.sp)
+            Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
+            Text(text, color = Navy, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
         }
         Box(
             Modifier.size(32.dp).clip(CircleShape).clickable(onClick = onDismiss),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(androidx.compose.material.icons.Icons.Filled.Close, contentDescription = "Dismiss", tint = Navy, modifier = Modifier.size(16.dp))
+            Icon(Icons.Filled.Close, contentDescription = "Dismiss", tint = Navy, modifier = Modifier.size(16.dp))
         }
     }
 }
@@ -511,37 +526,37 @@ private fun CheckCircle(done: Boolean) {
 
 @Composable
 private fun GlowCheckCard(navController: NavHostController) {
-    val latest = com.glowup.app.ui.data.glow.GlowCheckStore.latest
-    val due = com.glowup.app.ui.data.glow.GlowCheckStore.daysUntilRescan()
+    val latest = GlowCheckStore.latest
+    val due = GlowCheckStore.daysUntilRescan()
     if (latest == null) {
         Row(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(Ink).clickable { navController.navigate("glow_check") }.padding(20.dp, 18.dp),
+            modifier = Modifier.fillMaxWidth().clip(Shapes.Hero).background(Ink).clickable { navController.navigate("glow_check") }.padding(20.dp, 18.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("YOUR PERSONAL PLAN", color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                Text("Take the Glow-Up Check", color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                Text("3 minutes · find what will make the biggest difference for you", color = Color.White.copy(alpha = 0.65f), fontSize = 12.5.sp, lineHeight = 17.sp)
+                Text("YOUR PERSONAL PLAN", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                Text("Take the Glow Check", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
+                Text("3 minutes · find what will make the biggest difference for you", color = Color.White.copy(alpha = 0.65f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
             }
             Spacer(Modifier.width(10.dp))
             Image(painterResource(R.drawable.ic_streak), contentDescription = null, modifier = Modifier.size(54.dp))
         }
     } else {
         Row(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(CardNeutral).clickable { navController.navigate("glow_results") }.padding(16.dp, 14.dp),
+            modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).clickable { navController.navigate("glow_results") }.padding(16.dp, 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("Your Glow-Up map", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("Your Glow map", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
                 Text(
                     latest.focus.joinToString(" · ") { it.area.title }.ifBlank { "All areas looking good" },
-                    color = TextSecondary, fontSize = 12.5.sp, maxLines = 1,
+                    color = TextSecondary, fontSize = TextSize.BodySmall, maxLines = 1,
                 )
             }
             Text(
                 if (due == 0) "Rescan due" else "Rescan in $due d",
-                color = if (due == 0) Color.White else Ink, fontSize = 11.5.sp, fontWeight = FontWeight.Bold,
-                modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(if (due == 0) Coral else Color.White).padding(10.dp, 5.dp),
+                color = if (due == 0) Color.White else Ink, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold,
+                modifier = Modifier.clip(Shapes.Pill).background(if (due == 0) Coral else Color.White).padding(10.dp, 5.dp),
             )
         }
     }
@@ -550,13 +565,13 @@ private fun GlowCheckCard(navController: NavHostController) {
 /** Today's quick check-ins across the app, each showing whether it's done. */
 @Composable
 private fun CheckInsRow(navController: NavHostController) {
-    val today = java.time.LocalDate.now()
-    val fitness = com.glowup.app.ui.data.fitness.FitnessStore
+    val today = LocalDate.now()
+    val fitness = FitnessStore
     data class Chip(val label: String, val sub: String, val done: Boolean, val route: String, val tint: Color)
     val chips = buildList {
-        add(Chip("Mood", com.glowup.app.ui.data.MoodStore.moodOn(today) ?: "Check in", com.glowup.app.ui.data.MoodStore.moodOn(today) != null, "mood_checkin", GreenTint))
-        val night = com.glowup.app.ui.data.SleepLogStore.on(today)
-        add(Chip("Sleep", night?.let { com.glowup.app.ui.data.formatDuration(it.minutes) } ?: "Log night", night != null, "sleep_log", PurpleTint))
+        add(Chip("Mood", MoodStore.moodOn(today) ?: "Check in", MoodStore.moodOn(today) != null, "mood_checkin", GreenTint))
+        val night = SleepLogStore.on(today)
+        add(Chip("Sleep", night?.let { formatDuration(it.minutes) } ?: "Log night", night != null, "sleep_log", PurpleTint))
         if (fitness.setUp) {
             val done = fitness.doneOn(today)
             add(Chip("Workout", if (done) "Done" else if (fitness.isTrainingDay(today) || fitness.activeProgramme != null) "Today" else "Optional", done, "fitness", CoralTint))
@@ -565,21 +580,30 @@ private fun CheckInsRow(navController: NavHostController) {
             add(Chip("Workout", "Set up", false, "fitness", CoralTint))
         }
     }
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(chips) { c ->
-            Row(
-                Modifier.clip(RoundedCornerShape(18.dp)).background(c.tint).clickable { navController.navigate(c.route) }.padding(12.dp, 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(Modifier.size(22.dp).clip(CircleShape).background(if (c.done) Ink else Color.White), contentAlignment = Alignment.Center) {
-                    if (c.done) Icon(androidx.compose.material.icons.Icons.Filled.Check, contentDescription = "Done", tint = Color.White, modifier = Modifier.size(14.dp))
-                }
-                Spacer(Modifier.width(8.dp))
-                Column {
-                    Text(c.label, fontSize = 13.5.sp, fontWeight = FontWeight.Bold)
-                    Text(c.sub, color = TextSecondary, fontSize = 11.5.sp, maxLines = 1)
-                }
+    @Composable
+    fun CheckChip(c: Chip, modifier: Modifier) {
+        Row(
+            modifier.clip(Shapes.Medium).background(c.tint).clickable { navController.navigate(c.route) }.padding(10.dp, 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(Modifier.size(20.dp).clip(CircleShape).background(if (c.done) Ink else Color.White), contentAlignment = Alignment.Center) {
+                if (c.done) Icon(Icons.Filled.Check, contentDescription = "Done", tint = Color.White, modifier = Modifier.size(14.dp))
             }
+            Spacer(Modifier.width(Space.S))
+            Column {
+                Text(c.label, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(c.sub, color = TextSecondary, fontSize = TextSize.Caption, maxLines = 1)
+            }
+        }
+    }
+    // Up to three check-ins share the width evenly; a fourth (or large system text) turns the row into a scroller.
+    if (chips.size <= 3 && LocalDensity.current.fontScale <= 1.15f) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            chips.forEach { CheckChip(it, Modifier.weight(1f)) }
+        }
+    } else {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            items(chips) { CheckChip(it, Modifier) }
         }
     }
 }

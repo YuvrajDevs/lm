@@ -6,12 +6,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
@@ -51,7 +49,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.ProStore
@@ -66,6 +64,13 @@ import com.glowup.app.ui.theme.*
 import kotlinx.coroutines.delay
 import java.util.Locale
 import kotlin.math.roundToInt
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.design.Sizes
+import android.app.Activity
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.core.view.WindowCompat
 
 private enum class Phase { READY, WORK, LOG, REST, SUMMARY, SAVED }
 
@@ -119,8 +124,8 @@ fun WorkoutPlayerScreen(navController: NavHostController, key: String) {
     val view = LocalView.current
     DisposableEffect(Unit) {
         view.keepScreenOn = true
-        val window = (view.context as? android.app.Activity)?.window
-        val bars = window?.let { androidx.core.view.WindowCompat.getInsetsController(it, view) }
+        val window = (view.context as? Activity)?.window
+        val bars = window?.let { WindowCompat.getInsetsController(it, view) }
         bars?.isAppearanceLightStatusBars = false
         bars?.isAppearanceLightNavigationBars = false
         onDispose {
@@ -210,9 +215,9 @@ fun WorkoutPlayerScreen(navController: NavHostController, key: String) {
                 Row(Modifier.fillMaxWidth().padding(16.dp, 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     RoundIcon(Icons.Filled.Close, "End workout") { showExit = true }
                     Spacer(Modifier.width(12.dp))
-                    Box(Modifier.weight(1f).height(6.dp).clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.15f))) {
+                    Box(Modifier.weight(1f).height(6.dp).clip(Shapes.Pill).background(Color.White.copy(alpha = 0.15f))) {
                         val progress by animateFloatAsState(logged.size / steps.size.toFloat(), tween(400), label = "progress")
-                        Box(Modifier.fillMaxWidth(progress).fillMaxHeight().clip(RoundedCornerShape(999.dp)).background(Color(0xFF7FD9A8)))
+                        Box(Modifier.fillMaxWidth(progress).fillMaxHeight().clip(Shapes.Pill).background(Mint))
                     }
                     Spacer(Modifier.width(12.dp))
                     RoundIcon(if (FitnessStore.voiceOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff, "Voice cues") {
@@ -221,7 +226,7 @@ fun WorkoutPlayerScreen(navController: NavHostController, key: String) {
                 }
                 Text(
                     "Exercise ${step.blockIndex + 1} of ${plan.blocks.size} · Set ${step.set} of ${block.sets}" + " · " + formatElapsed(elapsed),
-                    color = Color.White.copy(alpha = 0.55f), fontSize = 12.5.sp, fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
 
@@ -230,64 +235,64 @@ fun WorkoutPlayerScreen(navController: NavHostController, key: String) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     if (phase == Phase.REST) {
-                        Text("REST", color = Color.White.copy(alpha = 0.55f), fontSize = 13.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        Text("REST", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                         Spacer(Modifier.height(10.dp))
-                        TimerRing(secondsLeft, block.restSeconds.coerceAtLeast(1), 200.dp, Color(0xFF8DB8F5))
+                        TimerRing(secondsLeft, block.restSeconds.coerceAtLeast(1), 200.dp, Sky)
                         Spacer(Modifier.height(20.dp))
-                        Text("Next up", color = Color.White.copy(alpha = 0.55f), fontSize = 12.sp)
+                        Text("Next up", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Caption)
                         Spacer(Modifier.height(8.dp))
                         Row(
-                            Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Color.White.copy(alpha = 0.08f)).padding(12.dp),
+                            Modifier.fillMaxWidth().clip(Shapes.Card).background(Color.White.copy(alpha = 0.08f)).padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             ExerciseArt(exercise, 64.dp, 16.dp)
                             Spacer(Modifier.width(14.dp))
                             Column {
-                                Text(exercise.name, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text(exercise.name, color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                                 Text(
                                     (if (block.max) "Max effort" else exercise.doseLabel(block.target)) + " · set ${step.set} of ${block.sets}",
-                                    color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp,
+                                    color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall,
                                 )
                             }
                         }
                     } else {
                         ExerciseArt(exercise, 190.dp, 32.dp)
                         Spacer(Modifier.height(16.dp))
-                        Text(exercise.name, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                        Text(exercise.name, color = Color.White, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                         Spacer(Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { exercise.muscles.take(3).forEach { MuscleChip(it, onDark = true) } }
                         Spacer(Modifier.height(20.dp))
                         when (phase) {
                             Phase.READY -> {
-                                Text("Get ready", color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp)
-                                Text("$secondsLeft", color = Color.White, fontSize = 72.sp, fontWeight = FontWeight.Bold)
+                                Text("Get ready", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body)
+                                Text("$secondsLeft", color = Color.White, fontSize = TextSize.Jumbo, fontWeight = FontWeight.Bold)
                             }
                             Phase.WORK -> if (exercise.measure == Measure.SECONDS) {
-                                TimerRing(secondsLeft, workSeconds.coerceAtLeast(1), 170.dp, Color(0xFF7FD9A8))
+                                TimerRing(secondsLeft, workSeconds.coerceAtLeast(1), 170.dp, Mint)
                                 if (exercise.perSide) {
-                                    Text(if (secondsLeft > workSeconds / 2) "First side" else "Second side", color = Color.White.copy(alpha = 0.6f), fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp))
+                                    Text(if (secondsLeft > workSeconds / 2) "First side" else "Second side", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall, modifier = Modifier.padding(top = 8.dp))
                                 }
                             } else {
-                                Text(if (block.max) "MAX" else "${block.target}", color = Color.White, fontSize = 76.sp, fontWeight = FontWeight.Bold, lineHeight = 80.sp)
+                                Text(if (block.max) "MAX" else "${block.target}", color = Color.White, fontSize = TextSize.Jumbo, fontWeight = FontWeight.Bold, lineHeight = 80.sp)
                                 Text(
                                     if (block.max) "as many good reps as you can · goal ${block.target}" else if (exercise.perSide) "reps each side" else "reps",
-                                    color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp,
+                                    color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body,
                                 )
                                 FitnessStore.bestFor(exercise.id)?.let {
-                                    Text("Your best: $it", color = Color(0xFF7FD9A8), fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp))
+                                    Text("Your best: $it", color = Mint, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp))
                                 }
                             }
                             Phase.LOG -> {
-                                Text("How many did you get?", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                                Text(if (block.max) "Count only clean reps" else "Target was ${block.target}", color = Color.White.copy(alpha = 0.55f), fontSize = 13.sp)
+                                Text("How many did you get?", color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold)
+                                Text(if (block.max) "Count only clean reps" else "Target was ${block.target}", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.BodySmall)
                                 Spacer(Modifier.height(12.dp))
                                 NumberStepper("$logValue", { logValue = (logValue - 1).coerceAtLeast(0) }, { logValue++ }, onDark = true, big = true, unit = if (exercise.perSide) "each side" else "reps")
                                 Spacer(Modifier.height(12.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     listOf(block.target / 2, block.target - 2, block.target, block.target + 2).filter { it > 0 }.distinct().forEach { v ->
                                         Text(
-                                            "$v", color = if (v == logValue) Ink else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(if (v == logValue) Color.White else Color.White.copy(alpha = 0.12f)).clickable { logValue = v }.padding(16.dp, 8.dp),
+                                            "$v", color = if (v == logValue) Ink else Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.clip(Shapes.Pill).background(if (v == logValue) Color.White else Color.White.copy(alpha = 0.12f)).clickable { logValue = v }.padding(16.dp, 8.dp),
                                         )
                                     }
                                 }
@@ -296,12 +301,12 @@ fun WorkoutPlayerScreen(navController: NavHostController, key: String) {
                         }
                         if (phase == Phase.WORK) {
                             Spacer(Modifier.height(14.dp))
-                            Text(exercise.cue, color = Color.White.copy(alpha = 0.6f), fontSize = 13.sp, textAlign = TextAlign.Center, lineHeight = 18.sp)
+                            Text(exercise.cue, color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall, textAlign = TextAlign.Center, lineHeight = LineHeight.Compact)
                             if (showHow) {
                                 Spacer(Modifier.height(12.dp))
-                                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White.copy(alpha = 0.08f)).padding(16.dp)) {
+                                Column(Modifier.fillMaxWidth().clip(Shapes.Medium).background(Color.White.copy(alpha = 0.08f)).padding(16.dp)) {
                                     exercise.steps.forEachIndexed { i, s ->
-                                        Text("${i + 1}. $s", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp, lineHeight = 18.sp, modifier = Modifier.padding(vertical = 3.dp))
+                                        Text("${i + 1}. $s", color = Color.White.copy(alpha = 0.85f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact, modifier = Modifier.padding(vertical = 3.dp))
                                     }
                                 }
                             }
@@ -356,7 +361,7 @@ fun WorkoutPlayerScreen(navController: NavHostController, key: String) {
     }
 
     if (showExit) {
-        GlowUpDialog(
+        ReMakeUDialog(
             onDismissRequest = { showExit = false },
             title = if (logged.isEmpty()) "Leave this workout?" else "End workout early?",
             message = if (logged.isEmpty()) "Nothing has been logged yet." else "You've done ${logged.size} of ${steps.size} sets. Save what you did so it counts, or throw it away.",
@@ -381,7 +386,7 @@ private fun workSecondsFor(exercise: Exercise, target: Int) =
 private fun formatElapsed(seconds: Int) = "%d:%02d".format(seconds / 60, seconds % 60)
 
 @Composable
-private fun RoundIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, description: String, onClick: () -> Unit) {
+private fun RoundIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
     Box(Modifier.size(42.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.1f)).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = description, tint = Color.White, modifier = Modifier.size(20.dp))
     }
@@ -389,25 +394,25 @@ private fun RoundIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, des
 
 @Composable
 private fun WhitePill(text: String, modifier: Modifier = Modifier.fillMaxWidth(), onClick: () -> Unit) {
-    Box(modifier.height(58.dp).clip(RoundedCornerShape(999.dp)).background(Color.White).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-        Text(text, color = Ink, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    Box(modifier.height(Sizes.Button).clip(Shapes.Pill).background(Color.White).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Text(text, color = Ink, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
-private fun DarkPill(text: String, modifier: Modifier, icon: androidx.compose.ui.graphics.vector.ImageVector? = null, onClick: () -> Unit) {
+private fun DarkPill(text: String, modifier: Modifier, icon: ImageVector? = null, onClick: () -> Unit) {
     Row(
-        modifier.height(58.dp).clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.12f)).clickable(onClick = onClick),
+        modifier.height(Sizes.Button).clip(Shapes.Pill).background(Color.White.copy(alpha = 0.12f)).clickable(onClick = onClick),
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
     ) {
         icon?.let { Icon(it, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)) }
-        Text(text, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text(text, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }
 
 @Composable
 private fun SmallLink(text: String, onClick: () -> Unit) {
-    Text(text, color = Color.White.copy(alpha = 0.7f), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.clip(RoundedCornerShape(999.dp)).clickable(onClick = onClick).padding(10.dp, 6.dp))
+    Text(text, color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.clip(Shapes.Pill).clickable(onClick = onClick).padding(10.dp, 6.dp))
 }
 
 @Composable
@@ -422,7 +427,7 @@ private fun TimerRing(seconds: Int, total: Int, size: Dp, color: Color) {
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(if (seconds >= 60) formatElapsed(seconds) else "$seconds", color = Color.White, fontSize = if (size > 180.dp) 60.sp else 52.sp, fontWeight = FontWeight.Bold)
-            Text("seconds", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp)
+            Text("seconds", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.Caption)
         }
     }
 }
@@ -437,20 +442,20 @@ private fun Summary(title: String, logged: List<SetLog>, seconds: Int, effort: I
     }
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 24.dp, 24.dp, 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("SCORECARD", color = Color.White.copy(alpha = 0.55f), fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-            Text(title, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp))
+            Text("SCORECARD", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Caption, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+            Text(title, color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(18.dp))
             Box(Modifier.size(150.dp), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
                     val stroke = 14.dp.toPx()
                     val inset = stroke / 2
-                    val color = when { percent >= 90 -> Color(0xFF7FD9A8); percent >= 60 -> Color(0xFFFFD84D); else -> Color(0xFFFF9C79) }
+                    val color = when { percent >= 90 -> Mint; percent >= 60 -> Sun; else -> Peach }
                     drawArc(Color.White.copy(alpha = 0.1f), 0f, 360f, false, Offset(inset, inset), Size(size.width - stroke, size.height - stroke), style = Stroke(stroke))
                     drawArc(color, -90f, 3.6f * percent.coerceIn(0, 100), false, Offset(inset, inset), Size(size.width - stroke, size.height - stroke), style = Stroke(stroke, cap = StrokeCap.Round))
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("$percent%", color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold)
-                    Text("of targets", color = Color.White.copy(alpha = 0.55f), fontSize = 12.sp)
+                    Text("$percent%", color = Color.White, fontSize = TextSize.DisplayLarge, fontWeight = FontWeight.Bold)
+                    Text("of targets", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Caption)
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -461,9 +466,9 @@ private fun Summary(title: String, logged: List<SetLog>, seconds: Int, effort: I
                     percent >= 50 -> "Good effort. The reps you got still count."
                     else -> "Showing up is the win today. It gets easier."
                 },
-                color = Color.White.copy(alpha = 0.75f), fontSize = 14.sp, textAlign = TextAlign.Center,
+                color = Color.White.copy(alpha = 0.75f), fontSize = TextSize.Body, textAlign = TextAlign.Center,
             )
-            Text("${formatElapsed(seconds)} · ${logged.size} sets", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp, modifier = Modifier.padding(top = 4.dp))
+            Text("${formatElapsed(seconds)} · ${logged.size} sets", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.BodySmall, modifier = Modifier.padding(top = 4.dp))
 
             Spacer(Modifier.height(20.dp))
             logged.groupBy { it.exerciseId }.forEach { (id, sets) ->
@@ -473,22 +478,22 @@ private fun Summary(title: String, logged: List<SetLog>, seconds: Int, effort: I
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(e.name, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text(e.name, color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                             if (id in bests) {
                                 Spacer(Modifier.width(6.dp))
-                                Icon(Icons.Filled.EmojiEvents, contentDescription = "Personal best", tint = Color(0xFFFFD84D), modifier = Modifier.size(15.dp))
-                                Text(" New best", color = Color(0xFFFFD84D), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Icon(Icons.Filled.EmojiEvents, contentDescription = "Personal best", tint = Sun, modifier = Modifier.size(15.dp))
+                                Text(" New best", color = Sun, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold)
                             }
                         }
                         Spacer(Modifier.height(4.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                             sets.forEach { s ->
                                 val ratio = if (s.max || s.target == 0) 1.0 else s.done.toDouble() / s.target
-                                val c = when { ratio >= 1 -> Color(0xFF7FD9A8); ratio >= 0.6 -> Color(0xFFFFD84D); else -> Color(0xFFFF9C79) }
+                                val c = when { ratio >= 1 -> Mint; ratio >= 0.6 -> Sun; else -> Peach }
                                 Text(
                                     if (s.max) "${s.done}" else "${s.done}/${s.target}",
-                                    color = Ink, fontSize = 11.5.sp, fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(c).padding(8.dp, 3.dp),
+                                    color = Ink, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.clip(Shapes.Pill).background(c).padding(8.dp, 3.dp),
                                 )
                             }
                         }
@@ -497,14 +502,14 @@ private fun Summary(title: String, logged: List<SetLog>, seconds: Int, effort: I
             }
 
             Spacer(Modifier.height(20.dp))
-            Text("How hard was it?", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text("How hard was it?", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 effortLabels.forEachIndexed { i, label ->
                     val on = effort == i + 1
                     Text(
-                        label, color = if (on) Ink else Color.White, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, maxLines = 1,
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(999.dp)).background(if (on) Color.White else Color.White.copy(alpha = 0.1f)).clickable { onEffort(i + 1) }.padding(vertical = 9.dp),
+                        label, color = if (on) Ink else Color.White, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, maxLines = 1,
+                        modifier = Modifier.weight(1f).clip(Shapes.Pill).background(if (on) Color.White else Color.White.copy(alpha = 0.1f)).clickable { onEffort(i + 1) }.padding(vertical = 9.dp),
                     )
                 }
             }
@@ -512,7 +517,7 @@ private fun Summary(title: String, logged: List<SetLog>, seconds: Int, effort: I
         Column(Modifier.padding(24.dp, 8.dp, 24.dp, 20.dp)) {
             WhitePill("Save workout", onClick = onSave)
             Text(
-                "Discard", color = Color.White.copy(alpha = 0.6f), fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold,
+                "Discard", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 12.dp).clickable(onClick = onDiscard),
             )
         }
@@ -523,47 +528,47 @@ private fun Summary(title: String, logged: List<SetLog>, seconds: Int, effort: I
 private fun Saved(result: WorkoutResult, logged: List<SetLog>, seconds: Int, onDone: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 40.dp, 24.dp, 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(Modifier.size(84.dp).clip(CircleShape).background(Color(0xFF7FD9A8)), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(84.dp).clip(CircleShape).background(Mint), contentAlignment = Alignment.Center) {
                 Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = Ink, modifier = Modifier.size(42.dp))
             }
             Spacer(Modifier.height(16.dp))
-            Text("Workout saved", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text("+${result.points} points · ${formatElapsed(seconds)}", color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+            Text("Workout saved", color = Color.White, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold)
+            Text("+${result.points} points · ${formatElapsed(seconds)}", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, modifier = Modifier.padding(top = 4.dp))
 
             if (result.personalBests.isNotEmpty()) {
                 Spacer(Modifier.height(20.dp))
-                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color(0xFFFFD84D).copy(alpha = 0.15f)).padding(16.dp)) {
-                    Text("New personal bests", color = Color(0xFFFFD84D), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Column(Modifier.fillMaxWidth().clip(Shapes.Card).background(Sun.copy(alpha = 0.15f)).padding(16.dp)) {
+                    Text("New personal bests", color = Sun, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
                     result.personalBests.forEach { id ->
-                        Text("${ExerciseLibrary.get(id).name} · ${logged.filter { it.exerciseId == id }.maxOf { it.done }}", color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+                        Text("${ExerciseLibrary.get(id).name} · ${logged.filter { it.exerciseId == id }.maxOf { it.done }}", color = Color.White, fontSize = TextSize.Body, modifier = Modifier.padding(top = 4.dp))
                     }
                 }
             }
 
             Spacer(Modifier.height(14.dp))
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color.White.copy(alpha = 0.08f)).padding(16.dp)) {
-                Text("Next time", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Column(Modifier.fillMaxWidth().clip(Shapes.Card).background(Color.White.copy(alpha = 0.08f)).padding(16.dp)) {
+                Text("Next time", color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
                 if (ProGate.progressionLocked) {
-                    Row(Modifier.padding(top = 6.dp).clickable { ProStore.showPaywall("Let Glow-Up raise your targets as you get stronger") }, verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFFFFD84D), modifier = Modifier.size(14.dp))
+                    Row(Modifier.padding(top = 6.dp).clickable { ProStore.showPaywall("Let Re:MakeU raise your targets as you get stronger") }, verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Lock, contentDescription = null, tint = Sun, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("With Pro, targets go up automatically when you hit them twice in a row.", color = Color.White.copy(alpha = 0.7f), fontSize = 12.5.sp, lineHeight = 17.sp)
+                        Text("With Pro, targets go up automatically when you hit them twice in a row.", color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
                     }
                 } else if (result.changes.isEmpty()) {
-                    Text("Same targets. Hit every set twice in a row and they'll go up.", color = Color.White.copy(alpha = 0.7f), fontSize = 12.5.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 6.dp))
+                    Text("Same targets. Hit every set twice in a row and they'll go up.", color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 6.dp))
                 } else {
                     result.changes.forEach { c ->
                         val e = ExerciseLibrary.get(c.exerciseId)
                         Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 if (c.direction == Direction.UP) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
-                                contentDescription = null, tint = if (c.direction == Direction.UP) Color(0xFF7FD9A8) else Color(0xFFFFD84D), modifier = Modifier.size(16.dp),
+                                contentDescription = null, tint = if (c.direction == Direction.UP) Mint else Sun, modifier = Modifier.size(16.dp),
                             )
                             Spacer(Modifier.width(8.dp))
                             val unit = if (e.measure == Measure.REPS) "reps" else "sec"
                             Text(
                                 "${e.name}: ${if (c.direction == Direction.UP) "+" else "−"}${e.step} $unit",
-                                color = Color.White, fontSize = 13.5.sp,
+                                color = Color.White, fontSize = TextSize.Body,
                             )
                         }
                     }

@@ -9,8 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +25,11 @@ import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.data.GroomingStore
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.data.ProfileStore
+import com.glowup.app.ui.data.glow.GlowCheckStore
 
 @Composable
 fun LooksScreen(navController: NavHostController) {
@@ -46,17 +49,17 @@ fun LooksScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(28.dp))
+                            .clip(Shapes.Hero)
                             .background(Ink)
                             .padding(20.dp, 18.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("GLOW-UP GUIDES", color = Color.White.copy(alpha = 0.55f), fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text("GROOMING GUIDES", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(4.dp))
-                            Text("Skincare, hair, grooming & posture", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
+                            Text("Skincare, hair, grooming & posture", color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Relaxed)
                             Spacer(Modifier.height(6.dp))
-                            Text("$doneCount of ${lessons.size} guides read", color = Color.White.copy(alpha = 0.55f), fontSize = 12.5.sp)
+                            Text("$doneCount of ${lessons.size} guides read", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.BodySmall)
                         }
                         Image(painterResource(R.drawable.ic_determined), contentDescription = null, modifier = Modifier.size(64.dp))
                     }
@@ -67,7 +70,7 @@ fun LooksScreen(navController: NavHostController) {
 
                 byTrack.forEach { (track, trackLessons) ->
                     item {
-                        Text(track.uppercase(), color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                        Text(track.uppercase(), color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                         Spacer(Modifier.height(10.dp))
                     }
                     items(trackLessons, key = { it.id }) { lesson ->
@@ -76,7 +79,7 @@ fun LooksScreen(navController: NavHostController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 10.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(Shapes.Card)
                                 .background(lesson.tint)
                                 .clickable {
                                     if (ProGate.groomingLessonLocked(lesson.id)) ProStore.showPaywall("${lesson.title} is a Pro guide")
@@ -91,20 +94,20 @@ fun LooksScreen(navController: NavHostController) {
                                 Text(
                                     if (done) "READ" else "${lesson.minutes} MIN",
                                     color = if (done) TextSecondary else lesson.accent,
-                                    fontSize = 11.sp,
+                                    fontSize = TextSize.Micro,
                                     fontWeight = FontWeight.SemiBold,
                                 )
                                 Text(
                                     lesson.title,
                                     color = Ink,
-                                    fontSize = 15.5.sp,
+                                    fontSize = TextSize.BodyLarge,
                                     fontWeight = FontWeight.SemiBold,
                                 )
                             }
                             if (ProGate.groomingLessonLocked(lesson.id)) {
                                 ProBadge()
                             } else if (done) {
-                                Text("✓", color = Green, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("✓", color = Green, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -120,11 +123,11 @@ fun LooksScreen(navController: NavHostController) {
 /** The personal tools: the check, face-shape advice, routines and photos. */
 @Composable
 private fun GlowToolkit(navController: NavHostController) {
-    val latest = com.glowup.app.ui.data.glow.GlowCheckStore.latest
+    val latest = GlowCheckStore.latest
     data class Tool(val title: String, val sub: String, val tint: Color, val route: String)
     val tools = listOf(
-        Tool(if (latest == null) "Glow-Up Check" else "Your map", if (latest == null) "3-min scan & plan" else latest.focus.firstOrNull()?.area?.title ?: "All good", Ink, if (latest == null) "glow_check" else "glow_results"),
-        Tool("Face shape", com.glowup.app.ui.data.ProfileStore.faceShape ?: "Cuts & beards", PurpleTint, "face_shape"),
+        Tool(if (latest == null) "Glow Check" else "Your map", if (latest == null) "3-min scan & plan" else latest.focus.firstOrNull()?.area?.title ?: "All good", Ink, if (latest == null) "glow_check" else "glow_results"),
+        Tool("Face shape", ProfileStore.faceShape ?: "Cuts & beards", PurpleTint, "face_shape"),
         Tool("Routines", "With evidence labels", GreenTint, "glow_routines"),
         Tool("Progress photos", "Private & side-by-side", BlueTint, "progress_photos"),
     )
@@ -132,9 +135,9 @@ private fun GlowToolkit(navController: NavHostController) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 10.dp)) {
             row.forEach { t ->
                 val dark = t.tint == Ink
-                Column(Modifier.weight(1f).clip(RoundedCornerShape(20.dp)).background(t.tint).clickable { navController.navigate(t.route) }.padding(16.dp, 14.dp)) {
-                    Text(t.title, color = if (dark) Color.White else Ink, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(t.sub, color = if (dark) Color.White.copy(alpha = 0.6f) else TextSecondary, fontSize = 12.sp, maxLines = 1)
+                Column(Modifier.weight(1f).clip(Shapes.Card).background(t.tint).clickable { navController.navigate(t.route) }.padding(16.dp, 14.dp)) {
+                    Text(t.title, color = if (dark) Color.White else Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
+                    Text(t.sub, color = if (dark) Color.White.copy(alpha = 0.6f) else TextSecondary, fontSize = TextSize.Caption, maxLines = 1)
                 }
             }
         }

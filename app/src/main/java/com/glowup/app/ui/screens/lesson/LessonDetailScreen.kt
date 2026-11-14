@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,21 +20,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
-import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.data.LessonStore
 import com.glowup.app.ui.theme.*
 import java.net.URLEncoder
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.components.ProLockedScreen
+import com.glowup.app.ui.data.ProGate
 
 @Composable
 fun LessonDetailScreen(navController: NavHostController, id: Int) {
     val lesson = LessonStore.find(id) ?: return
-    if (com.glowup.app.ui.data.ProGate.talkLessonLocked(id)) {
-        com.glowup.app.ui.components.ProLockedScreen(navController, lesson.title, "${lesson.title} is a Pro lesson")
+    if (ProGate.talkLessonLocked(id)) {
+        ProLockedScreen(navController, lesson.title, "${lesson.title} is a Pro lesson")
         return
     }
     var showDone by remember { mutableStateOf(false) }
@@ -49,7 +51,7 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(28.dp))
+                        .clip(Shapes.Hero)
                         .background(lesson.tint)
                         .padding(22.dp),
                 ) {
@@ -57,15 +59,15 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                         Image(painterResource(lesson.icon), contentDescription = null, modifier = Modifier.size(34.dp))
                     }
                     Spacer(Modifier.height(14.dp))
-                    Text(lesson.title, fontSize = 24.sp, fontWeight = FontWeight.Bold, lineHeight = 29.sp)
+                    Text(lesson.title, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
                     Spacer(Modifier.height(8.dp))
-                    Text(lesson.tagline, color = TextSecondary, fontSize = 14.sp, lineHeight = 20.sp)
+                    Text(lesson.tagline, color = TextSecondary, fontSize = TextSize.Body, lineHeight = LineHeight.Body)
                     Spacer(Modifier.height(14.dp))
-                    Text("${lesson.minutes} min · +${lesson.points} points", color = lesson.accent, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("${lesson.minutes} min · +${lesson.points} points", color = lesson.accent, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(Modifier.height(22.dp))
-                Text("What to know", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text("What to know", fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(10.dp))
 
                 lesson.keyPoints.forEachIndexed { index, point ->
@@ -73,7 +75,7 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
-                            .clip(RoundedCornerShape(18.dp))
+                            .clip(Shapes.Medium)
                             .background(CardNeutral)
                             .padding(16.dp, 14.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -82,9 +84,9 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                             modifier = Modifier.size(24.dp).clip(CircleShape).background(lesson.tint),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text("${index + 1}", color = lesson.accent, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                            Text("${index + 1}", color = lesson.accent, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold)
                         }
-                        Text(point, fontSize = 14.sp, fontWeight = FontWeight.Medium, lineHeight = 20.sp)
+                        Text(point, fontSize = TextSize.Body, fontWeight = FontWeight.Medium, lineHeight = LineHeight.Body)
                     }
                 }
 
@@ -93,20 +95,20 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
+                        .clip(Shapes.Large)
                         .background(Ink)
                         .padding(20.dp),
                 ) {
-                    Text("PRACTICE IT", color = Color.White.copy(alpha = 0.55f), fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("PRACTICE IT", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(4.dp))
-                    Text("Talk for 1 minute about:", color = Color.White, fontSize = 13.5.sp)
-                    Text("\"${lesson.practiceWord}\"", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
+                    Text("Talk for 1 minute about:", color = Color.White, fontSize = TextSize.Body)
+                    Text("\"${lesson.practiceWord}\"", color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Relaxed)
                     Spacer(Modifier.height(14.dp))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(Shapes.Pill)
                             .background(Color.White)
                             .clickable {
                                 val encoded = URLEncoder.encode(lesson.practiceWord, "UTF-8")
@@ -114,7 +116,7 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                             },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("Start practice", color = Ink, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Start practice", color = Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                     }
                 }
 
@@ -124,7 +126,7 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(58.dp)
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(Shapes.Pill)
                         .background(if (done) ChipNeutral else Ink)
                         .clickable(enabled = !done) {
                             LessonStore.markDone(lesson.id)
@@ -135,7 +137,7 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                     Text(
                         if (done) "Lesson completed" else "Mark as done",
                         color = if (done) Ink else Color.White,
-                        fontSize = 14.5.sp,
+                        fontSize = TextSize.BodyLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -144,7 +146,7 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
 
         if (showDone) {
             val next = LessonStore.nextUpAfter(lesson.id)
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showDone = false },
                 title = "${lesson.title} · Done",
                 message = if (next != null) "Nice work. Up next: ${next.title}." else "Nice work. You've completed every lesson in this track.",

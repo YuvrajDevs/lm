@@ -3,7 +3,6 @@ package com.glowup.app.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,22 +24,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.theme.Ink
+import com.glowup.app.ui.design.Shapes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class NavTab(val route: String) { HOME("home"), LEARN("learn"), ROUTINES("routines"), STYLING("styling"), SETTINGS("settings") }
 
 @Composable
-fun GlowUpBottomNav(navController: NavHostController, current: NavTab) {
+fun ReMakeUBottomNav(navController: NavHostController, current: NavTab) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 18.dp)
             .height(68.dp)
-            .background(Ink, shape = androidx.compose.foundation.shape.RoundedCornerShape(999.dp)),
+            .background(Ink, shape = Shapes.Pill),
         contentAlignment = Alignment.Center,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             NavIcon(selected = current == NavTab.HOME, icon = Icons.Filled.Home) {
@@ -63,7 +65,7 @@ fun GlowUpBottomNav(navController: NavHostController, current: NavTab) {
 }
 
 @Composable
-private fun RowScope.NavIcon(selected: Boolean, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+private fun RowScope.NavIcon(selected: Boolean, icon: ImageVector, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(48.dp)

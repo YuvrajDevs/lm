@@ -2,13 +2,12 @@ package com.glowup.app.ui.screens.fitness
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SelfImprovement
@@ -40,6 +39,10 @@ import com.glowup.app.ui.theme.ChipNeutral
 import com.glowup.app.ui.theme.Ink
 import com.glowup.app.ui.theme.TextMuted
 import com.glowup.app.ui.theme.TextSecondary
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import androidx.compose.runtime.rememberUpdatedState
+import com.glowup.app.ui.design.Chip
 
 /** Resource name for a real exercise illustration, e.g. `exercise_glute_bridge`. */
 fun exerciseArtworkName(id: String) = "exercise_" + id.replace('-', '_')
@@ -49,7 +52,7 @@ fun Muscle.icon(): ImageVector = when (this) {
     Muscle.BACK -> Icons.Filled.AccessibilityNew
     Muscle.CORE -> Icons.Filled.SportsGymnastics
     Muscle.GLUTES, Muscle.LEGS -> Icons.Filled.SportsMartialArts
-    Muscle.CARDIO -> Icons.Filled.DirectionsRun
+    Muscle.CARDIO -> Icons.AutoMirrored.Filled.DirectionsRun
     Muscle.MOBILITY -> Icons.Filled.SelfImprovement
 }
 
@@ -77,10 +80,10 @@ fun MuscleChip(muscle: Muscle, onDark: Boolean = false) {
     Text(
         muscle.label,
         color = if (onDark) Color.White else muscle.accent,
-        fontSize = 11.sp,
+        fontSize = TextSize.Micro,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
+            .clip(Shapes.Pill)
             .background(if (onDark) Color.White.copy(alpha = 0.14f) else muscle.tint)
             .padding(9.dp, 4.dp),
         maxLines = 1,
@@ -113,7 +116,7 @@ fun NumberStepper(
         RepeatButton(Icons.Filled.Remove, "Less", buttonBg, tint, if (big) 56.dp else 44.dp, onMinus)
         Column(Modifier.widthIn(min = if (big) 120.dp else 90.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(value, color = tint, fontSize = if (big) 56.sp else 28.sp, fontWeight = FontWeight.Bold, lineHeight = if (big) 60.sp else 32.sp)
-            unit?.let { Text(it, color = if (onDark) Color.White.copy(alpha = 0.6f) else TextSecondary, fontSize = 12.sp) }
+            unit?.let { Text(it, color = if (onDark) Color.White.copy(alpha = 0.6f) else TextSecondary, fontSize = TextSize.Caption) }
         }
         RepeatButton(Icons.Filled.Add, "More", buttonBg, tint, if (big) 56.dp else 44.dp, onPlus)
     }
@@ -121,25 +124,13 @@ fun NumberStepper(
 
 /** Pill used for single-choice options across the fitness screens. */
 @Composable
-fun ChoicePill(label: String, selected: Boolean, modifier: Modifier = Modifier, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(if (selected) Ink else ChipNeutral)
-            .clickable(onClick = onClick)
-            .padding(14.dp, 9.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Text(label, color = if (selected) Color.White else Ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-        trailing?.let { Spacer(Modifier.width(6.dp)); it() }
-    }
-}
+fun ChoicePill(label: String, selected: Boolean, modifier: Modifier = Modifier, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit) =
+    Chip(label, selected, modifier, trailing, onClick)
 
 /** Tap to step once; press and hold to keep stepping, faster the longer you hold. */
 @Composable
 private fun RepeatButton(icon: ImageVector, description: String, bg: Color, tint: Color, size: Dp, onStep: () -> Unit) {
-    val step by androidx.compose.runtime.rememberUpdatedState(onStep)
+    val step by rememberUpdatedState(onStep)
     Box(
         Modifier.size(size).clip(CircleShape).background(bg).pointerInput(Unit) {
             kotlinx.coroutines.coroutineScope {

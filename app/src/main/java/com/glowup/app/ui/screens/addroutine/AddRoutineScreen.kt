@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -36,11 +35,14 @@ import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
-import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.components.ReMakeUDialog
+import com.glowup.app.ui.components.ReMakeUOptionRow
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.parseClock
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.components.rememberNotificationPermission
 
 private const val NO_REMINDER = "No reminder"
 
@@ -90,7 +92,7 @@ fun AddRoutineScreen(navController: NavHostController) {
     var addedItems by remember { mutableStateOf(setOf<String>()) }
     var showTimeDialog by remember { mutableStateOf(false) }
     var selectedTime by remember { mutableStateOf(NO_REMINDER) }
-    val askPermission = com.glowup.app.ui.components.rememberNotificationPermission()
+    val askPermission = rememberNotificationPermission()
     var customText by remember { mutableStateOf("") }
     var selectedArea by remember { mutableStateOf("Looks") }
     var showSaved by remember { mutableStateOf(false) }
@@ -110,13 +112,13 @@ fun AddRoutineScreen(navController: NavHostController) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(Shapes.Pill)
                             .background(if (selected) Ink else ChipNeutral)
                             .clickable { showTemplates = isTemplates }
                             .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(label, color = if (selected) Color.White else Ink, fontSize = 14.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                        Text(label, color = if (selected) Color.White else Ink, fontSize = TextSize.Body, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
                     }
                 }
             }
@@ -126,7 +128,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                     templateGroups.forEach { group ->
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Image(painterResource(group.icon), contentDescription = null, modifier = Modifier.size(26.dp))
-                            Text(group.label.uppercase(), color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Text(group.label.uppercase(), color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                         }
                         Spacer(Modifier.height(10.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -135,7 +137,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clip(RoundedCornerShape(18.dp))
+                                        .clip(Shapes.Medium)
                                         .background(group.tint)
                                         .clickable {
                                             addedItems = if (isAdded) addedItems - item else addedItems + item
@@ -144,7 +146,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(item, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(item, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                                     Box(
                                         modifier = Modifier.size(26.dp).clip(CircleShape).background(if (isAdded) Green else Ink),
                                         contentAlignment = Alignment.Center,
@@ -164,19 +166,19 @@ fun AddRoutineScreen(navController: NavHostController) {
                 } else {
                     val selectedDays = remember { mutableStateListOf(true, true, true, true, true, false, false) }
 
-                    Text("What do you want to do?", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("What do you want to do?", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(8.dp))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(18.dp))
+                            .clip(Shapes.Medium)
                             .background(CardNeutral)
                             .padding(16.dp, 2.dp),
                     ) {
                         OutlinedTextField(
                             value = customText,
                             onValueChange = { customText = it },
-                            placeholder = { Text("e.g. Stretch before bed", color = TextSecondary, fontSize = 14.5.sp) },
+                            placeholder = { Text("e.g. Stretch before bed", color = TextSecondary, fontSize = TextSize.BodyLarge) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color.Transparent,
@@ -188,7 +190,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                     }
 
                     Spacer(Modifier.height(20.dp))
-                    Text("Repeat on", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Repeat on", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(10.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("M", "T", "W", "T", "F", "S", "S").forEachIndexed { i, day ->
@@ -201,44 +203,44 @@ fun AddRoutineScreen(navController: NavHostController) {
                                     .clickable { selectedDays[i] = !selectedDays[i] },
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text(day, color = if (on) Color.White else Ink, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text(day, color = if (on) Color.White else Ink, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
 
                     Spacer(Modifier.height(20.dp))
-                    Text("Time & alarm", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Time & alarm", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(8.dp))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(18.dp))
+                            .clip(Shapes.Medium)
                             .background(CardNeutral)
                             .clickable { showTimeDialog = true }
                             .padding(16.dp, 14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(selectedTime, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text(selectedTime, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                         Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
                     }
                     Spacer(Modifier.height(8.dp))
-                    Text("A daily notification at this time, skipped on days you've already done it.", color = TextMuted, fontSize = 11.5.sp)
+                    Text("A daily notification at this time, skipped on days you've already done it.", color = TextMuted, fontSize = TextSize.Caption)
 
                     Spacer(Modifier.height(20.dp))
-                    Text("Area", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Area", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(10.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(listOf("Looks", "Fitness", "Sleep", "Mind", "Social", "Style", "Life admin")) { area ->
                             val selected = area == selectedArea
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(999.dp))
+                                    .clip(Shapes.Pill)
                                     .background(if (selected) Ink else ChipNeutral)
                                     .clickable { selectedArea = area }
                                     .padding(16.dp, 9.dp),
                             ) {
-                                Text(area, color = if (selected) Color.White else Ink, fontSize = 13.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                                Text(area, color = if (selected) Color.White else Ink, fontSize = TextSize.BodySmall, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
                             }
                         }
                     }
@@ -251,8 +253,8 @@ fun AddRoutineScreen(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(if (canSave) Ink else Color(0xFFD8D5CE))
+                        .clip(Shapes.Pill)
+                        .background(if (canSave) Ink else Disabled)
                         .clickable(enabled = canSave) {
                             if (showTemplates) {
                                 addedItems.forEach { item -> RoutineStore.add(groupFor(item), item) }
@@ -265,13 +267,13 @@ fun AddRoutineScreen(navController: NavHostController) {
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("Save routine", color = Color.White, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Save routine", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
 
         if (showSaved) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { navController.goBack() },
                 title = "Routine saved",
                 message = "It's been added to your routines list.",
@@ -282,7 +284,7 @@ fun AddRoutineScreen(navController: NavHostController) {
         }
 
         if (showTimeDialog) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showTimeDialog = false },
                 title = "Time & alarm",
                 primaryText = "Close",
@@ -290,7 +292,7 @@ fun AddRoutineScreen(navController: NavHostController) {
                 content = {
                     Column {
                         listOf(NO_REMINDER, "6:00 AM", "7:00 AM", "8:00 AM", "12:00 PM", "6:00 PM", "8:00 PM", "9:00 PM", "9:30 PM", "10:00 PM").forEach { time ->
-                            GlowUpOptionRow(time, selected = time == selectedTime) { selectedTime = time }
+                            ReMakeUOptionRow(time, selected = time == selectedTime) { selectedTime = time }
                         }
                     }
                 },

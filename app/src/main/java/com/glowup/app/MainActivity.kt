@@ -48,7 +48,35 @@ import com.glowup.app.ui.screens.styleguide.StyleGuideDetailScreen
 import com.glowup.app.ui.screens.styling.StylingScreen
 import com.glowup.app.ui.screens.todo.TodoScreen
 import com.glowup.app.ui.screens.wardrobe.WardrobeScreen
-import com.glowup.app.ui.theme.GlowUpTheme
+import com.glowup.app.ui.theme.ReMakeUTheme
+import com.glowup.app.billing.Billing
+import com.glowup.app.ui.components.RoutineDoneBar
+import com.glowup.app.ui.data.ProgressStore
+import com.glowup.app.ui.data.RoutineSession
+import com.glowup.app.ui.data.Scenarios
+import com.glowup.app.ui.screens.data.YourDataScreen
+import com.glowup.app.ui.screens.fitness.BodyCheckInScreen
+import com.glowup.app.ui.screens.fitness.ExerciseDetailScreen
+import com.glowup.app.ui.screens.fitness.ExerciseLibraryScreen
+import com.glowup.app.ui.screens.fitness.FitnessScreen
+import com.glowup.app.ui.screens.fitness.FitnessSetupScreen
+import com.glowup.app.ui.screens.fitness.ProgrammeScreen
+import com.glowup.app.ui.screens.fitness.WorkoutPlayerScreen
+import com.glowup.app.ui.screens.fitness.WorkoutPreviewScreen
+import com.glowup.app.ui.screens.focus.BlockerScreen
+import com.glowup.app.ui.screens.glow.FaceShapeScreen
+import com.glowup.app.ui.screens.glow.GlowCheckScreen
+import com.glowup.app.ui.screens.glow.GlowResultsScreen
+import com.glowup.app.ui.screens.glow.LooksRoutineDetailScreen
+import com.glowup.app.ui.screens.glow.LooksRoutinesScreen
+import com.glowup.app.ui.screens.glow.ProgressPhotosScreen
+import com.glowup.app.ui.screens.mood.MoodInsightsScreen
+import com.glowup.app.ui.screens.sleep.SleepLogScreen
+import com.glowup.app.ui.screens.speaking.ScenariosScreen
+import com.glowup.app.ui.screens.speaking.SpeechHistoryScreen
+import com.glowup.app.ui.screens.wardrobe.CapsuleScreen
+import com.glowup.app.ui.screens.wardrobe.PackingScreen
+import java.net.URLDecoder
 
 class MainActivity : ComponentActivity() {
     private val pendingRoute = mutableStateOf<String?>(null)
@@ -62,7 +90,7 @@ class MainActivity : ComponentActivity() {
         )
         if (savedInstanceState == null) pendingRoute.value = intent.getStringExtra(Notifications.EXTRA_ROUTE)
         setContent {
-            GlowUpTheme {
+            ReMakeUTheme {
                 val navController = rememberNavController()
                 val route = pendingRoute.value
                 LaunchedEffect(route) {
@@ -102,41 +130,41 @@ class MainActivity : ComponentActivity() {
                     composable("wardrobe") { WardrobeScreen(navController) }
                     composable("mood_checkin") { MoodCheckinScreen(navController) }
                     composable("streak_detail") { StreakDetailScreen(navController) }
-                    composable("mood_insights") { com.glowup.app.ui.screens.mood.MoodInsightsScreen(navController) }
-                    composable("sleep_log") { com.glowup.app.ui.screens.sleep.SleepLogScreen(navController) }
-                    composable("fitness") { com.glowup.app.ui.screens.fitness.FitnessScreen(navController) }
-                    composable("fitness_setup") { com.glowup.app.ui.screens.fitness.FitnessSetupScreen(navController) }
-                    composable("exercises") { com.glowup.app.ui.screens.fitness.ExerciseLibraryScreen(navController) }
-                    composable("body_checkin") { com.glowup.app.ui.screens.fitness.BodyCheckInScreen(navController) }
+                    composable("mood_insights") { MoodInsightsScreen(navController) }
+                    composable("sleep_log") { SleepLogScreen(navController) }
+                    composable("fitness") { FitnessScreen(navController) }
+                    composable("fitness_setup") { FitnessSetupScreen(navController) }
+                    composable("exercises") { ExerciseLibraryScreen(navController) }
+                    composable("body_checkin") { BodyCheckInScreen(navController) }
                     composable("programme/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
-                        com.glowup.app.ui.screens.fitness.ProgrammeScreen(navController, it.arguments?.getString("id").orEmpty())
+                        ProgrammeScreen(navController, it.arguments?.getString("id").orEmpty())
                     }
                     composable("exercise/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
-                        com.glowup.app.ui.screens.fitness.ExerciseDetailScreen(navController, it.arguments?.getString("id").orEmpty())
+                        ExerciseDetailScreen(navController, it.arguments?.getString("id").orEmpty())
                     }
                     composable("workout/{key}", arguments = listOf(navArgument("key") { type = NavType.StringType })) {
-                        com.glowup.app.ui.screens.fitness.WorkoutPreviewScreen(navController, it.arguments?.getString("key").orEmpty())
+                        WorkoutPreviewScreen(navController, it.arguments?.getString("key").orEmpty())
                     }
                     composable("player/{key}", arguments = listOf(navArgument("key") { type = NavType.StringType })) {
-                        com.glowup.app.ui.screens.fitness.WorkoutPlayerScreen(navController, it.arguments?.getString("key").orEmpty())
+                        WorkoutPlayerScreen(navController, it.arguments?.getString("key").orEmpty())
                     }
-                    composable("glow_check") { com.glowup.app.ui.screens.glow.GlowCheckScreen(navController) }
-                    composable("glow_results") { com.glowup.app.ui.screens.glow.GlowResultsScreen(navController) }
-                    composable("face_shape") { com.glowup.app.ui.screens.glow.FaceShapeScreen(navController) }
-                    composable("glow_routines") { com.glowup.app.ui.screens.glow.LooksRoutinesScreen(navController) }
-                    composable("progress_photos") { com.glowup.app.ui.screens.glow.ProgressPhotosScreen(navController) }
+                    composable("glow_check") { GlowCheckScreen(navController) }
+                    composable("glow_results") { GlowResultsScreen(navController) }
+                    composable("face_shape") { FaceShapeScreen(navController) }
+                    composable("glow_routines") { LooksRoutinesScreen(navController) }
+                    composable("progress_photos") { ProgressPhotosScreen(navController) }
                     composable("glow_routine/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
-                        com.glowup.app.ui.screens.glow.LooksRoutineDetailScreen(navController, it.arguments?.getString("id").orEmpty())
+                        LooksRoutineDetailScreen(navController, it.arguments?.getString("id").orEmpty())
                     }
-                    composable("blocker") { com.glowup.app.ui.screens.focus.BlockerScreen(navController) }
-                    composable("capsule") { com.glowup.app.ui.screens.wardrobe.CapsuleScreen(navController) }
-                    composable("packing") { com.glowup.app.ui.screens.wardrobe.PackingScreen(navController) }
-                    composable("scenarios") { com.glowup.app.ui.screens.speaking.ScenariosScreen(navController) }
-                    composable("speech_history") { com.glowup.app.ui.screens.speaking.SpeechHistoryScreen(navController) }
+                    composable("blocker") { BlockerScreen(navController) }
+                    composable("capsule") { CapsuleScreen(navController) }
+                    composable("packing") { PackingScreen(navController) }
+                    composable("scenarios") { ScenariosScreen(navController) }
+                    composable("speech_history") { SpeechHistoryScreen(navController) }
                     composable("scenario/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) {
-                        SpeakingPracticeScreen(navController, scenario = com.glowup.app.ui.data.Scenarios.get(it.arguments?.getString("id").orEmpty()))
+                        SpeakingPracticeScreen(navController, scenario = Scenarios.get(it.arguments?.getString("id").orEmpty()))
                     }
-                    composable("your_data") { com.glowup.app.ui.screens.data.YourDataScreen(navController) }
+                    composable("your_data") { YourDataScreen(navController) }
                     composable("add_routine") { AddRoutineScreen(navController) }
                     // The AI stylist is planned for a later phase; until then this goes to the real outfit builder.
                     composable("ai_stylist") { WardrobeScreen(navController) }
@@ -147,7 +175,7 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("topic") { type = NavType.StringType }),
                     ) { backStackEntry ->
                         val encoded = backStackEntry.arguments?.getString("topic")
-                        val decoded = encoded?.let { java.net.URLDecoder.decode(it, "UTF-8") }
+                        val decoded = encoded?.let { URLDecoder.decode(it, "UTF-8") }
                         SpeakingPracticeScreen(navController, decoded)
                     }
                     composable(
@@ -186,9 +214,9 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = backStack?.destination?.route
                 LaunchedEffect(currentRoute) {
                     // Back on Home means the user has left the page the routine was opened on.
-                    if (currentRoute == "home") com.glowup.app.ui.data.RoutineSession.clear()
+                    if (currentRoute == "home") RoutineSession.clear()
                 }
-                com.glowup.app.ui.components.RoutineDoneBar(currentRoute)
+                RoutineDoneBar(currentRoute)
                 ProPaywall()
             }
         }
@@ -196,9 +224,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        com.glowup.app.billing.Billing.refreshPurchases()
+        Billing.refreshPurchases()
         // The date may have rolled over while the app was in the background.
-        com.glowup.app.ui.data.ProgressStore.applyFreezes()
+        ProgressStore.applyFreezes()
     }
 
     override fun onNewIntent(intent: Intent) {

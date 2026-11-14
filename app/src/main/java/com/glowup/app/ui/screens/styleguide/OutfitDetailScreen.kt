@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -37,13 +36,19 @@ import com.glowup.app.ui.data.TodoStore
 import com.glowup.app.ui.data.style.SavedLooksStore
 import com.glowup.app.ui.data.style.StyleLibrary
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.components.ProLockedScreen
+import com.glowup.app.ui.data.ProGate
+import com.glowup.app.ui.screens.wardrobe.MakeThisLook
 
 @Composable
 fun OutfitDetailScreen(navController: NavHostController, id: String) {
     val outfit = StyleLibrary.outfit(id) ?: return
     val guide = StyleLibrary.guide(outfit.styleKey) ?: return
-    if (com.glowup.app.ui.data.ProGate.outfitLocked(outfit)) {
-        com.glowup.app.ui.components.ProLockedScreen(navController, outfit.name, "This look is part of the ${guide.title} Pro guide")
+    if (ProGate.outfitLocked(outfit)) {
+        ProLockedScreen(navController, outfit.name, "This look is part of the ${guide.title} Pro guide")
         return
     }
     val saved = SavedLooksStore.isSaved(outfit.id)
@@ -72,33 +77,33 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
                 Text(
                     guide.title.uppercase(),
                     color = guide.accent,
-                    fontSize = 11.sp,
+                    fontSize = TextSize.Micro,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.5.sp,
                     modifier = Modifier.clickable { navController.navigate("style_guide_detail/${guide.key}") },
                 )
-                Text(outfit.name, fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 33.sp)
+                Text(outfit.name, fontSize = TextSize.Display, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     outfit.occasions.forEach { occasion ->
-                        Box(modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(ChipNeutral).padding(12.dp, 6.dp)) {
-                            Text(occasion, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Box(modifier = Modifier.clip(Shapes.Pill).background(ChipNeutral).padding(12.dp, 6.dp)) {
+                            Text(occasion, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
 
                 Spacer(Modifier.height(18.dp))
-                com.glowup.app.ui.screens.wardrobe.MakeThisLook(outfit, navController)
+                MakeThisLook(outfit, navController)
 
                 Spacer(Modifier.height(24.dp))
-                Text("The pieces", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("The pieces", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(10.dp))
                 outfit.pieces.forEach { piece ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
-                            .clip(RoundedCornerShape(18.dp))
+                            .clip(Shapes.Medium)
                             .background(CardNeutral)
                             .padding(14.dp, 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -106,20 +111,20 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
                     ) {
                         SwatchDot(piece.swatch.color, 34.dp)
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(piece.garment.slot.label.uppercase(), color = TextSecondary, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                            Text(piece.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                            Text(piece.garment.slot.label.uppercase(), color = TextSecondary, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                            Text(piece.name, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                         }
-                        Text(piece.swatch.name, color = TextSecondary, fontSize = 12.sp)
+                        Text(piece.swatch.name, color = TextSecondary, fontSize = TextSize.Caption)
                     }
                 }
 
                 Spacer(Modifier.height(16.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(guide.tint).padding(18.dp),
+                    modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(guide.tint).padding(18.dp),
                 ) {
-                    Text("WHY IT WORKS", color = guide.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
+                    Text("WHY IT WORKS", color = guide.accent, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
                     Spacer(Modifier.height(6.dp))
-                    Text(outfit.why, color = guide.heroText, fontSize = 15.sp, lineHeight = 22.sp, fontWeight = FontWeight.Medium)
+                    Text(outfit.why, color = guide.heroText, fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed, fontWeight = FontWeight.Medium)
                 }
 
                 Spacer(Modifier.height(10.dp))
@@ -132,7 +137,7 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
             val more = guide.outfits.filter { it.id != outfit.id }
             Text(
                 "More ${guide.title} looks",
-                fontSize = 18.sp,
+                fontSize = TextSize.Title,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(24.dp, 26.dp, 24.dp, 12.dp),
             )
@@ -151,7 +156,7 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
                 .padding(24.dp, 8.dp, 24.dp, 24.dp)
                 .fillMaxWidth()
                 .height(58.dp)
-                .clip(RoundedCornerShape(999.dp))
+                .clip(Shapes.Pill)
                 .background(if (planned) GreenTint else Ink)
                 .clickable(enabled = !planned) { TodoStore.add(todoTitle, TodoBucket.TODAY, "${guide.title} · Outfit") },
             contentAlignment = Alignment.Center,
@@ -162,7 +167,7 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
                 Text(
                     if (planned) "In today's plan" else "Wear it today",
                     color = if (planned) Green else Color.White,
-                    fontSize = 15.5.sp,
+                    fontSize = TextSize.BodyLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -172,14 +177,14 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
 
 @Composable
 private fun AdjustCard(title: String, body: String, icon: ImageVector, modifier: Modifier) {
-    Column(modifier = modifier.clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(16.dp)) {
+    Column(modifier = modifier.clip(Shapes.Card).background(CardNeutral).padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = Ink, modifier = Modifier.size(15.dp))
             Spacer(Modifier.width(4.dp))
-            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Text(title, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(6.dp))
-        Text(body, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
+        Text(body, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
     }
 }
 

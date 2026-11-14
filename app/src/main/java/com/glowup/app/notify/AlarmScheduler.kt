@@ -13,6 +13,9 @@ import com.glowup.app.ui.data.Schedule
 import com.glowup.app.ui.data.SleepStore
 import java.time.LocalDateTime
 import java.time.ZoneId
+import com.glowup.app.ui.data.fitness.FitnessStore
+import com.glowup.app.widget.Widgets
+import java.time.LocalTime
 
 /** Keeps AlarmManager in sync with every enabled reminder, routine reminder and sleep alarm. */
 object AlarmScheduler {
@@ -85,14 +88,14 @@ object AlarmScheduler {
         FocusStore.active?.endAtMillis?.let { scheduleAt(KIND_FOCUS, 0, it) }
         val learnTime = ProgramStore.reminderTime
         if (learnTime != null && !ProgramStore.isFinished) schedule(KIND_LEARN, 0, Schedule.Daily(learnTime))
-        val fitness = com.glowup.app.ui.data.fitness.FitnessStore
+        val fitness = FitnessStore
         if (fitness.setUp) {
             fitness.reminder?.let { time -> fitness.days.forEach { day -> schedule(KIND_WORKOUT, day.value, Schedule.Weekly(day, time)) } }
-            if (fitness.weighReminder) schedule(KIND_WEIGH, 0, Schedule.Weekly(fitness.weighDay, java.time.LocalTime.of(8, 0)))
+            if (fitness.weighReminder) schedule(KIND_WEIGH, 0, Schedule.Weekly(fitness.weighDay, LocalTime.of(8, 0)))
         }
         // Home-screen widgets show "today", so refresh them just after midnight.
-        if (com.glowup.app.widget.Widgets.anyPlaced(context)) {
-            schedule(KIND_MIDNIGHT, 0, Schedule.Daily(java.time.LocalTime.of(0, 1)))
+        if (Widgets.anyPlaced(context)) {
+            schedule(KIND_MIDNIGHT, 0, Schedule.Daily(LocalTime.of(0, 1)))
         }
 
         prefs.edit().putStringSet(KEY_CODES, scheduled).apply()

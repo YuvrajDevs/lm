@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,11 +29,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.FocusStore
@@ -44,6 +42,17 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.platform.LocalContext
+import com.glowup.app.blocker.Blocker
+import com.glowup.app.ui.components.ProBadge
+import com.glowup.app.ui.data.BlockStore
+import com.glowup.app.ui.data.ProStore
 
 @Composable
 fun FocusScreen(navController: NavHostController) {
@@ -51,10 +60,10 @@ fun FocusScreen(navController: NavHostController) {
     var minutes by remember { mutableStateOf(FocusStore.lastMinutes) }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var confirmEnd by remember { mutableStateOf(false) }
-    var blockApps by remember { mutableStateOf(com.glowup.app.ui.data.BlockStore.focusApps.isNotEmpty()) }
+    var blockApps by remember { mutableStateOf(BlockStore.focusApps.isNotEmpty()) }
     var strict by remember { mutableStateOf(false) }
     var emergency by remember { mutableStateOf(false) }
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val active = FocusStore.active
     val askPermission = rememberNotificationPermission()
 
@@ -108,7 +117,7 @@ fun FocusScreen(navController: NavHostController) {
                     Text(
                         "Put your phone face down. The timer keeps running if you leave the app.",
                         color = TextSecondary,
-                        fontSize = 13.sp,
+                        fontSize = TextSize.BodySmall,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 40.dp),
                     )
@@ -116,22 +125,22 @@ fun FocusScreen(navController: NavHostController) {
                     Text(
                         "+${active.minutes / FocusStore.MINUTES_PER_POINT} points when you finish",
                         color = Coral,
-                        fontSize = 13.sp,
+                        fontSize = TextSize.BodySmall,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
 
                 Spacer(Modifier.height(16.dp))
                 Row(
-                    Modifier.padding(horizontal = 24.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(BlueTint)
+                    Modifier.padding(horizontal = 24.dp).fillMaxWidth().clip(Shapes.Card).background(BlueTint)
                         .clickable { navController.navigate("blocker") }.padding(16.dp, 14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text("App blocker & mindful pause", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-                        Text("Block apps, set schedules, pause before scrolling", color = Navy, fontSize = 12.sp)
+                        Text("App blocker & mindful pause", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                        Text("Block apps, set schedules, pause before scrolling", color = Navy, fontSize = TextSize.Caption)
                     }
-                    Text("›", fontSize = 22.sp, color = Navy)
+                    Text("›", fontSize = TextSize.TitleLarge, color = Navy)
                 }
                 Spacer(Modifier.height(16.dp))
                 StatsSection()
@@ -144,7 +153,7 @@ fun FocusScreen(navController: NavHostController) {
             ) {
                 when {
                     active == null -> ActionButton("Start $minutes-minute focus", Ink, Color.White, Modifier.weight(1f)) {
-                        val canBlock = blockApps && com.glowup.app.ui.data.BlockStore.focusApps.isNotEmpty() && com.glowup.app.blocker.Blocker.ready(context)
+                        val canBlock = blockApps && BlockStore.focusApps.isNotEmpty() && Blocker.ready(context)
                         FocusStore.start(minutes, label, blockApps = canBlock, strict = strict && canBlock)
                         now = System.currentTimeMillis()
                         askPermission()
@@ -171,7 +180,7 @@ fun FocusScreen(navController: NavHostController) {
         if (emergency) EmergencyExit(onCancel = { emergency = false }, onEnd = { FocusStore.cancel(); emergency = false })
 
         if (confirmEnd) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { confirmEnd = false },
                 title = "End this focus block?",
                 message = "Ending early won't count towards today's minutes or your focus streak.",
@@ -187,7 +196,7 @@ fun FocusScreen(navController: NavHostController) {
 
         FocusStore.justFinished?.let { done ->
             val streak = FocusStore.streakDays()
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { FocusStore.acknowledgeFinished() },
                 onPrimary = { FocusStore.acknowledgeFinished() },
                 title = "$done minutes of focus",
@@ -214,8 +223,8 @@ private fun FocusRing(progress: Float, time: String, caption: String) {
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(time, fontSize = 48.sp, fontWeight = FontWeight.Bold)
-            Text(caption, color = TextSecondary, fontSize = 13.sp)
+            Text(time, fontSize = TextSize.Number, fontWeight = FontWeight.Bold)
+            Text(caption, color = TextSecondary, fontSize = TextSize.BodySmall)
         }
     }
 }
@@ -234,10 +243,10 @@ private fun StatsSection() {
         }
         Spacer(Modifier.height(10.dp))
         Column(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(CardNeutral).padding(18.dp),
+            modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(18.dp),
         ) {
-            Text("This week", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-            Text("${week.sum()} min total", color = TextSecondary, fontSize = 12.sp)
+            Text("This week", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+            Text("${week.sum()} min total", color = TextSecondary, fontSize = TextSize.Caption)
             Spacer(Modifier.height(14.dp))
             Row(
                 modifier = Modifier.fillMaxWidth().height(110.dp),
@@ -248,19 +257,19 @@ private fun StatsSection() {
                     val day = DayOfWeek.of(index + 1)
                     val isToday = day == today.dayOfWeek
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                        Text(if (value > 0) "$value" else "", color = TextSecondary, fontSize = 10.sp)
+                        Text(if (value > 0) "$value" else "", color = TextSecondary, fontSize = TextSize.Micro)
                         Box(
                             modifier = Modifier
                                 .width(18.dp)
                                 .height((70f * value / maxMinutes).coerceAtLeast(4f).dp)
-                                .clip(RoundedCornerShape(6.dp))
+                                .clip(Shapes.Small)
                                 .background(if (value > 0) (if (isToday) Coral else Ink) else ChipNeutral),
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
                             day.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
                             color = if (isToday) Ink else TextSecondary,
-                            fontSize = 11.sp,
+                            fontSize = TextSize.Micro,
                             fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
                         )
                     }
@@ -271,7 +280,7 @@ private fun StatsSection() {
         Text(
             "All time: ${FocusStore.totalMinutes / 60}h ${FocusStore.totalMinutes % 60}m across ${FocusStore.totalSessions} sessions",
             color = TextSecondary,
-            fontSize = 12.sp,
+            fontSize = TextSize.Caption,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
         )
@@ -280,10 +289,10 @@ private fun StatsSection() {
 
 @Composable
 private fun StatCard(label: String, value: String, modifier: Modifier, showFlame: Boolean = false) {
-    Column(modifier = modifier.clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(16.dp)) {
-        Text(label, color = TextSecondary, fontSize = 12.sp)
+    Column(modifier = modifier.clip(Shapes.Card).background(CardNeutral).padding(16.dp)) {
+        Text(label, color = TextSecondary, fontSize = TextSize.Caption)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(value, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
             if (showFlame) {
                 Spacer(Modifier.width(4.dp))
                 Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(18.dp))
@@ -296,12 +305,12 @@ private fun StatCard(label: String, value: String, modifier: Modifier, showFlame
 private fun Pill(label: String, selected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
+            .clip(Shapes.Pill)
             .background(if (selected) Ink else ChipNeutral)
             .clickable(onClick = onClick)
             .padding(16.dp, 10.dp),
     ) {
-        Text(label, color = if (selected) Color.White else Ink, fontSize = 13.5.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+        Text(label, color = if (selected) Color.White else Ink, fontSize = TextSize.Body, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
     }
 }
 
@@ -310,12 +319,12 @@ private fun ActionButton(label: String, background: Color, content: Color, modif
     Box(
         modifier = modifier
             .height(58.dp)
-            .clip(RoundedCornerShape(999.dp))
+            .clip(Shapes.Pill)
             .background(background)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = content, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = content, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -329,30 +338,30 @@ private fun formatRemaining(millis: Long): String {
 
 @Composable
 private fun BlockOptions(block: Boolean, strict: Boolean, onBlock: (Boolean) -> Unit, onStrict: (Boolean) -> Unit, onSetup: () -> Unit) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val ready = com.glowup.app.blocker.Blocker.ready(context) && com.glowup.app.ui.data.BlockStore.focusApps.isNotEmpty()
-    Column(Modifier.padding(horizontal = 24.dp).fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(CardNeutral).padding(16.dp, 12.dp)) {
+    val context = LocalContext.current
+    val ready = Blocker.ready(context) && BlockStore.focusApps.isNotEmpty()
+    Column(Modifier.padding(horizontal = 24.dp).fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(16.dp, 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Block distracting apps", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                Text("Block distracting apps", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                 Text(
-                    if (ready) com.glowup.app.ui.data.BlockStore.focusApps.size.let { n -> "$n app${if (n == 1) "" else "s"} blocked until the timer ends" } else "Set up the app blocker first",
-                    color = TextSecondary, fontSize = 12.sp,
+                    if (ready) BlockStore.focusApps.size.let { n -> "$n app${if (n == 1) "" else "s"} blocked until the timer ends" } else "Set up the app blocker first",
+                    color = TextSecondary, fontSize = TextSize.Caption,
                 )
             }
-            if (ready) androidx.compose.material3.Switch(block, onBlock, colors = androidx.compose.material3.SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
-            else Text("Set up", color = Purple, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clip(RoundedCornerShape(999.dp)).clickable(onClick = onSetup).padding(10.dp, 6.dp))
+            if (ready) Switch(block, onBlock, colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+            else Text("Set up", color = Purple, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold, modifier = Modifier.clip(Shapes.Pill).clickable(onClick = onSetup).padding(10.dp, 6.dp))
         }
         if (ready && block) {
             Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Strict mode", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    Text("No pausing or ending early", color = TextSecondary, fontSize = 12.sp)
+                    Text("Strict mode", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                    Text("No pausing or ending early", color = TextSecondary, fontSize = TextSize.Caption)
                 }
-                if (com.glowup.app.ui.data.ProStore.isPro) {
-                    androidx.compose.material3.Switch(strict, onStrict, colors = androidx.compose.material3.SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+                if (ProStore.isPro) {
+                    Switch(strict, onStrict, colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
                 } else {
-                    com.glowup.app.ui.components.ProBadge(Modifier.clickable { com.glowup.app.ui.data.ProStore.showPaywall("Strict focus is part of Pro") })
+                    ProBadge(Modifier.clickable { ProStore.showPaywall("Strict focus is part of Pro") })
                 }
             }
         }
@@ -366,7 +375,7 @@ private fun EmergencyExit(onCancel: () -> Unit, onEnd: () -> Unit) {
     var typed by remember { mutableStateOf("") }
     var wait by remember { mutableStateOf(30) }
     LaunchedEffect(Unit) { while (wait > 0) { delay(1000); wait-- } }
-    GlowUpDialog(
+    ReMakeUDialog(
         onDismissRequest = onCancel,
         title = "Emergency exit",
         message = "Type \"$phrase\" to end strict focus. This session won't count.",
@@ -376,9 +385,9 @@ private fun EmergencyExit(onCancel: () -> Unit, onEnd: () -> Unit) {
         primaryDestructive = true,
         onPrimary = onEnd,
         content = {
-            androidx.compose.material3.OutlinedTextField(
+            OutlinedTextField(
                 value = typed, onValueChange = { typed = it.take(40) }, singleLine = true, placeholder = { Text(phrase) },
-                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                 modifier = Modifier.fillMaxWidth(),
             )
         },

@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -35,13 +34,18 @@ import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.notify.Notifications
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
-import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.components.ReMakeUDialog
+import com.glowup.app.ui.components.ReMakeUOptionRow
 import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.Reminder
 import com.glowup.app.ui.data.ReminderStore
 import com.glowup.app.ui.data.Schedule
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import java.time.LocalTime
 
 @Composable
 fun NotificationsScreen(navController: NavHostController) {
@@ -49,14 +53,14 @@ fun NotificationsScreen(navController: NavHostController) {
     var permissionVersion by remember { mutableStateOf(0) }
     val canPost = remember(permissionVersion) { Notifications.canPost(context) }
     val askPermission = rememberNotificationPermission { permissionVersion++ }
-    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+    LifecycleResumeEffect(Unit) {
         permissionVersion++
         onPauseOrDispose { }
     }
 
     var showAddDialog by remember { mutableStateOf(false) }
     var newTitle by remember { mutableStateOf("") }
-    var newSchedule by remember { mutableStateOf<Schedule>(Schedule.Daily(java.time.LocalTime.of(20, 0))) }
+    var newSchedule by remember { mutableStateOf<Schedule>(Schedule.Daily(LocalTime.of(20, 0))) }
     var pickingFor by remember { mutableStateOf<Reminder?>(null) }
     var pickingForNew by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<Reminder?>(null) }
@@ -78,7 +82,7 @@ fun NotificationsScreen(navController: NavHostController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 16.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(Shapes.Card)
                                 .background(MaroonTint)
                                 .clickable {
                                     askPermission()
@@ -88,15 +92,15 @@ fun NotificationsScreen(navController: NavHostController) {
                                 }
                                 .padding(16.dp, 14.dp),
                         ) {
-                            Text("Notifications are off", color = Maroon, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Reminders can't reach you until you allow them. Tap to turn them on.", color = Maroon, fontSize = 12.sp)
+                            Text("Notifications are off", color = Maroon, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                            Text("Reminders can't reach you until you allow them. Tap to turn them on.", color = Maroon, fontSize = TextSize.Caption)
                         }
                     }
                 }
                 item { SectionLabel("YOUR REMINDERS") }
                 if (custom.isEmpty()) {
                     item {
-                        Text("No reminders yet — add one below or with the + button.", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(bottom = 12.dp))
+                        Text("No reminders yet — add one below or with the + button.", color = TextSecondary, fontSize = TextSize.BodySmall, modifier = Modifier.padding(bottom = 12.dp))
                     }
                 }
                 items(custom, key = { it.id }) { reminder ->
@@ -123,7 +127,7 @@ fun NotificationsScreen(navController: NavHostController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 10.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(Shapes.Card)
                                 .background(ChipNeutral)
                                 .clickable {
                                     ReminderStore.add(title, schedule)
@@ -134,8 +138,8 @@ fun NotificationsScreen(navController: NavHostController) {
                             horizontalArrangement = Arrangement.spacedBy(14.dp),
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-                                Text(schedule.label, color = TextSecondary, fontSize = 12.sp)
+                                Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                                Text(schedule.label, color = TextSecondary, fontSize = TextSize.Caption)
                             }
                             Box(
                                 modifier = Modifier.size(28.dp).clip(CircleShape).background(Ink),
@@ -164,7 +168,7 @@ fun NotificationsScreen(navController: NavHostController) {
         }
 
         if (showAddDialog) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showAddDialog = false; newTitle = "" },
                 title = "Add a reminder",
                 secondaryText = "Cancel",
@@ -192,7 +196,7 @@ fun NotificationsScreen(navController: NavHostController) {
         }
 
         editing?.let { reminder ->
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { editing = null },
                 title = reminder.title,
                 message = reminder.schedule.label,
@@ -206,7 +210,7 @@ fun NotificationsScreen(navController: NavHostController) {
 
         if (pickingForNew || pickingFor != null) {
             val current = pickingFor?.let { picked -> ReminderStore.items.firstOrNull { it.id == picked.id }?.schedule } ?: newSchedule
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { pickingFor = null; pickingForNew = false },
                 title = "When?",
                 primaryText = "Done",
@@ -214,7 +218,7 @@ fun NotificationsScreen(navController: NavHostController) {
                 content = {
                     Column(modifier = Modifier.heightIn(max = 420.dp).verticalScrollable()) {
                         Schedule.presets.forEach { option ->
-                            GlowUpOptionRow(option.label, selected = option == current) {
+                            ReMakeUOptionRow(option.label, selected = option == current) {
                                 val target = pickingFor
                                 if (target != null) ReminderStore.setSchedule(target.id, option) else newSchedule = option
                             }
@@ -228,11 +232,11 @@ fun NotificationsScreen(navController: NavHostController) {
 
 @Composable
 private fun Modifier.verticalScrollable(): Modifier =
-    this.verticalScroll(androidx.compose.foundation.rememberScrollState())
+    this.verticalScroll(rememberScrollState())
 
 @Composable
 private fun SectionLabel(text: String) {
-    Text(text, color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+    Text(text, color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
     Spacer(Modifier.height(10.dp))
 }
 
@@ -241,14 +245,14 @@ private fun ScheduleField(schedule: Schedule, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(Shapes.Medium)
             .background(CardNeutral)
             .clickable(onClick = onClick)
             .padding(16.dp, 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(schedule.label, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-        Text("Change", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+        Text(schedule.label, fontSize = TextSize.Body, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+        Text("Change", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -257,7 +261,7 @@ private fun ReminderRow(item: Reminder, onClick: () -> Unit, onToggle: (Boolean)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(Shapes.Card)
             .background(CardNeutral)
             .clickable(onClick = onClick)
             .padding(16.dp, 14.dp),
@@ -265,8 +269,8 @@ private fun ReminderRow(item: Reminder, onClick: () -> Unit, onToggle: (Boolean)
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(item.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-            Text(item.schedule.label, color = TextSecondary, fontSize = 12.sp)
+            Text(item.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(item.schedule.label, color = TextSecondary, fontSize = TextSize.Caption)
         }
         Switch(
             checked = item.enabled,

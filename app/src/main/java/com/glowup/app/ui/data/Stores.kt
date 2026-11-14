@@ -1,5 +1,10 @@
 package com.glowup.app.ui.data
 
+import com.glowup.app.ui.data.fitness.FitnessStore
+import com.glowup.app.ui.data.glow.GlowCheckStore
+import com.glowup.app.ui.data.program.ProgramStore
+import com.glowup.app.ui.data.style.SavedLooksStore
+
 object Stores {
     fun loadAll() {
         ProStore.load()
@@ -15,12 +20,12 @@ object Stores {
         ReminderStore.load()
         SleepStore.load()
         ConfidenceStore.load()
-        com.glowup.app.ui.data.program.ProgramStore.load()
+        ProgramStore.load()
         FocusStore.load()
-        com.glowup.app.ui.data.style.SavedLooksStore.load()
+        SavedLooksStore.load()
         SleepLogStore.load()
-        com.glowup.app.ui.data.fitness.FitnessStore.load()
-        com.glowup.app.ui.data.glow.GlowCheckStore.load()
+        FitnessStore.load()
+        GlowCheckStore.load()
         BlockStore.load()
         SpeechStore.load()
         ConsentStore.load()

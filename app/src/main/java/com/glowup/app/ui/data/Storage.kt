@@ -1,5 +1,6 @@
 package com.glowup.app.ui.data
 
+import android.annotation.SuppressLint
 import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
@@ -17,6 +18,8 @@ private class PrefsBackend(context: Context) : KeyValueBackend {
     override fun read(key: String) = prefs.getString(key, null)
     override fun write(key: String, value: String) = prefs.edit().putString(key, value).apply()
     override fun remove(key: String) = prefs.edit().remove(key).apply()
+    // Deleting everything must be on disk before we report success, so this one write is synchronous.
+    @SuppressLint("ApplySharedPref")
     override fun clear() {
         prefs.edit().clear().commit()
     }

@@ -2,9 +2,11 @@ package com.glowup.app.ui.data
 
 import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.style.SavedLooksStore
+import com.glowup.app.ui.data.fitness.FitnessStore
+import com.glowup.app.ui.data.glow.GlowCheckStore
 
 /**
- * Every kind of data Glow-Up keeps, why, and how to delete it. Drives the Your data screen, so
+ * Every kind of data Re:MakeU keeps, why, and how to delete it. Drives the Your data screen, so
  * anything new that gets saved must be added here — the catalogue test checks every storage key
  * is covered.
  */
@@ -58,21 +60,21 @@ object DataCatalog {
             { SleepLogStore.clearAll() },
         ),
         DataCategory(
-            "glow", "Glow-Up Check results",
+            "glow", "Glow Check results",
             "Your answers and the numbers measured during each check (face shape, a symmetry score, neck angle) — never a photo. Used to build your plan and show change over time.",
             setOf("glow_checks"),
-            { plural(com.glowup.app.ui.data.glow.GlowCheckStore.results.size, "check") },
-            { com.glowup.app.ui.data.glow.GlowCheckStore.clearAll() },
+            { plural(GlowCheckStore.results.size, "check") },
+            { GlowCheckStore.clearAll() },
         ),
         DataCategory(
             "fitness", "Workouts & body",
             "Your fitness goal and schedule, every workout and set you log, and the weight and waist you enter — to plan sessions, adjust difficulty and show your progress.",
             setOf("fitness"),
             {
-                val f = com.glowup.app.ui.data.fitness.FitnessStore
+                val f = FitnessStore
                 plural(f.logs.size, "workout") + " · " + plural(f.body.size, "weigh-in")
             },
-            { com.glowup.app.ui.data.fitness.FitnessStore.clearAll() },
+            { FitnessStore.clearAll() },
         ),
         DataCategory(
             "blocker", "App blocker",

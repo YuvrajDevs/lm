@@ -6,12 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,13 +19,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.data.ConfidenceStore
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 private data class ConfidenceCard(val title: String, val points: Int, val tint: Color = CardNeutral, val mascot: Int? = null)
 
@@ -61,16 +60,16 @@ fun ConfidenceScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(24.dp, 14.dp, 24.dp, 0.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(Shapes.Hero)
                     .background(GreenTint)
                     .padding(20.dp, 18.dp, 80.dp, 18.dp),
             ) {
                 Column(modifier = Modifier.padding(end = 64.dp)) {
-                    Text("THIS WEEK", color = Color(0xFF1C8C4E), fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("THIS WEEK", color = Color(0xFF1C8C4E), fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(2.dp))
-                    Text("$doneCount of ${cards.size} cards done", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    Text("$doneCount of ${cards.size} cards done", fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(2.dp))
-                    Text("+$points points this week · resets Monday", color = Color(0xFF5C8C6E), fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
+                    Text("+$points points this week · resets Monday", color = Color(0xFF5C8C6E), fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium)
                 }
                 Image(painterResource(R.drawable.ic_social), contentDescription = null, modifier = Modifier.align(Alignment.BottomEnd).size(64.dp))
             }
@@ -78,8 +77,8 @@ fun ConfidenceScreen(navController: NavHostController) {
             Text(
                 "Points are just for you — never compared with anyone else.",
                 color = TextSecondary,
-                fontSize = 12.sp,
-                lineHeight = 17.sp,
+                fontSize = TextSize.Caption,
+                lineHeight = LineHeight.Compact,
                 modifier = Modifier.padding(24.dp, 12.dp, 24.dp, 0.dp),
             )
 
@@ -94,7 +93,7 @@ fun ConfidenceScreen(navController: NavHostController) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(22.dp))
+                                .clip(Shapes.Card)
                                 .background(card.tint)
                                 .clickable { ConfidenceStore.toggle(card.title, card.points) }
                                 .padding(16.dp, 14.dp)
@@ -104,22 +103,22 @@ fun ConfidenceScreen(navController: NavHostController) {
                         ) {
                             Image(painterResource(R.drawable.ic_check), contentDescription = null, modifier = Modifier.size(26.dp))
                             Column {
-                                Text(card.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, textDecoration = TextDecoration.LineThrough)
-                                Text("+${card.points} points", color = TextSecondary, fontSize = 12.sp)
+                                Text(card.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, textDecoration = TextDecoration.LineThrough)
+                                Text("+${card.points} points", color = TextSecondary, fontSize = TextSize.Caption)
                             }
                         }
                     } else {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(22.dp))
+                                .clip(Shapes.Card)
                                 .background(card.tint)
                                 .clickable { ConfidenceStore.toggle(card.title, card.points) }
                                 .padding(16.dp, 14.dp, 16.dp, 14.dp),
                         ) {
                             Column(modifier = Modifier.padding(end = if (card.mascot != null) 62.dp else 0.dp)) {
-                                Text(card.title, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                                Text("+${card.points} points", color = TextSecondary, fontSize = 11.5.sp)
+                                Text(card.title, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                                Text("+${card.points} points", color = TextSecondary, fontSize = TextSize.Caption)
                             }
                             card.mascot?.let {
                                 Image(painterResource(it), contentDescription = null, modifier = Modifier.align(Alignment.CenterEnd).size(52.dp))

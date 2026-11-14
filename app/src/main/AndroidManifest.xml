@@ -23,18 +23,18 @@
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <application
-        android:name=".GlowUpApp"
+        android:name=".ReMakeUApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.GlowUp"
+        android:theme="@style/Theme.ReMakeU"
         android:supportsRtl="true">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.GlowUp">
+            android:theme="@style/Theme.ReMakeU">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -120,7 +120,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:taskAffinity="com.glowup.app.blocker"
-            android:theme="@style/Theme.GlowUp" />
+            android:theme="@style/Theme.ReMakeU" />
 
         <service
             android:name=".audio.SleepSoundService"

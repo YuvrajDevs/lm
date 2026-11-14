@@ -4,7 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-private val GlowUpColorScheme = lightColorScheme(
+private val ReMakeUColorScheme = lightColorScheme(
     primary = Ink,
     onPrimary = Surface,
     background = Surface,
@@ -15,10 +15,10 @@ private val GlowUpColorScheme = lightColorScheme(
 )
 
 @Composable
-fun GlowUpTheme(content: @Composable () -> Unit) {
+fun ReMakeUTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = GlowUpColorScheme,
-        typography = GlowUpTypography,
+        colorScheme = ReMakeUColorScheme,
+        typography = ReMakeUTypography,
         content = content,
     )
 }

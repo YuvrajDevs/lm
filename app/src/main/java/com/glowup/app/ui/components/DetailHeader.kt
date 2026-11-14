@@ -21,8 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.glowup.app.ui.theme.Ink
+import com.glowup.app.ui.design.TextSize
 
 @Composable
 fun DetailHeader(title: String, onBack: () -> Unit) {
@@ -43,7 +43,7 @@ fun DetailHeader(title: String, onBack: () -> Unit) {
         Text(
             title,
             style = MaterialTheme.typography.headlineMedium,
-            fontSize = 22.sp,
+            fontSize = TextSize.TitleLarge,
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Center,
         )

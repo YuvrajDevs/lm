@@ -3,9 +3,7 @@ package com.glowup.app.ui.screens.glow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
@@ -52,13 +50,30 @@ import com.glowup.app.ui.data.glow.GlowQuestions
 import com.glowup.app.ui.data.glow.GlowScoring
 import com.glowup.app.ui.data.glow.PostureAnalysis
 import com.glowup.app.ui.screens.fitness.ChoicePill
-import com.glowup.app.ui.screens.fitness.NumberStepper
 import com.glowup.app.ui.theme.*
 import java.time.DayOfWeek
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Sizes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.design.ScreenTitle
+import com.glowup.app.ui.design.ScreenSubtitle
+import com.glowup.app.ui.screens.fitness.MeasureRow
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.glowup.app.ui.data.ProGate
+import com.glowup.app.ui.data.ProStore
+import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.Straighten
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.automirrored.outlined.TrendingUp
+import androidx.compose.material.icons.outlined.Lock
+import com.glowup.app.ui.design.Overline
+import com.glowup.app.ui.design.Space
 
 private enum class Step { INTRO, GOALS, FACE, POSTURE, BODY, QUESTIONS, RESULTS, PLAN }
 
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GlowCheckScreen(navController: NavHostController) {
     val minor = ProfileStore.isMinor
@@ -105,16 +120,16 @@ fun GlowCheckScreen(navController: NavHostController) {
             val progressSteps = steps.filter { it != Step.INTRO }
             Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 progressSteps.forEach { s ->
-                    Box(Modifier.weight(1f).height(4.dp).clip(RoundedCornerShape(999.dp)).background(if (steps.indexOf(s) <= steps.indexOf(step)) Ink else ChipNeutral))
+                    Box(Modifier.weight(1f).height(4.dp).clip(Shapes.Pill).background(if (steps.indexOf(s) <= steps.indexOf(step)) Ink else ChipNeutral))
                 }
             }
         }
 
-        Column(Modifier.weight(1f).verticalScroll(remember(step) { androidx.compose.foundation.ScrollState(0) }, enabled = !scanning).padding(24.dp, 22.dp, 24.dp, 16.dp)) {
+        Column(Modifier.weight(1f).verticalScroll(remember(step) { ScrollState(0) }, enabled = !scanning).padding(24.dp, 22.dp, 24.dp, 16.dp)) {
             when (step) {
                 Step.INTRO -> {
-                    Title(if (previous == null) "Your Glow-Up Check" else "Time for a rescan")
-                    Sub(
+                    ScreenTitle(if (previous == null) "Your Glow Check" else "Time for a rescan")
+                    ScreenSubtitle(
                         if (previous == null) "Three minutes to find what will make the biggest difference for you — and build a plan around it."
                         else "We'll measure again and show you what's changed since ${previous.date.dayOfMonth} ${previous.date.month.name.lowercase().replaceFirstChar { it.uppercase() }}.",
                     )
@@ -124,23 +139,23 @@ fun GlowCheckScreen(navController: NavHostController) {
                     IntroRow(Icons.Filled.Accessibility, "Optional posture scan", "Side-on, to measure your neck angle")
                     IntroRow(Icons.Filled.Check, "Your map and plan", "Your top 3 areas, your strengths, and daily routines")
                     Spacer(Modifier.height(16.dp))
-                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(GreenTint).padding(16.dp)) {
+                    Column(Modifier.fillMaxWidth().clip(Shapes.Card).background(GreenTint).padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Lock, contentDescription = null, tint = Green, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("Our promise", color = Color(0xFF1E7A4F), fontSize = 13.5.sp, fontWeight = FontWeight.Bold)
+                            Text("Our promise", color = GreenDeep, fontSize = TextSize.Body, fontWeight = FontWeight.Bold)
                         }
                         Spacer(Modifier.height(6.dp))
                         listOf(
                             "No ratings out of 10 and no \"attractiveness score\" — ever.",
                             "No photo is taken. The camera is read live and only numbers are kept.",
                             "We only point at things you can actually change.",
-                        ).forEach { Text("• $it", color = Color(0xFF1E7A4F), fontSize = 12.5.sp, lineHeight = 18.sp) }
+                        ).forEach { Text("• $it", color = GreenDeep, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact) }
                     }
                 }
                 Step.GOALS -> {
-                    Title("What do you want to improve?")
-                    Sub("Pick as many as you like.")
+                    ScreenTitle("What do you want to improve?")
+                    ScreenSubtitle("Pick as many as you like.")
                     Spacer(Modifier.height(16.dp))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         GlowQuestions.goals.filter { !(minor && it == "Body") || true }.forEach { g ->
@@ -148,16 +163,16 @@ fun GlowCheckScreen(navController: NavHostController) {
                         }
                     }
                     Spacer(Modifier.height(24.dp))
-                    Text("Time you can give each day", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Time you can give each day", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(10.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         GlowQuestions.minuteOptions.forEach { m -> ChoicePill("$m min", minutes == m, Modifier.weight(1f)) { minutes = m } }
                     }
-                    Text("We'll keep your plan within this.", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                    Text("We'll keep your plan within this.", color = TextSecondary, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 8.dp))
                 }
                 Step.FACE -> {
-                    Title("Face scan")
-                    Sub("Optional. Hold your phone at eye level in even light, hair off your forehead, neutral face.")
+                    ScreenTitle("Face scan")
+                    ScreenSubtitle("Optional. Hold your phone at eye level in even light, hair off your forehead, neutral face.")
                     Spacer(Modifier.height(16.dp))
                     when {
                         face != null -> FaceResultCard(face!!) { face = null; scanning = true }
@@ -173,7 +188,7 @@ fun GlowCheckScreen(navController: NavHostController) {
                             }
                             if (BuildConfig.DEBUG) DebugLink("Developer: use a sample face") { face = FaceMetrics("Oval", 1.32, 0.9, 0.82, 91, 1.15); manualShape = "Oval" }
                             Spacer(Modifier.height(20.dp))
-                            Text("Or pick your face shape yourself", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Or pick your face shape yourself", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(8.dp))
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 GroomingStore.faceShapes.forEach { s -> ChoicePill(s, manualShape == s) { manualShape = if (manualShape == s) null else s } }
@@ -182,8 +197,8 @@ fun GlowCheckScreen(navController: NavHostController) {
                     }
                 }
                 Step.POSTURE -> {
-                    Title("Posture scan")
-                    Sub("Optional. Prop your phone up at chest height, step back about 2 m and stand side-on, relaxed — how you normally stand.")
+                    ScreenTitle("Posture scan")
+                    ScreenSubtitle("Optional. Prop your phone up at chest height, step back about 2 m and stand side-on, relaxed — how you normally stand.")
                     Spacer(Modifier.height(16.dp))
                     when {
                         neck != null -> PostureResultCard(neck!!) { neck = null; scanning = true }
@@ -194,24 +209,36 @@ fun GlowCheckScreen(navController: NavHostController) {
                             modifier = Modifier.fillMaxWidth().aspectRatio(0.62f),
                         )
                         else -> {
-                            ScanStart("Start posture scan", "You'll hear a beep when it's done") {
+                            ScanStart("Start posture scan", "You'll hear a beep when it's done", Icons.Filled.Accessibility) {
                                 if (ConsentStore.has(Consent.FACE_SCAN)) scanning = true else askConsent = Consent.FACE_SCAN
                             }
                             if (BuildConfig.DEBUG) DebugLink("Developer: use a sample posture") { neck = 66 }
+                            Spacer(Modifier.height(Space.Gutter))
+                            Overline("For the best read")
+                            Spacer(Modifier.height(Space.S))
+                            IntroRow(Icons.Outlined.PhoneAndroid, "Phone at chest height", "Lean it on a shelf or a stack of books")
+                            IntroRow(Icons.Outlined.Straighten, "About 2 m back", "Head, shoulders and hips all in frame")
+                            IntroRow(Icons.Filled.Accessibility, "Stand as you normally do", "No need to straighten up — we want your everyday posture")
                         }
                     }
                 }
                 Step.BODY -> {
-                    Title("Body")
-                    Sub("Optional. Body fat is the biggest single factor in how defined your face looks, so this makes your plan much more accurate.")
+                    ScreenTitle("Body")
+                    ScreenSubtitle("Optional. Body fat is the biggest single factor in how defined your face looks, so this makes your plan much more accurate.")
                     Spacer(Modifier.height(16.dp))
                     if (!includeBody) {
                         Box(
-                            Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(999.dp)).background(Ink).clickable {
+                            Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Ink).clickable {
                                 if (ConsentStore.has(Consent.BODY)) includeBody = true else askConsent = Consent.BODY
                             },
                             contentAlignment = Alignment.Center,
-                        ) { Text("Add height, weight & waist", color = Color.White, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold) }
+                        ) { Text("Add height, weight & waist", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold) }
+                        Spacer(Modifier.height(Space.Gutter))
+                        Overline("Why it helps")
+                        Spacer(Modifier.height(Space.S))
+                        IntroRow(Icons.Outlined.Tune, "A sharper plan", "Ranks body composition fairly against your other areas")
+                        IntroRow(Icons.AutoMirrored.Outlined.TrendingUp, "A trend, not a verdict", "Update it weekly in Fitness to see progress")
+                        IntroRow(Icons.Outlined.Lock, "Stays on this phone", "Only the numbers you type — never a photo")
                     } else {
                         MeasureRow("Height", "$height", "cm", { height = (height - 1).coerceAtLeast(120) }, { height = (height + 1).coerceAtMost(230) })
                         MeasureRow("Weight", "%.1f".format(weight), "kg", { weight = (weight - 0.5).coerceAtLeast(30.0) }, { weight += 0.5 })
@@ -219,13 +246,13 @@ fun GlowCheckScreen(navController: NavHostController) {
                     }
                 }
                 Step.QUESTIONS -> {
-                    Title("Quick questions")
-                    Sub("Tap the closest answer. Skip any you're not sure about.")
+                    ScreenTitle("Quick questions")
+                    ScreenSubtitle("Tap the closest answer. Skip any you're not sure about.")
                     Spacer(Modifier.height(8.dp))
                     GlowQuestions.all.forEach { q ->
                         Spacer(Modifier.height(16.dp))
-                        Text(q.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                        q.hint?.let { Text(it, color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp)) }
+                        Text(q.text, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                        q.hint?.let { Text(it, color = TextSecondary, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 2.dp)) }
                         Spacer(Modifier.height(8.dp))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             q.options.forEach { o -> ChoicePill(o, answers[q.id] == o) { if (answers[q.id] == o) answers.remove(q.id) else answers[q.id] = o } }
@@ -252,20 +279,20 @@ fun GlowCheckScreen(navController: NavHostController) {
                 }
                 val secondary = label == "Skip"
                 Box(
-                    Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(999.dp)).background(if (secondary) ChipNeutral else Ink).clickable { next() },
+                    Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(if (secondary) ChipNeutral else Ink).clickable { next() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        label, color = if (secondary) Ink else Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                        label, color = if (secondary) Ink else Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold,
                     )
                 }
                 if (step != Step.INTRO && step != Step.RESULTS) {
-                    Text("Back", color = TextSecondary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 12.dp).clickable { back() })
+                    Text("Back", color = TextSecondary, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 12.dp).clickable { back() })
                 }
             }
         } else if (scanning) {
             Text(
-                "Cancel scan", color = TextSecondary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                "Cancel scan", color = TextSecondary, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(16.dp, 8.dp, 16.dp, 24.dp).clickable { scanning = false },
             )
         }
@@ -293,14 +320,7 @@ private fun goalFromFocus(focus: String): String? = when (focus) {
     else -> null
 }
 
-@Composable
-private fun Title(text: String) = Text(text, fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
 
-@Composable
-private fun Sub(text: String) {
-    Spacer(Modifier.height(8.dp))
-    Text(text, color = TextSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-}
 
 @Composable
 private fun IntroRow(icon: ImageVector, title: String, body: String) {
@@ -310,65 +330,54 @@ private fun IntroRow(icon: ImageVector, title: String, body: String) {
         }
         Spacer(Modifier.width(14.dp))
         Column {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-            Text(body, color = TextSecondary, fontSize = 12.5.sp)
+            Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(body, color = TextSecondary, fontSize = TextSize.BodySmall)
         }
     }
 }
 
 @Composable
-private fun ScanStart(title: String, sub: String, onClick: () -> Unit) {
+private fun ScanStart(title: String, sub: String, icon: ImageVector = Icons.Filled.Face, onClick: () -> Unit) {
     Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(Ink).clickable(onClick = onClick).padding(22.dp),
+        Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).clickable(onClick = onClick).padding(22.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.Face, contentDescription = null, tint = Color.White)
+            Icon(icon, contentDescription = null, tint = Color.White)
         }
         Spacer(Modifier.height(10.dp))
-        Text(title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Text(sub, color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp)
+        Text(title, color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+        Text(sub, color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall)
         Spacer(Modifier.height(10.dp))
-        Text("No photo is taken or saved", color = Color(0xFF7FD9A8), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        Text("No photo is taken or saved", color = Mint, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold)
     }
 }
 
 @Composable
 private fun DebugLink(text: String, onClick: () -> Unit) {
-    Text(text, color = Purple, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 10.dp).clickable(onClick = onClick))
+    Text(text, color = Purple, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 10.dp).clickable(onClick = onClick))
 }
 
 @Composable
 private fun FaceResultCard(face: FaceMetrics, onRetake: () -> Unit) {
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(PurpleTint).padding(20.dp)) {
-        Text("MEASURED", color = Purple, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
-        Text("${face.shape} face", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text("Symmetry ${face.symmetry}/100 · most people land between 88 and 97", color = Color(0xFF5A4A8C), fontSize = 13.sp)
+    Column(Modifier.fillMaxWidth().clip(Shapes.Large).background(PurpleTint).padding(20.dp)) {
+        Text("MEASURED", color = Purple, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
+        Text("${face.shape} face", fontSize = TextSize.Headline, fontWeight = FontWeight.Bold)
+        Text("Symmetry ${face.symmetry}/100 · most people land between 88 and 97", color = PurpleDeep, fontSize = TextSize.BodySmall)
         Spacer(Modifier.height(12.dp))
-        Text("Retake", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Color.White).clickable(onClick = onRetake).padding(16.dp, 8.dp))
+        Text("Retake", fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.clip(Shapes.Pill).background(Color.White).clickable(onClick = onRetake).padding(16.dp, 8.dp))
     }
 }
 
 @Composable
 private fun PostureResultCard(angle: Int, onRetake: () -> Unit) {
     val level = PostureAnalysis.level(angle)
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(BlueTint).padding(20.dp)) {
-        Text("MEASURED", color = Navy, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
-        Text("$angle° · ${level.label}", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text("90° means your ear is right above your shoulder. Above 75° is upright.", color = Navy, fontSize = 13.sp, lineHeight = 18.sp)
+    Column(Modifier.fillMaxWidth().clip(Shapes.Large).background(BlueTint).padding(20.dp)) {
+        Text("MEASURED", color = Navy, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold, letterSpacing = 0.4.sp)
+        Text("$angle° · ${level.label}", fontSize = TextSize.Headline, fontWeight = FontWeight.Bold)
+        Text("90° means your ear is right above your shoulder. Above 75° is upright.", color = Navy, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
         Spacer(Modifier.height(12.dp))
-        Text("Retake", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Color.White).clickable(onClick = onRetake).padding(16.dp, 8.dp))
-    }
-}
-
-@Composable
-private fun MeasureRow(title: String, value: String, unit: String, onMinus: () -> Unit, onPlus: () -> Unit, hint: String? = null) {
-    Row(Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(16.dp, 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(title, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-            hint?.let { Text(it, color = TextSecondary, fontSize = 11.5.sp) }
-        }
-        NumberStepper(value, onMinus, onPlus, unit = unit)
+        Text("Retake", fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.clip(Shapes.Pill).background(Color.White).clickable(onClick = onRetake).padding(16.dp, 8.dp))
     }
 }
 
@@ -380,7 +389,7 @@ private fun ColumnScope.PlanContent(result: CheckResult, navController: NavHostC
     // Free users get a free programme now; the better-fitting Pro one is offered, never forced.
     val programmeChoice = when {
         ideal == null -> null
-        !com.glowup.app.ui.data.ProGate.programmeLocked(ideal) -> ideal
+        !ProGate.programmeLocked(ideal) -> ideal
         result.focus.any { it.area == FocusArea.BODY } -> "first30"
         else -> null
     }
@@ -388,14 +397,14 @@ private fun ColumnScope.PlanContent(result: CheckResult, navController: NavHostC
     var takeProgramme by remember { mutableStateOf(programmeChoice != null) }
     val existing = RoutineStore.items.map { it.title.lowercase() }.toSet()
 
-    Title("Your daily plan")
-    Sub("About ${plan.dailyMinutes} minutes a day, focused on your top areas. Untick anything you don't want.")
+    ScreenTitle("Your daily plan")
+    ScreenSubtitle("About ${plan.dailyMinutes} minutes a day, focused on your top areas. Untick anything you don't want.")
     Spacer(Modifier.height(16.dp))
     plan.routines.forEach { item ->
         val already = item.title.lowercase() in existing
         val on = chosen[item.title] == true && !already
         Row(
-            Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(20.dp)).background(CardNeutral).clickable(enabled = !already) { chosen[item.title] = !(chosen[item.title] ?: false) }.padding(16.dp, 14.dp),
+            Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(Shapes.Card).background(CardNeutral).clickable(enabled = !already) { chosen[item.title] = !(chosen[item.title] ?: false) }.padding(16.dp, 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.size(24.dp).clip(CircleShape).background(if (on || already) Ink else Color.White), contentAlignment = Alignment.Center) {
@@ -403,10 +412,10 @@ private fun ColumnScope.PlanContent(result: CheckResult, navController: NavHostC
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(item.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                Text(item.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                 Text(
                     item.area.title + (if (item.weekly) " · weekly" else " · daily") + if (already) " · already in your routines" else "",
-                    color = TextSecondary, fontSize = 12.sp,
+                    color = TextSecondary, fontSize = TextSize.Caption,
                 )
             }
         }
@@ -415,7 +424,7 @@ private fun ColumnScope.PlanContent(result: CheckResult, navController: NavHostC
         val programme = Programmes.get(id)!!
         Spacer(Modifier.height(8.dp))
         Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(programme.focus.tint).clickable { takeProgramme = !takeProgramme }.padding(16.dp, 14.dp),
+            Modifier.fillMaxWidth().clip(Shapes.Card).background(programme.focus.tint).clickable { takeProgramme = !takeProgramme }.padding(16.dp, 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.size(24.dp).clip(CircleShape).background(if (takeProgramme) Ink else Color.White), contentAlignment = Alignment.Center) {
@@ -423,21 +432,21 @@ private fun ColumnScope.PlanContent(result: CheckResult, navController: NavHostC
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text("Start ${programme.title}", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-                Text(programme.tagline, color = TextSecondary, fontSize = 12.sp)
+                Text("Start ${programme.title}", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                Text(programme.tagline, color = TextSecondary, fontSize = TextSize.Caption)
             }
         }
     }
     if (ideal != null && ideal != programmeChoice) {
         Text(
             "${Programmes.get(ideal)!!.title} fits your map best — it's part of Pro.",
-            color = Purple, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(top = 10.dp).clickable { com.glowup.app.ui.data.ProStore.showPaywall("Unlock ${Programmes.get(ideal)!!.title} and every programme") },
+            color = Purple, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = 10.dp).clickable { ProStore.showPaywall("Unlock ${Programmes.get(ideal)!!.title} and every programme") },
         )
     }
     Spacer(Modifier.height(20.dp))
     Box(
-        Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(999.dp)).background(Ink).clickable {
+        Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Ink).clickable {
             plan.routines.filter { chosen[it.title] == true && it.title.lowercase() !in existing }.forEach {
                 RoutineStore.add(it.category, it.title, if (it.weekly) "WEEKLY" else "DAILY")
             }
@@ -459,9 +468,9 @@ private fun ColumnScope.PlanContent(result: CheckResult, navController: NavHostC
             navController.navigate("glow_results") { popUpTo("glow_check") { inclusive = true } }
         },
         contentAlignment = Alignment.Center,
-    ) { Text("Add to my day", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
+    ) { Text("Add to my day", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold) }
     Text(
-        "Not now", color = TextSecondary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+        "Not now", color = TextSecondary, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
         modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 12.dp).clickable {
             navController.navigate("glow_results") { popUpTo("glow_check") { inclusive = true } }
         },

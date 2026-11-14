@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -26,9 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.components.GlowUpBottomNav
+import com.glowup.app.ui.components.ReMakeUBottomNav
 import com.glowup.app.ui.components.NavTab
 import com.glowup.app.ui.components.StreakChip
 import com.glowup.app.ui.components.WeekStreakDots
@@ -36,6 +34,9 @@ import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.theme.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Check
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import java.time.LocalDate
 
 @Composable
 fun RoutinesScreen(navController: NavHostController) {
@@ -63,12 +64,12 @@ fun RoutinesScreen(navController: NavHostController) {
                     val selected = filter == selectedFilter
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(Shapes.Pill)
                             .background(if (selected) Ink else ChipNeutral)
                             .clickable { selectedFilter = filter }
                             .padding(16.dp, 9.dp),
                     ) {
-                        Text("$filter · $count", color = if (selected) Color.White else Ink, fontSize = 13.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
+                        Text("$filter · $count", color = if (selected) Color.White else Ink, fontSize = TextSize.BodySmall, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium)
                     }
                 }
             }
@@ -85,7 +86,7 @@ fun RoutinesScreen(navController: NavHostController) {
                         Text(
                             if (selectedFilter == "All") "No routines yet. Tap + to add one from a template." else "No $selectedFilter routines yet.",
                             color = TextSecondary,
-                            fontSize = 13.5.sp,
+                            fontSize = TextSize.Body,
                             modifier = Modifier.padding(vertical = 12.dp),
                         )
                     }
@@ -94,14 +95,14 @@ fun RoutinesScreen(navController: NavHostController) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
+                            .clip(Shapes.Large)
                             .background(card.tint)
                             .clickable { navController.navigate("routine_detail/${card.id}") }
                             .padding(18.dp, 16.dp),
                     ) {
                         Column(modifier = Modifier.fillMaxWidth(0.74f)) {
-                            Text(card.area, color = card.accent, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
-                            Text(card.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 2.dp, bottom = 8.dp))
+                            Text(card.area, color = card.accent, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
+                            Text(card.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 2.dp, bottom = 8.dp))
                             StreakChip(card.streakDays(), card.accent)
                             Spacer(Modifier.height(8.dp))
                             WeekStreakDots(card.week(), card.accent)
@@ -111,7 +112,7 @@ fun RoutinesScreen(navController: NavHostController) {
                             contentDescription = null,
                             modifier = Modifier.align(Alignment.TopEnd).size(48.dp),
                         )
-                        val doneToday = card.isDoneOn(java.time.LocalDate.now())
+                        val doneToday = card.isDoneOn(LocalDate.now())
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -134,7 +135,7 @@ fun RoutinesScreen(navController: NavHostController) {
         }
 
         Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-            GlowUpBottomNav(navController, NavTab.ROUTINES)
+            ReMakeUBottomNav(navController, NavTab.ROUTINES)
         }
 
         Box(
@@ -142,7 +143,7 @@ fun RoutinesScreen(navController: NavHostController) {
                 .align(Alignment.BottomEnd)
                 .padding(24.dp, 0.dp, 24.dp, 110.dp)
                 .size(58.dp)
-                .clip(RoundedCornerShape(999.dp))
+                .clip(Shapes.Pill)
                 .background(Ink)
                 .clickable { navController.navigate("add_routine") },
             contentAlignment = Alignment.Center,

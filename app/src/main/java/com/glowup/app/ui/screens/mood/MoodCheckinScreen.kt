@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -31,7 +30,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.MoodStore
 import com.glowup.app.ui.data.moodOptions
@@ -39,6 +38,9 @@ import com.glowup.app.ui.theme.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -56,17 +58,17 @@ fun MoodCheckinScreen(navController: NavHostController) {
                 Text(
                     "Skip",
                     color = TextSecondary,
-                    fontSize = 13.5.sp,
+                    fontSize = TextSize.Body,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clip(RoundedCornerShape(999.dp)).clickable { navController.goBack() }.padding(8.dp, 4.dp),
+                    modifier = Modifier.clip(Shapes.Pill).clickable { navController.goBack() }.padding(8.dp, 4.dp),
                 )
             }
 
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 4.dp, 24.dp, 12.dp)) {
-                Text(dateLabel, color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                Text(dateLabel, color = TextSecondary, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                 Spacer(Modifier.height(6.dp))
-                Text("How are you", fontSize = 27.sp, lineHeight = 33.sp)
-                Text("feeling today?", fontSize = 27.sp, fontWeight = FontWeight.Bold, lineHeight = 33.sp)
+                Text("How are you", fontSize = TextSize.Display, lineHeight = LineHeight.Display)
+                Text("feeling today?", fontSize = TextSize.Display, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
                 Spacer(Modifier.height(16.dp))
 
                 moodOptions.chunked(4).forEach { row ->
@@ -76,27 +78,27 @@ fun MoodCheckinScreen(navController: NavHostController) {
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .background(if (isSelected) ChipNeutral else Color(0xFFFAF9F6))
-                                    .border(2.dp, if (isSelected) Ink else Color.Transparent, RoundedCornerShape(20.dp))
+                                    .clip(Shapes.Card)
+                                    .background(if (isSelected) ChipNeutral else DialogSurface)
+                                    .border(2.dp, if (isSelected) Ink else Color.Transparent, Shapes.Card)
                                     .clickable { selected = mood.label }
                                     .padding(4.dp, 12.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
                                 Image(painterResource(mood.icon), contentDescription = null, modifier = Modifier.size(44.dp))
-                                Text(mood.label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                                Text(mood.label, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, maxLines = 1)
                             }
                         }
                     }
                 }
 
                 Spacer(Modifier.height(14.dp))
-                Text("What's been going on?", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("What's been going on?", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                 Text(
-                    "Optional · tags help Glow-Up spot what lifts your mood",
+                    "Optional · tags help Re:MakeU spot what lifts your mood",
                     color = TextSecondary,
-                    fontSize = 12.sp,
+                    fontSize = TextSize.Caption,
                     modifier = Modifier.padding(top = 2.dp, bottom = 12.dp),
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -105,10 +107,10 @@ fun MoodCheckinScreen(navController: NavHostController) {
                         Text(
                             tag,
                             color = if (on) Color.White else Ink,
-                            fontSize = 13.sp,
+                            fontSize = TextSize.BodySmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier
-                                .clip(RoundedCornerShape(999.dp))
+                                .clip(Shapes.Pill)
                                 .background(if (on) Ink else ChipNeutral)
                                 .clickable { chosenTags = if (on) chosenTags - tag else chosenTags + tag }
                                 .padding(14.dp, 9.dp),
@@ -116,24 +118,24 @@ fun MoodCheckinScreen(navController: NavHostController) {
                     }
                     Row(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(999.dp))
-                            .border(1.5.dp, TextMuted, RoundedCornerShape(999.dp))
+                            .clip(Shapes.Pill)
+                            .border(1.5.dp, TextMuted, Shapes.Pill)
                             .clickable { showAddTag = true }
                             .padding(12.dp, 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Filled.Add, contentDescription = null, tint = Ink, modifier = Modifier.size(15.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("Your own", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Your own", fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                     }
                 }
 
                 Spacer(Modifier.height(18.dp))
-                Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(12.dp, 2.dp)) {
+                Box(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(12.dp, 2.dp)) {
                     OutlinedTextField(
                         value = note,
                         onValueChange = { note = it.take(500) },
-                        placeholder = { Text("Add a quick note (optional)", color = TextSecondary, fontSize = 13.5.sp) },
+                        placeholder = { Text("Add a quick note (optional)", color = TextSecondary, fontSize = TextSize.Body) },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -151,15 +153,15 @@ fun MoodCheckinScreen(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(if (selected != null) Ink else Color(0xFFD8D5CE))
+                        .clip(Shapes.Pill)
+                        .background(if (selected != null) Ink else Disabled)
                         .clickable(enabled = selected != null) {
                             selected?.let { mood -> MoodStore.logToday(mood, note, MoodStore.allTags.filter { it in chosenTags }) }
                             navController.goBack()
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(if (selected == null) "Pick a mood" else "Save check-in", color = Color.White, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text(if (selected == null) "Pick a mood" else "Save check-in", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -179,7 +181,7 @@ fun MoodCheckinScreen(navController: NavHostController) {
 private fun AddTagDialog(onAdded: (String) -> Unit, onRemoved: (String) -> Unit, onDismiss: () -> Unit) {
     var draft by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
-    GlowUpDialog(
+    ReMakeUDialog(
         onDismissRequest = onDismiss,
         title = "Add your own tag",
         secondaryText = "Done",
@@ -206,22 +208,22 @@ private fun AddTagDialog(onAdded: (String) -> Unit, onRemoved: (String) -> Unit,
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                 modifier = Modifier.fillMaxWidth(),
             )
-            error?.let { Text(it, color = Maroon, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp)) }
+            error?.let { Text(it, color = Maroon, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 6.dp)) }
             if (MoodStore.customTags.isNotEmpty()) {
                 Spacer(Modifier.height(14.dp))
-                Text("YOUR TAGS", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                Text("YOUR TAGS", color = TextSecondary, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                 Spacer(Modifier.height(8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     MoodStore.customTags.toList().forEach { tag ->
                         Row(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(999.dp))
+                                .clip(Shapes.Pill)
                                 .background(ChipNeutral)
                                 .clickable { MoodStore.removeCustomTag(tag); onRemoved(tag) }
                                 .padding(12.dp, 7.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(tag, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text(tag, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.width(4.dp))
                             Icon(Icons.Filled.Close, contentDescription = "Remove $tag", tint = TextSecondary, modifier = Modifier.size(13.dp))
                         }

@@ -8,11 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
@@ -26,7 +22,6 @@ import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.Waves
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import android.content.Intent
@@ -55,8 +49,8 @@ import com.glowup.app.R
 import com.glowup.app.audio.SleepSoundService
 import com.glowup.app.notify.AlarmScheduler
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
-import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.components.ReMakeUDialog
+import com.glowup.app.ui.components.ReMakeUOptionRow
 import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.SleepStore
 import com.glowup.app.ui.data.formatClock
@@ -64,6 +58,12 @@ import com.glowup.app.ui.theme.*
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalTime
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.data.SleepLogStore
+import com.glowup.app.ui.data.SleepMath
+import com.glowup.app.ui.data.formatDuration
+import java.time.LocalDate
 
 private data class SoundTile(val label: String, val tint: Color, val accent: Color, val icon: ImageVector)
 
@@ -106,7 +106,8 @@ fun SleepScreen(navController: NavHostController) {
         }
     }
     val sleepHours = Duration.between(SleepStore.bedtime, SleepStore.wakeTime).let { if (it.isNegative) it.plusDays(1) else it }
-    val sleepLabel = "${sleepHours.toHours()}h${if (sleepHours.toMinutesPart() > 0) " ${sleepHours.toMinutesPart()}m" else ""}"
+    val sleepMinutesPart = sleepHours.toMinutes() % 60
+    val sleepLabel = "${sleepHours.toHours()}h${if (sleepMinutesPart > 0) " ${sleepMinutesPart}m" else ""}"
 
     Box(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -125,16 +126,16 @@ fun SleepScreen(navController: NavHostController) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(28.dp))
+                            .clip(Shapes.Hero)
                             .background(PurpleTint)
                             .padding(20.dp, 18.dp, 86.dp, 18.dp),
                     ) {
                         Column(modifier = Modifier.fillMaxWidth(0.72f)) {
-                            Text("YOUR SLEEP WINDOW", color = Color(0xFF6B4FD1), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            Text("YOUR SLEEP WINDOW", color = PurpleText, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(2.dp))
-                            Text(formatClock(SleepStore.bedtime), fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                            Text(formatClock(SleepStore.bedtime), fontSize = TextSize.Display, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(2.dp))
-                            Text("Up at ${formatClock(SleepStore.wakeTime)} · $sleepLabel of sleep", color = Color(0xFF5A4A8C), fontSize = 12.5.sp)
+                            Text("Up at ${formatClock(SleepStore.wakeTime)} · $sleepLabel of sleep", color = PurpleDeep, fontSize = TextSize.BodySmall)
                         }
                         Image(painterResource(R.drawable.ic_sleep), contentDescription = null, modifier = Modifier.align(Alignment.BottomEnd).size(78.dp))
                     }
@@ -150,14 +151,14 @@ fun SleepScreen(navController: NavHostController) {
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(22.dp))
+                                    .clip(Shapes.Card)
                                     .background(CardNeutral)
                                     .clickable { onClick() }
                                     .padding(16.dp, 14.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
-                                Text(label, color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
-                                Text(time, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (time == "Off") TextMuted else Ink)
+                                Text(label, color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
+                                Text(time, fontSize = TextSize.Title, fontWeight = FontWeight.Bold, color = if (time == "Off") TextMuted else Ink)
                             }
                         }
                     }
@@ -166,10 +167,10 @@ fun SleepScreen(navController: NavHostController) {
                         Text(
                             "Alarms may arrive a few minutes late. Tap to allow exact alarms.",
                             color = Maroon,
-                            fontSize = 12.sp,
+                            fontSize = TextSize.Caption,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
+                                .clip(Shapes.Small)
                                 .background(MaroonTint)
                                 .clickable {
                                     context.startActivity(
@@ -183,8 +184,8 @@ fun SleepScreen(navController: NavHostController) {
                 }
 
                 item {
-                    Text("Sleep sounds", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    Text("Works offline · keeps playing with the screen off", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text("Sleep sounds", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text("Works offline · keeps playing with the screen off", color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.height(12.dp))
                 }
 
@@ -195,9 +196,9 @@ fun SleepScreen(navController: NavHostController) {
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(22.dp))
+                                    .clip(Shapes.Card)
                                     .background(sound.tint)
-                                    .border(2.dp, if (isSelected) Ink else Color.Transparent, RoundedCornerShape(22.dp))
+                                    .border(2.dp, if (isSelected) Ink else Color.Transparent, Shapes.Card)
                                     .clickable {
                                         if (ProGate.soundLocked(sound.label)) {
                                             ProStore.showPaywall("${sound.label} is a Pro sleep sound")
@@ -213,7 +214,7 @@ fun SleepScreen(navController: NavHostController) {
                                     Icon(sound.icon, contentDescription = null, tint = sound.accent, modifier = Modifier.size(28.dp))
                                     if (ProGate.soundLocked(sound.label)) ProBadge()
                                 }
-                                Text(sound.label, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text(sound.label, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -224,7 +225,7 @@ fun SleepScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(22.dp))
+                            .clip(Shapes.Card)
                             .background(CardNeutral)
                             .clickable { showTimerDialog = true }
                             .padding(18.dp, 16.dp),
@@ -232,8 +233,8 @@ fun SleepScreen(navController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column {
-                            Text("Sleep timer", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Stops after $timerMinutes minutes", color = TextSecondary, fontSize = 12.sp)
+                            Text("Sleep timer", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                            Text("Stops after $timerMinutes minutes", color = TextSecondary, fontSize = TextSize.Caption)
                         }
                         Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
                     }
@@ -244,7 +245,7 @@ fun SleepScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(22.dp))
+                            .clip(Shapes.Card)
                             .background(Yellow)
                             .clickable { navController.navigate("morning") }
                             .padding(18.dp, 16.dp),
@@ -252,8 +253,8 @@ fun SleepScreen(navController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column {
-                            Text("Morning routine", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Meditation, breathing & stretching", color = Color(0xFF7A6600), fontSize = 12.sp)
+                            Text("Morning routine", fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+                            Text("Meditation, breathing & stretching", color = Amber, fontSize = TextSize.Caption)
                         }
                         Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Ink, modifier = Modifier.size(16.dp))
                     }
@@ -265,7 +266,7 @@ fun SleepScreen(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(Shapes.Pill)
                         .background(Ink)
                         .clickable {
                             if (playingSound != null) {
@@ -281,11 +282,11 @@ fun SleepScreen(navController: NavHostController) {
                         Text(
                             if (playingSound != null) "Stop $playingSound" else "Play $selectedSound",
                             color = Color.White,
-                            fontSize = 15.5.sp,
+                            fontSize = TextSize.BodyLarge,
                             fontWeight = FontWeight.SemiBold,
                         )
                         if (playingSound != null) {
-                            Text("Fades out in about $minutesLeft min", color = Color.White.copy(alpha = 0.6f), fontSize = 11.5.sp)
+                            Text("Fades out in about $minutesLeft min", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Caption)
                         }
                     }
                 }
@@ -293,7 +294,7 @@ fun SleepScreen(navController: NavHostController) {
         }
 
         if (showTimerDialog) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showTimerDialog = false },
                 title = "Sleep timer",
                 primaryText = "Close",
@@ -301,7 +302,7 @@ fun SleepScreen(navController: NavHostController) {
                 content = {
                     Column {
                         listOf(10, 15, 30, 45, 60, 90, 120).forEach { minutes ->
-                            GlowUpOptionRow("$minutes minutes", selected = minutes == timerMinutes) {
+                            ReMakeUOptionRow("$minutes minutes", selected = minutes == timerMinutes) {
                                 SleepStore.selectTimer(minutes)
                                 if (playingSound != null) SleepSoundService.play(context, playingSound!!, minutes)
                             }
@@ -312,16 +313,16 @@ fun SleepScreen(navController: NavHostController) {
         }
 
         if (showBedtimeDialog) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showBedtimeDialog = false },
                 title = "Bedtime alarm",
                 primaryText = "Close",
                 secondaryText = null,
                 content = {
                     Column {
-                        GlowUpOptionRow("Off", selected = !SleepStore.bedtimeAlarmOn) { SleepStore.updateBedtime(null) }
+                        ReMakeUOptionRow("Off", selected = !SleepStore.bedtimeAlarmOn) { SleepStore.updateBedtime(null) }
                         bedtimeOptions.forEach { time ->
-                            GlowUpOptionRow(formatClock(time), selected = SleepStore.bedtimeAlarmOn && time == SleepStore.bedtime) {
+                            ReMakeUOptionRow(formatClock(time), selected = SleepStore.bedtimeAlarmOn && time == SleepStore.bedtime) {
                                 SleepStore.updateBedtime(time)
                                 askNotifications()
                             }
@@ -332,16 +333,16 @@ fun SleepScreen(navController: NavHostController) {
         }
 
         if (showWakeDialog) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showWakeDialog = false },
                 title = "Wake-up alarm",
                 primaryText = "Close",
                 secondaryText = null,
                 content = {
                     Column {
-                        GlowUpOptionRow("Off", selected = !SleepStore.wakeAlarmOn) { SleepStore.updateWakeTime(null) }
+                        ReMakeUOptionRow("Off", selected = !SleepStore.wakeAlarmOn) { SleepStore.updateWakeTime(null) }
                         wakeOptions.forEach { time ->
-                            GlowUpOptionRow(formatClock(time), selected = SleepStore.wakeAlarmOn && time == SleepStore.wakeTime) {
+                            ReMakeUOptionRow(formatClock(time), selected = SleepStore.wakeAlarmOn && time == SleepStore.wakeTime) {
                                 SleepStore.updateWakeTime(time)
                                 askNotifications()
                             }
@@ -355,13 +356,13 @@ fun SleepScreen(navController: NavHostController) {
 
 @Composable
 private fun SleepLogSummary(onClick: () -> Unit) {
-    val today = java.time.LocalDate.now()
-    val lastNight = com.glowup.app.ui.data.SleepLogStore.on(today)
-    val debt = com.glowup.app.ui.data.SleepLogStore.debtMinutes(today)
+    val today = LocalDate.now()
+    val lastNight = SleepLogStore.on(today)
+    val debt = SleepLogStore.debtMinutes(today)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
+            .clip(Shapes.Card)
             .background(Ink)
             .clickable(onClick = onClick)
             .padding(18.dp, 16.dp),
@@ -369,17 +370,17 @@ private fun SleepLogSummary(onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             if (lastNight == null) {
-                Text("Log last night's sleep", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("Log last night's sleep", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
                 Text(
-                    if (debt != null) "Sleep debt ${com.glowup.app.ui.data.formatDuration(debt)} · 10-second check-in" else "See your sleep debt and how regular your sleep is",
-                    color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp,
+                    if (debt != null) "Sleep debt ${formatDuration(debt)} · 10-second check-in" else "Track your sleep debt and consistency",
+                    color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall,
                 )
             } else {
-                Text("Last night · ${com.glowup.app.ui.data.formatDuration(lastNight.minutes)}", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("Last night · ${formatDuration(lastNight.minutes)}", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
                 Text(
-                    debt?.let { "Sleep debt " + (if (it == 0) "none" else com.glowup.app.ui.data.formatDuration(it)) + " · " + com.glowup.app.ui.data.SleepMath.level(it).label.lowercase() }
+                    debt?.let { "Sleep debt " + (if (it == 0) "none" else formatDuration(it)) + " · " + SleepMath.level(it).label.lowercase() }
                         ?: "Keep logging to see your sleep debt",
-                    color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp,
+                    color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall,
                 )
             }
         }

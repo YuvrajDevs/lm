@@ -11,6 +11,10 @@ import com.glowup.app.ui.data.SleepStore
 import com.glowup.app.ui.data.formatClock
 import java.time.LocalDate
 import kotlinx.coroutines.launch
+import com.glowup.app.blocker.Blocker
+import com.glowup.app.ui.data.ProgressStore
+import com.glowup.app.ui.data.fitness.FitnessStore
+import com.glowup.app.widget.Widgets
 
 /** Posts the notification for a fired alarm, then schedules the next occurrence. */
 class ReminderReceiver : BroadcastReceiver() {
@@ -21,7 +25,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
         when (kind) {
             AlarmScheduler.KIND_REMINDER -> ReminderStore.items.firstOrNull { it.id == id && it.enabled }?.let {
-                Notifications.post(context, code, Notifications.CHANNEL_REMINDERS, it.title, "Your Glow-Up reminder · ${it.schedule.label}", "notifications")
+                Notifications.post(context, code, Notifications.CHANNEL_REMINDERS, it.title, "Your Re:MakeU reminder · ${it.schedule.label}", "notifications")
             }
             AlarmScheduler.KIND_ROUTINE -> RoutineStore.find(id)
                 ?.takeIf { !it.isDoneOn(LocalDate.now()) }
@@ -68,7 +72,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
 
         if (kind == AlarmScheduler.KIND_WORKOUT) {
-            val fitness = com.glowup.app.ui.data.fitness.FitnessStore
+            val fitness = FitnessStore
             if (!fitness.doneOn(LocalDate.now())) {
                 val plan = fitness.todayPlan()
                 Notifications.post(
@@ -80,16 +84,16 @@ class ReminderReceiver : BroadcastReceiver() {
             }
         }
         if (kind == AlarmScheduler.KIND_WEIGH) {
-            if (com.glowup.app.ui.data.fitness.FitnessStore.weighInDue()) {
+            if (FitnessStore.weighInDue()) {
                 Notifications.post(context, code, Notifications.CHANNEL_REMINDERS, "Weekly check-in", "Weigh in before breakfast for the most accurate trend.", "body_checkin")
             }
         }
         if (kind == AlarmScheduler.KIND_MIDNIGHT) {
-            com.glowup.app.ui.data.ProgressStore.applyFreezes()
+            ProgressStore.applyFreezes()
             val pending = goAsync()
             kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
                 try {
-                    com.glowup.app.widget.Widgets.updateNow(context)
+                    Widgets.updateNow(context)
                 } finally {
                     pending.finish()
                 }
@@ -101,8 +105,17 @@ class ReminderReceiver : BroadcastReceiver() {
 }
 
 class BootReceiver : BroadcastReceiver() {
+    private val handled = setOf(
+        Intent.ACTION_BOOT_COMPLETED,
+        Intent.ACTION_MY_PACKAGE_REPLACED,
+        Intent.ACTION_TIME_CHANGED,
+        Intent.ACTION_TIMEZONE_CHANGED,
+        "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED",
+    )
+
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action !in handled) return
         AlarmScheduler.syncAll(context)
-        com.glowup.app.blocker.Blocker.sync(context)
+        Blocker.sync(context)
     }
 }

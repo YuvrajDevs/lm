@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextField
@@ -24,13 +23,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
 import androidx.compose.material.icons.filled.Lock
 import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.design.ScreenTitle
+import com.glowup.app.ui.design.ScreenSubtitle
+import com.glowup.app.ui.design.Overline
+import com.glowup.app.ui.design.PrimaryButton
+import com.glowup.app.ui.design.Space
+import com.glowup.app.ui.design.StepIndicator
+import com.glowup.app.ui.design.TextAction
+import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Face
+import androidx.compose.material.icons.outlined.RecordVoiceOver
+import androidx.compose.material.icons.outlined.SelfImprovement
+import androidx.compose.material.icons.outlined.Spa
+import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import com.glowup.app.ui.data.glow.GlowCheckStore
 
 @Composable
 fun OnboardingScreen(navController: NavHostController) {
@@ -43,7 +63,7 @@ fun OnboardingScreen(navController: NavHostController) {
         ProfileStore.completeOnboarding(name, ProfileStore.focusOptions.filter { it in focus }, ProfileStore.faceShape, ageBand)
         navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
         // Home opens the personalised check once, so backing out of it lands on Home.
-        com.glowup.app.ui.data.glow.GlowCheckStore.openAfterOnboarding = true
+        GlowCheckStore.openAfterOnboarding = true
     }
 
     val askNotifications = rememberNotificationPermission { finish() }
@@ -57,20 +77,7 @@ fun OnboardingScreen(navController: NavHostController) {
     }
 
     Column(modifier = Modifier.fillMaxSize().background(Surface).systemBarsPadding().imePadding()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(24.dp, 24.dp, 24.dp, 0.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            repeat(lastStep + 1) { index ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(if (index <= step) Ink else ChipNeutral),
-                )
-            }
-        }
+        StepIndicator(lastStep + 1, step, Modifier.padding(24.dp, 24.dp, 24.dp, 0.dp))
 
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 28.dp, 24.dp, 16.dp),
@@ -79,8 +86,8 @@ fun OnboardingScreen(navController: NavHostController) {
                 0 -> {
                     Image(painterResource(R.drawable.ic_streak), contentDescription = null, modifier = Modifier.size(72.dp))
                     Spacer(Modifier.height(18.dp))
-                    Title("Welcome to Glow-Up")
-                    Subtitle("Small daily habits for how you look, feel and talk. What should we call you?")
+                    ScreenTitle("Welcome to Re:MakeU")
+                    ScreenSubtitle("Small daily habits for how you look, feel and talk. What should we call you?")
                     Spacer(Modifier.height(22.dp))
                     OutlinedTextField(
                         value = name,
@@ -91,20 +98,26 @@ fun OnboardingScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = TextMuted),
                     )
-                    Spacer(Modifier.height(18.dp))
+                    Spacer(Modifier.height(Space.Section))
+                    Overline("What you'll build")
+                    Spacer(Modifier.height(Space.M))
+                    PillarRow(Icons.Outlined.Face, CoralTint, Coral, "Look", "Skin, grooming, style and fitness routines")
+                    PillarRow(Icons.Outlined.SelfImprovement, PurpleTint, Purple, "Feel", "Focus, sleep, mood and calm")
+                    PillarRow(Icons.Outlined.RecordVoiceOver, BlueTint, Blue, "Talk", "Confidence and speaking practice")
+                    Spacer(Modifier.height(Space.L))
                     PrivacyNote()
                 }
                 1 -> {
-                    Title("How old are you?")
-                    Subtitle("We use this only to keep advice right for your age — for example, under-18s never get weight-loss goals. It stays on your phone.")
+                    ScreenTitle("How old are you?")
+                    ScreenSubtitle("We use this only to keep advice right for your age — for example, under-18s never get weight-loss goals. It stays on your phone.")
                     Spacer(Modifier.height(20.dp))
                     ProfileStore.ageBands.forEach { band ->
                         ChoiceRow(band, ageBand == band) { ageBand = band }
                     }
                 }
                 2 -> {
-                    Title("What do you want to work on?")
-                    Subtitle("Pick as many as you like. We'll put these first on your home screen.")
+                    ScreenTitle("What do you want to work on?")
+                    ScreenSubtitle("Pick as many as you like. We'll put these first on your home screen.")
                     Spacer(Modifier.height(20.dp))
                     ProfileStore.focusOptions.forEach { option ->
                         val selected = option in focus
@@ -113,69 +126,39 @@ fun OnboardingScreen(navController: NavHostController) {
                 }
                 else -> {
                     Box(
-                        modifier = Modifier.size(72.dp).clip(androidx.compose.foundation.shape.CircleShape).background(Ink),
+                        modifier = Modifier.size(72.dp).clip(CircleShape).background(Ink),
                         contentAlignment = Alignment.Center,
                     ) {
                         Image(painterResource(R.drawable.ic_bell_glyph), contentDescription = null, modifier = Modifier.size(38.dp))
                     }
                     Spacer(Modifier.height(18.dp))
-                    Title("Stay on track, ${name.trim().substringBefore(" ")}")
-                    Subtitle("Glow-Up can remind you about your routines, bedtime and wake-up. You choose every reminder — nothing is on until you turn it on.")
+                    ScreenTitle("Stay on track, ${name.trim().substringBefore(" ")}")
+                    ScreenSubtitle("Re:MakeU can remind you about your routines, bedtime and wake-up. You choose every reminder — nothing is on until you turn it on.")
+                    Spacer(Modifier.height(Space.Section))
+                    Overline("For example")
+                    Spacer(Modifier.height(Space.M))
+                    ReminderPreview(Icons.Outlined.WbSunny, YellowTint, Amber, "Good morning", "Your morning routine is ready · 7:00")
+                    ReminderPreview(Icons.Outlined.Spa, CoralTint, CoralDeep, "Skincare", "Evening routine, 3 steps · 21:00")
+                    ReminderPreview(Icons.Outlined.Bedtime, PurpleTint, PurpleDeep, "Wind down", "Bedtime in 30 minutes · 22:30")
                 }
             }
         }
 
-        Column(modifier = Modifier.padding(24.dp, 8.dp, 24.dp, 28.dp)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(58.dp)
-                    .clip(RoundedCornerShape(999.dp))
-                    .background(if (canContinue) Ink else Color(0xFFD8D5CE))
-                    .clickable(enabled = canContinue) { if (step < lastStep) step++ else askNotifications() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    when (step) {
-                        lastStep -> "Allow notifications"
-                        else -> "Continue"
-                    },
-                    color = Color.White,
-                    fontSize = 15.5.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-            if (step == lastStep) {
-                Text(
-                    "Not now",
-                    color = TextSecondary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 14.dp).clickable { finish() },
-                )
-            } else if (step > 0) {
-                Text(
-                    "Back",
-                    color = TextSecondary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 14.dp).clickable { step-- },
-                )
+        Column(modifier = Modifier.padding(24.dp, 8.dp, 24.dp, 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            PrimaryButton(
+                text = if (step == lastStep) "Allow notifications" else "Continue",
+                enabled = canContinue,
+            ) { if (step < lastStep) step++ else askNotifications() }
+            when {
+                step == lastStep -> TextAction("Not now", Modifier.padding(top = Space.S)) { finish() }
+                step > 0 -> TextAction("Back", Modifier.padding(top = Space.S)) { step-- }
+                else -> Spacer(Modifier.height(Space.S))
             }
         }
     }
 }
 
-@Composable
-private fun Title(text: String) {
-    Text(text, fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
-}
 
-@Composable
-private fun Subtitle(text: String) {
-    Spacer(Modifier.height(8.dp))
-    Text(text, color = TextSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-}
 
 @Composable
 private fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit) {
@@ -183,25 +166,26 @@ private fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 10.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .heightIn(min = 52.dp)
+            .clip(Shapes.Medium)
             .background(if (selected) Ink else CardNeutral)
             .clickable(onClick = onClick)
             .padding(18.dp, 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, color = if (selected) Color.White else Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-        if (selected) Text("✓", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = if (selected) Color.White else Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        if (selected) Icon(Icons.Filled.Check, contentDescription = "Selected", tint = Color.White, modifier = Modifier.size(20.dp))
     }
 }
 
 @Composable
 private fun PrivacyNote() {
     Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint).padding(14.dp, 12.dp),
+        modifier = Modifier.fillMaxWidth().clip(Shapes.Medium).background(GreenTint).padding(14.dp, 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        androidx.compose.material3.Icon(
-            androidx.compose.material.icons.Icons.Filled.Lock,
+        Icon(
+            Icons.Filled.Lock,
             contentDescription = null,
             tint = Green,
             modifier = Modifier.size(16.dp),
@@ -209,10 +193,42 @@ private fun PrivacyNote() {
         Spacer(Modifier.width(10.dp))
         Text(
             "Private by design: no account, no ads, and everything you add stays on this phone.",
-            color = Color(0xFF1E7A4F),
-            fontSize = 12.5.sp,
-            lineHeight = 17.sp,
+            color = GreenDeep,
+            fontSize = TextSize.BodySmall,
+            lineHeight = LineHeight.Compact,
             fontWeight = FontWeight.Medium,
         )
+    }
+}
+
+@Composable
+private fun PillarRow(icon: ImageVector, tint: Color, accent: Color, title: String, body: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(44.dp).clip(CircleShape).background(tint), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(22.dp))
+        }
+        Spacer(Modifier.width(Space.M))
+        Column {
+            Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(body, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
+        }
+    }
+}
+
+/** A mock notification so people can see what they're agreeing to before the system prompt. */
+@Composable
+private fun ReminderPreview(icon: ImageVector, tint: Color, accent: Color, title: String, body: String) {
+    Row(
+        Modifier.fillMaxWidth().padding(bottom = Space.S).clip(Shapes.Card).background(CardNeutral).padding(14.dp, 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(36.dp).clip(Shapes.Small).background(tint), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
+        }
+        Spacer(Modifier.width(Space.M))
+        Column(Modifier.weight(1f)) {
+            Text(title, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+            Text(body, color = TextSecondary, fontSize = TextSize.Caption)
+        }
     }
 }

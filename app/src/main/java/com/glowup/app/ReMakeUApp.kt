@@ -6,22 +6,26 @@ import com.glowup.app.notify.Notifications
 import com.glowup.app.ui.data.FocusStore
 import com.glowup.app.ui.data.Storage
 import com.glowup.app.ui.data.Stores
+import com.glowup.app.billing.Billing
+import com.glowup.app.blocker.Blocker
+import com.glowup.app.ui.data.PhotoVault
+import com.glowup.app.widget.Widgets
 
-class GlowUpApp : Application() {
+class ReMakeUApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Storage.init(this)
-        com.glowup.app.ui.data.PhotoVault.init(noBackupFilesDir)
+        PhotoVault.init(noBackupFilesDir)
         Stores.loadAll()
         FocusStore.finishIfDue()
-        com.glowup.app.billing.Billing.start(this)
+        Billing.start(this)
         Notifications.createChannels(this)
         Storage.onScheduleChanged = {
             AlarmScheduler.syncAll(this)
-            com.glowup.app.blocker.Blocker.sync(this)
+            Blocker.sync(this)
         }
-        Storage.onDataChanged = { com.glowup.app.widget.Widgets.requestUpdate(this) }
+        Storage.onDataChanged = { Widgets.requestUpdate(this) }
         AlarmScheduler.syncAll(this)
-        com.glowup.app.blocker.Blocker.sync(this)
+        Blocker.sync(this)
     }
 }

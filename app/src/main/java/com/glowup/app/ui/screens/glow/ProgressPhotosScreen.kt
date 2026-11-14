@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Close
@@ -48,20 +47,18 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.ConsentSheet
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.hasPermission
 import com.glowup.app.ui.data.Consent
@@ -77,6 +74,10 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.design.Sizes
 
 private enum class Pose(val tag: String, val label: String, val tip: String) {
     FRONT("front", "Face", "Face the camera, neutral expression, same light each time."),
@@ -111,10 +112,10 @@ fun ProgressPhotosScreen(navController: NavHostController) {
             ) {
                 item(span = { GridItemSpan(3) }) {
                     Column {
-                        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint).padding(14.dp, 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(Modifier.fillMaxWidth().clip(Shapes.Medium).background(GreenTint).padding(14.dp, 10.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Lock, contentDescription = null, tint = Green, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("Stored inside the app only — never in your gallery, never backed up or uploaded.", color = Color(0xFF1E7A4F), fontSize = 12.sp, lineHeight = 16.sp)
+                            Text("Stored inside the app only — never in your gallery, never backed up or uploaded.", color = GreenDeep, fontSize = TextSize.Caption, lineHeight = LineHeight.Tight)
                         }
                         Spacer(Modifier.height(14.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -122,7 +123,7 @@ fun ProgressPhotosScreen(navController: NavHostController) {
                         }
                         Spacer(Modifier.height(14.dp))
                         if (photos.size >= 2) {
-                            Text("First vs latest", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("First vs latest", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Compare(photos.first(), Modifier.weight(1f))
@@ -130,17 +131,17 @@ fun ProgressPhotosScreen(navController: NavHostController) {
                             }
                             Spacer(Modifier.height(16.dp))
                         }
-                        Text(if (photos.isEmpty()) "No ${pose.label.lowercase()} photos yet" else "All ${pose.label.lowercase()} photos", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        Text(pose.tip, color = TextSecondary, fontSize = 12.5.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 2.dp, bottom = 4.dp))
+                        Text(if (photos.isEmpty()) "No ${pose.label.lowercase()} photos yet" else "All ${pose.label.lowercase()} photos", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+                        Text(pose.tip, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 2.dp, bottom = 4.dp))
                     }
                 }
                 items(photos.reversed(), key = { it.name }) { f ->
-                    Thumb(f, Modifier.aspectRatio(0.75f).clip(RoundedCornerShape(14.dp)).clickable { viewing = f })
+                    Thumb(f, Modifier.aspectRatio(0.75f).clip(Shapes.Small).clickable { viewing = f })
                 }
                 item(span = { GridItemSpan(3) }) {
                     if (!reminded) {
                         Text(
-                            "Remind me weekly", color = Purple, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                            "Remind me weekly", color = Purple, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(top = 8.dp).clickable { RoutineStore.add("Looks", "Progress photo", "WEEKLY") },
                         )
                     }
@@ -148,14 +149,14 @@ fun ProgressPhotosScreen(navController: NavHostController) {
             }
             Box(Modifier.padding(24.dp, 8.dp, 24.dp, 24.dp)) {
                 Row(
-                    Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(999.dp)).background(Ink).clickable {
+                    Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Ink).clickable {
                         capturing = true
                     },
                     horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(Icons.Filled.PhotoCamera, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Take a ${pose.label.lowercase()} photo", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Take a ${pose.label.lowercase()} photo", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -174,7 +175,7 @@ fun ProgressPhotosScreen(navController: NavHostController) {
                 }
                 Text(
                     PhotoVault.dateOf(f)?.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())) ?: "",
-                    color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
+                    color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
                 )
                 Box(Modifier.size(44.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.15f)).clickable { confirm = true }, contentAlignment = Alignment.Center) {
                     Icon(Icons.Outlined.DeleteOutline, contentDescription = "Delete photo", tint = Color.White)
@@ -182,7 +183,7 @@ fun ProgressPhotosScreen(navController: NavHostController) {
             }
         }
         if (confirm) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { confirm = false }, title = "Delete this photo?", message = "It's removed from this phone for good.",
                 primaryText = "Delete", primaryDestructive = true,
                 onPrimary = { PhotoVault.delete(f); viewing = null; version++ },
@@ -194,8 +195,8 @@ fun ProgressPhotosScreen(navController: NavHostController) {
 @Composable
 private fun Compare(file: File, modifier: Modifier) {
     Column(modifier) {
-        Thumb(file, Modifier.fillMaxWidth().aspectRatio(0.75f).clip(RoundedCornerShape(16.dp)))
-        Text(PhotoVault.dateOf(file)?.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.getDefault())) ?: "", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+        Thumb(file, Modifier.fillMaxWidth().aspectRatio(0.75f).clip(Shapes.Medium))
+        Text(PhotoVault.dateOf(file)?.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.getDefault())) ?: "", color = TextSecondary, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 4.dp))
     }
 }
 
@@ -287,15 +288,15 @@ private fun CaptureView(ghost: File?, pose: Pose, onDone: () -> Unit) {
                 }
                 Text(
                     if (ghost != null) "Line up with your last photo" else pose.tip,
-                    color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f).padding(horizontal = 10.dp).clip(RoundedCornerShape(999.dp)).background(Color.Black.copy(alpha = 0.45f)).padding(12.dp, 8.dp),
+                    color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f).padding(horizontal = 10.dp).clip(Shapes.Pill).background(Color.Black.copy(alpha = 0.45f)).padding(12.dp, 8.dp),
                 )
                 Box(Modifier.size(44.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.45f)).clickable { front = !front }, contentAlignment = Alignment.Center) {
                     Icon(Icons.Filled.Cameraswitch, contentDescription = "Switch camera", tint = Color.White)
                 }
             }
             Spacer(Modifier.weight(1f))
-            countdown?.let { Text("$it", color = Color.White, fontSize = 96.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally)) }
+            countdown?.let { Text("$it", color = Color.White, fontSize = TextSize.Countdown, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally)) }
             Spacer(Modifier.weight(1f))
             Row(Modifier.fillMaxWidth().padding(32.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(52.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.45f)).clickable(enabled = !saving) { countdown = 5 }, contentAlignment = Alignment.Center) {

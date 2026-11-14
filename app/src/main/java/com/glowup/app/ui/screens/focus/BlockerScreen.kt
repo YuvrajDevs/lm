@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -50,7 +49,7 @@ import com.glowup.app.blocker.Blocker
 import com.glowup.app.blocker.InstalledApp
 import com.glowup.app.ui.components.ConsentSheet
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.BlockStore
 import com.glowup.app.ui.data.Consent
@@ -65,6 +64,14 @@ import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Sizes
+import com.glowup.app.ui.design.TextSize
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.glowup.app.ui.data.DayStats
+import java.time.LocalDate
 
 private enum class ListKind(val title: String, val sub: String) {
     FOCUS("Blocked during focus", "Opening these while you focus shows the block screen."),
@@ -99,9 +106,9 @@ fun BlockerScreen(navController: NavHostController) {
             DetailHeader("App blocker") { navController.goBack() }
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp, 16.dp, 24.dp, 28.dp)) {
                 if (!ready) {
-                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Ink).padding(20.dp)) {
-                        Text("Set up in 3 taps", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text("Android needs your OK before any app can step in when you open another.", color = Color.White.copy(alpha = 0.65f), fontSize = 13.sp, lineHeight = 18.sp, modifier = Modifier.padding(top = 4.dp))
+                    Column(Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(20.dp)) {
+                        Text("Set up in 3 taps", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
+                        Text("Android needs your OK before any app can step in when you open another.", color = Color.White.copy(alpha = 0.65f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 4.dp))
                         Spacer(Modifier.height(14.dp))
                         SetupStep(1, "Agree to how it works", consent) { askConsent = true }
                         SetupStep(2, "Allow usage access", usage) {
@@ -111,16 +118,16 @@ fun BlockerScreen(navController: NavHostController) {
                             context.startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("Glow-Up only sees the name of the app on screen — never what you do in it.", color = Color(0xFF7FD9A8), fontSize = 12.sp, lineHeight = 16.sp)
+                        Text("Re:MakeU only sees the name of the app on screen — never what you do in it.", color = Mint, fontSize = TextSize.Caption, lineHeight = LineHeight.Tight)
                     }
                 } else {
-                    val today = BlockStore.stats[java.time.LocalDate.now().toString()] ?: com.glowup.app.ui.data.DayStats()
+                    val today = BlockStore.stats[LocalDate.now().toString()] ?: DayStats()
                     val week = BlockStore.weekTotals()
-                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Ink).padding(20.dp)) {
-                        Text("THIS WEEK", color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
-                        Text("~${BlockStore.minutesSaved(week)} min won back", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                        Text("${week.blocks} blocks · ${week.resisted} times you chose not to open · today ${today.pauses} pauses", color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp, lineHeight = 17.sp)
-                        Text("Estimate based on ${BlockStore.MINUTES_PER_RESISTED_OPEN} minutes per skipped open.", color = Color.White.copy(alpha = 0.4f), fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp))
+                    Column(Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(20.dp)) {
+                        Text("THIS WEEK", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                        Text("~${BlockStore.minutesSaved(week)} min won back", color = Color.White, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold)
+                        Text("${week.blocks} blocks · ${week.resisted} times you chose not to open · today ${today.pauses} pauses", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
+                        Text("Estimate based on ${BlockStore.MINUTES_PER_RESISTED_OPEN} minutes per skipped open.", color = Color.White.copy(alpha = 0.4f), fontSize = TextSize.Micro, modifier = Modifier.padding(top = 6.dp))
                     }
                 }
 
@@ -131,28 +138,28 @@ fun BlockerScreen(navController: NavHostController) {
 
                 Spacer(Modifier.height(14.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Schedules", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text("Schedules", fontSize = TextSize.Title, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                     Row(
-                        Modifier.clip(RoundedCornerShape(999.dp)).background(ChipNeutral).clickable {
+                        Modifier.clip(Shapes.Pill).background(ChipNeutral).clickable {
                             if (ProStore.isPro || BlockStore.schedules.isEmpty()) addSchedule = true else ProStore.showPaywall("More than one blocking schedule is part of Pro")
                         }.padding(12.dp, 7.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Text("Add", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Add", fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 Spacer(Modifier.height(8.dp))
                 if (BlockStore.schedules.isEmpty()) {
-                    Text("e.g. block social apps on weekdays 9–5, or after 11 pm so you sleep.", color = TextSecondary, fontSize = 13.sp)
+                    Text("e.g. block social apps on weekdays 9–5, or after 11 pm so you sleep.", color = TextSecondary, fontSize = TextSize.BodySmall)
                 }
                 BlockStore.schedules.forEach { s ->
-                    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(16.dp, 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(Shapes.Card).background(CardNeutral).padding(16.dp, 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text(s.label, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text(s.label, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                             Text(
                                 "${formatClock(s.start)}–${formatClock(s.end)} · " + s.days.sorted().joinToString(" ") { it.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2) },
-                                color = TextSecondary, fontSize = 12.sp,
+                                color = TextSecondary, fontSize = TextSize.Caption,
                             )
                         }
                         Switch(s.enabled, { BlockStore.setScheduleEnabled(s.id, it); Blocker.sync(context) }, colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
@@ -163,13 +170,13 @@ fun BlockerScreen(navController: NavHostController) {
                 }
 
                 Spacer(Modifier.height(16.dp))
-                Text("Pause length", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text("Pause length", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(3, 5, 10, 15).forEach { s -> ChoicePill("$s s", BlockStore.pauseSeconds == s, Modifier.weight(1f)) { BlockStore.updatePauseSeconds(s) } }
                 }
                 if (!ProStore.isPro) {
-                    Text("Free: up to ${BlockStore.FREE_MAX_APPS} apps per list and one schedule. Pro: unlimited, plus strict focus.", color = TextSecondary, fontSize = 12.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 14.dp))
+                    Text("Free: up to ${BlockStore.FREE_MAX_APPS} apps per list and one schedule. Pro: unlimited, plus strict focus.", color = TextSecondary, fontSize = TextSize.Caption, lineHeight = LineHeight.Compact, modifier = Modifier.padding(top = 14.dp))
                 }
             }
         }
@@ -182,15 +189,15 @@ fun BlockerScreen(navController: NavHostController) {
 @Composable
 private fun SetupStep(n: Int, title: String, done: Boolean, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.08f)).clickable(enabled = !done, onClick = onClick).padding(14.dp, 12.dp),
+        Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(Shapes.Medium).background(Color.White.copy(alpha = 0.08f)).clickable(enabled = !done, onClick = onClick).padding(14.dp, 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(26.dp).clip(CircleShape).background(if (done) Color(0xFF7FD9A8) else Color.White.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(26.dp).clip(CircleShape).background(if (done) Mint else Color.White.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
             if (done) Icon(Icons.Filled.Check, contentDescription = "Done", tint = Ink, modifier = Modifier.size(15.dp))
-            else Text("$n", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            else Text("$n", color = Color.White, fontSize = TextSize.Caption, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.width(12.dp))
-        Text(title, color = Color.White, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        Text(title, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
         if (!done) Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.6f))
     }
 }
@@ -198,26 +205,26 @@ private fun SetupStep(n: Int, title: String, done: Boolean, onClick: () -> Unit)
 @Composable
 private fun ListCard(icon: ImageVector, kind: ListKind, apps: List<String>, tint: Color, accent: Color, onClick: () -> Unit) {
     val context = LocalContext.current
-    Column(Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(RoundedCornerShape(22.dp)).background(tint).clickable(onClick = onClick).padding(18.dp, 16.dp)) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(Shapes.Card).background(tint).clickable(onClick = onClick).padding(18.dp, 16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(kind.title, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(kind.sub, color = TextSecondary, fontSize = 12.sp)
+                Text(kind.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
+                Text(kind.sub, color = TextSecondary, fontSize = TextSize.Caption)
             }
-            Text(if (apps.isEmpty()) "Choose" else "${apps.size}", color = accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Text(if (apps.isEmpty()) "Choose" else "${apps.size}", color = accent, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
         }
         if (apps.isNotEmpty()) {
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 apps.take(6).forEach { pkg ->
                     val bmp = remember(pkg) { Blocker.icon(context, pkg) }
-                    Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(Color.White), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(34.dp).clip(Shapes.Small).background(Color.White), contentAlignment = Alignment.Center) {
                         bmp?.let { Image(it.asImageBitmap(), contentDescription = null, modifier = Modifier.size(26.dp)) }
                     }
                 }
-                if (apps.size > 6) Text("+${apps.size - 6}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = accent, modifier = Modifier.align(Alignment.CenterVertically))
+                if (apps.size > 6) Text("+${apps.size - 6}", fontSize = TextSize.Caption, fontWeight = FontWeight.Bold, color = accent, modifier = Modifier.align(Alignment.CenterVertically))
             }
         }
     }
@@ -230,13 +237,13 @@ private fun AppPicker(kind: ListKind, onDone: () -> Unit) {
     val apps by produceState(emptyList<InstalledApp>()) { value = withContext(Dispatchers.IO) { Blocker.launchableApps(context) } }
     val list = when (kind) { ListKind.FOCUS -> BlockStore.focusApps; ListKind.PAUSE -> BlockStore.pauseApps; ListKind.SCHEDULE -> BlockStore.scheduleApps }
     val suggested = setOf("com.instagram.android", "com.zhiliaoapp.musically", "com.google.android.youtube", "com.snapchat.android", "com.twitter.android", "com.facebook.katana", "com.reddit.frontpage", "in.mohalla.sharechat", "com.netflix.mediaclient")
-    androidx.activity.compose.BackHandler(onBack = onDone)
+    BackHandler(onBack = onDone)
     Column(Modifier.fillMaxSize().background(Surface).systemBarsPadding()) {
         DetailHeader(kind.title, onDone)
         OutlinedTextField(
             value = query, onValueChange = { query = it }, singleLine = true,
             placeholder = { Text("Search apps") }, leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-            shape = RoundedCornerShape(999.dp),
+            shape = Shapes.Pill,
             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Ink, unfocusedBorderColor = Color.Transparent, unfocusedContainerColor = CardNeutral, focusedContainerColor = CardNeutral),
             modifier = Modifier.fillMaxWidth().padding(24.dp, 14.dp, 24.dp, 6.dp),
         )
@@ -250,7 +257,7 @@ private fun AppPicker(kind: ListKind, onDone: () -> Unit) {
                 val on = app.packageName in list
                 val bmp = remember(app.packageName) { Blocker.icon(context, app.packageName) }
                 Row(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(if (on) ChipNeutral else Color.Transparent).clickable {
+                    Modifier.fillMaxWidth().clip(Shapes.Medium).background(if (on) ChipNeutral else Color.Transparent).clickable {
                         val ok = when (kind) {
                             ListKind.FOCUS -> BlockStore.toggleFocusApp(app.packageName)
                             ListKind.PAUSE -> BlockStore.togglePauseApp(app.packageName)
@@ -263,8 +270,8 @@ private fun AppPicker(kind: ListKind, onDone: () -> Unit) {
                     Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) { bmp?.let { Image(it.asImageBitmap(), contentDescription = null, modifier = Modifier.size(36.dp)) } }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(app.label, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                        if (app.packageName in suggested) Text("Common distraction", color = TextSecondary, fontSize = 11.5.sp)
+                        Text(app.label, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Medium)
+                        if (app.packageName in suggested) Text("Common distraction", color = TextSecondary, fontSize = TextSize.Caption)
                     }
                     Box(Modifier.size(24.dp).clip(CircleShape).background(if (on) Ink else ChipNeutral), contentAlignment = Alignment.Center) {
                         if (on) Icon(Icons.Filled.Check, contentDescription = "Selected", tint = Color.White, modifier = Modifier.size(15.dp))
@@ -273,21 +280,21 @@ private fun AppPicker(kind: ListKind, onDone: () -> Unit) {
             }
         }
         Box(Modifier.padding(24.dp, 8.dp, 24.dp, 24.dp)) {
-            Box(Modifier.fillMaxWidth().height(54.dp).clip(RoundedCornerShape(999.dp)).background(Ink).clickable(onClick = onDone), contentAlignment = Alignment.Center) {
-                Text("Done · ${list.size} selected", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Box(Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Ink).clickable(onClick = onDone), contentAlignment = Alignment.Center) {
+                Text("Done · ${list.size} selected", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
             }
         }
     }
 }
 
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ScheduleDialog(onDone: () -> Unit) {
     var label by remember { mutableStateOf("Work hours") }
     var days by remember { mutableStateOf(setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)) }
     var start by remember { mutableStateOf(LocalTime.of(9, 0)) }
     var end by remember { mutableStateOf(LocalTime.of(17, 0)) }
-    GlowUpDialog(
+    ReMakeUDialog(
         onDismissRequest = onDone, title = "New schedule", secondaryText = "Cancel", primaryText = "Add", primaryEnabled = days.isNotEmpty() && start != end,
         onPrimary = { BlockStore.addSchedule(label, days, start, end); onDone() },
         content = {
@@ -307,7 +314,7 @@ private fun ScheduleDialog(onDone: () -> Unit) {
                 DayOfWeek.entries.forEach { d ->
                     val on = d in days
                     Box(Modifier.weight(1f).aspectRatio(1f).clip(CircleShape).background(if (on) Ink else ChipNeutral).clickable { days = if (on) days - d else days + d }, contentAlignment = Alignment.Center) {
-                        Text(d.getDisplayName(TextStyle.NARROW, Locale.getDefault()), color = if (on) Color.White else Ink, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(d.getDisplayName(TextStyle.NARROW, Locale.getDefault()), color = if (on) Color.White else Ink, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -322,12 +329,12 @@ private fun ScheduleDialog(onDone: () -> Unit) {
 
 @Composable
 private fun TimeAdjust(label: String, time: LocalTime, modifier: Modifier, onChange: (LocalTime) -> Unit) {
-    Column(modifier.clip(RoundedCornerShape(16.dp)).background(ChipNeutral).padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, color = TextSecondary, fontSize = 11.5.sp)
-        Text(formatClock(time), fontSize = 17.sp, fontWeight = FontWeight.Bold)
+    Column(modifier.clip(Shapes.Medium).background(ChipNeutral).padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, color = TextSecondary, fontSize = TextSize.Caption)
+        Text(formatClock(time), fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("−", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { onChange(time.minusMinutes(30)) }.padding(8.dp, 0.dp))
-            Text("+", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { onChange(time.plusMinutes(30)) }.padding(8.dp, 0.dp))
+            Text("−", fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { onChange(time.minusMinutes(30)) }.padding(8.dp, 0.dp))
+            Text("+", fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { onChange(time.plusMinutes(30)) }.padding(8.dp, 0.dp))
         }
     }
 }

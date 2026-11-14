@@ -1,6 +1,8 @@
 package com.glowup.app.ui.data.fitness
 
 import kotlin.math.roundToInt
+import java.time.LocalDate
+import java.util.Random
 
 /** A template exercise: [id] with an optional intermediate dose that overrides the exercise default. */
 internal data class T(val id: String, val dose: Int? = null, val max: Boolean = false)
@@ -184,7 +186,7 @@ object QuickSessions {
             minutes <= 20 -> 3
             else -> 4
         }
-        val shuffled = focus.pool.shuffled(java.util.Random(seed * 31 + focus.ordinal))
+        val shuffled = focus.pool.shuffled(Random(seed * 31 + focus.ordinal))
         val target = minutes * 60
         val blocks = mutableListOf<Block>()
         for (id in shuffled) {
@@ -205,7 +207,7 @@ object QuickSessions {
         )
     }
 
-    fun forGoal(goal: FitnessGoal?, date: java.time.LocalDate): QuickFocus = when (goal) {
+    fun forGoal(goal: FitnessGoal?, date: LocalDate): QuickFocus = when (goal) {
         FitnessGoal.LOSE_FAT -> QuickFocus.FAT_BURN
         FitnessGoal.BUILD_MUSCLE -> if (date.toEpochDay() % 2 == 0L) QuickFocus.UPPER else QuickFocus.LOWER
         else -> QuickFocus.FULL_BODY

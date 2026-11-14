@@ -3,6 +3,7 @@ package com.glowup.app.ui.data
 import com.glowup.app.ui.data.program.ProgramStore
 import java.time.LocalDate
 import kotlin.math.abs
+import com.glowup.app.ui.data.fitness.FitnessStore
 
 /**
  * Something that may or may not have happened on a day. [observed] are the days we can tell
@@ -90,7 +91,7 @@ object MoodInsights {
             add(
                 MoodFactor(
                     "workout", "you worked out",
-                    com.glowup.app.ui.data.fitness.FitnessStore.workoutDates(),
+                    FitnessStore.workoutDates(),
                     moodDays, false,
                 ),
             )

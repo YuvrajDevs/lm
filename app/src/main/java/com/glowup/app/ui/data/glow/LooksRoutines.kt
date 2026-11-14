@@ -96,7 +96,7 @@ object LooksRoutines {
             "hair-face-shape", "Hair for your face shape", FocusArea.GROOMING, Evidence.ADVICE, 2,
             "The right cut for your face shape is the fastest visible upgrade there is. Getting it trimmed regularly keeps it looking intentional.",
             listOf(
-                "Find your face shape (the Glow-Up Check can estimate it).",
+                "Find your face shape (the Glow Check can estimate it).",
                 "Pick one of the cuts recommended for your shape and save a photo to show the barber.",
                 "Use the barber script — tell them exactly what you want.",
                 "Book a trim every 3–5 weeks.",

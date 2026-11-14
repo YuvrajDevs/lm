@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
@@ -44,25 +43,33 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.platform.LocalContext
 import com.glowup.app.R
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.DeleteEverythingDialog
 import com.glowup.app.ui.components.exportMyData
-import com.glowup.app.ui.components.GlowUpOptionRow
+import com.glowup.app.ui.components.ReMakeUOptionRow
 import com.glowup.app.ui.data.GroomingStore
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.theme.*
-import java.time.LocalDate
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.ui.text.style.TextAlign
+import com.glowup.app.blocker.Blocker
+import com.glowup.app.ui.data.WardrobeStore
+import com.glowup.app.ui.data.fitness.FitnessStore
+import com.glowup.app.ui.data.glow.GlowCheckStore
 
 private data class SettingsRow(val label: String, val value: String? = null, val danger: Boolean = false)
 
 private val faqs = listOf(
-    "Where is my data stored?" to "Only on this phone. Glow-Up has no account and no servers, and nothing is uploaded. Settings → Your data shows everything that's kept, why, and lets you export or delete any of it.",
+    "Where is my data stored?" to "Only on this phone. Re:MakeU has no account and no servers, and nothing is uploaded. Settings → Your data shows everything that's kept, why, and lets you export or delete any of it.",
     "How do points and streaks work?" to "You earn points for checking off routines, to-dos, lessons, mood check-ins, sleep logs, confidence cards and practice sessions. Any day you earn points counts towards your streak. Every 100 points is a new level.",
     "What are streak freezes?" to "Every 7 days in a row earns a freeze (you can bank 2, or 3 with Pro). If you miss a whole day, a banked freeze is used automatically so your streak survives. Frozen days keep the streak alive but don't add to it.",
     "How is sleep debt worked out?" to "From the nights you log: how far short of your sleep need you've been over the last 14 nights. The latest week counts fully, the week before counts half, and extra sleep pays debt back. It's an estimate from your logs, not a medical measurement.",
-    "How do mood patterns work?" to "When you check in, you can tag what's been going on. Glow-Up also knows which days you focused, did your routines, learned or slept well. Once there are at least 5 days with and 5 without something, it compares your average mood — all on your phone.",
-    "Why didn't a reminder arrive?" to "Make sure notifications are allowed for Glow-Up. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time.",
+    "How do mood patterns work?" to "When you check in, you can tag what's been going on. Re:MakeU also knows which days you focused, did your routines, learned or slept well. Once there are at least 5 days with and 5 without something, it compares your average mood — all on your phone.",
+    "Why didn't a reminder arrive?" to "Make sure notifications are allowed for Re:MakeU. Some phones also delay alarms to save battery — allowing exact alarms on the Sleep screen helps wake-up alarms arrive on time.",
     "Do sleep sounds need the internet?" to "No. They're generated on your phone and keep playing with the screen off until the sleep timer fades them out.",
     "What do I get with Pro?" to "The full 12-week programme, every fitness programme with auto-progression, strict focus and unlimited app blocking, an unlimited wardrobe with capsule and packing tools, every style guide, all speaking scenarios, every mood pattern, all sleep sounds and an extra streak freeze. Manage or cancel any time in Google Play.",
     "Is my speaking practice recorded?" to "No audio is ever saved. In Analyse mode your phone turns your words into text to measure pace and filler words, and only that text and the numbers are kept. Listen-back recordings are deleted as soon as you leave the screen.",
@@ -97,9 +104,9 @@ fun SettingsScreen(navController: NavHostController) {
                 Text(
                     "Settings",
                     style = MaterialTheme.typography.headlineMedium,
-                    fontSize = 22.sp,
+                    fontSize = TextSize.TitleLarge,
                     modifier = Modifier.weight(1f),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.size(48.dp))
             }
@@ -108,7 +115,7 @@ fun SettingsScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(24.dp, 14.dp, 24.dp, 0.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(Shapes.Large)
                     .background(Ink)
                     .clickable { nameDraft = ProfileStore.name; dialog = "Name" }
                     .padding(16.dp, 15.dp),
@@ -117,8 +124,8 @@ fun SettingsScreen(navController: NavHostController) {
             ) {
                 Image(painterResource(R.drawable.ic_profile), contentDescription = null, modifier = Modifier.size(46.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(ProfileStore.name.ifBlank { "Your profile" }, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text((if (ProStore.isPro) "Glow-Up Pro · " else "") + "Level ${ProgressStore.level} · ${ProgressStore.points} points", color = Color.White.copy(alpha = 0.5f), fontSize = 12.5.sp)
+                    Text(ProfileStore.name.ifBlank { "Your profile" }, color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+                    Text((if (ProStore.isPro) "Re:MakeU Pro · " else "") + "Level ${ProgressStore.level} · ${ProgressStore.points} points", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.BodySmall)
                 }
                 Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(18.dp))
             }
@@ -142,7 +149,7 @@ fun SettingsScreen(navController: NavHostController) {
                     },
                 )
                 settingsSection(
-                    "Glow-Up Pro",
+                    "Re:MakeU Pro",
                     listOfNotNull(
                         SettingsRow(if (ProStore.isPro) "Your Pro plan" else "Upgrade to Pro", if (ProStore.isPro) "Active" else null),
                         SettingsRow("Restore purchases"),
@@ -164,16 +171,16 @@ fun SettingsScreen(navController: NavHostController) {
                 settingsSection(
                     "Your plans",
                     listOf(
-                        SettingsRow("Glow-Up Check", com.glowup.app.ui.data.glow.GlowCheckStore.daysUntilRescan()?.let { if (it == 0) "Rescan due" else "Rescan in $it d" } ?: "Not taken"),
-                        SettingsRow("Fitness plan", if (com.glowup.app.ui.data.fitness.FitnessStore.setUp) com.glowup.app.ui.data.fitness.FitnessStore.goal?.label else "Not set up"),
-                        SettingsRow("App blocker", if (com.glowup.app.blocker.Blocker.ready(context)) "On" else "Off"),
-                        SettingsRow("My wardrobe", "${com.glowup.app.ui.data.WardrobeStore.items.size} items"),
+                        SettingsRow("Glow Check", GlowCheckStore.daysUntilRescan()?.let { if (it == 0) "Rescan due" else "Rescan in $it d" } ?: "Not taken"),
+                        SettingsRow("Fitness plan", if (FitnessStore.setUp) FitnessStore.goal?.label else "Not set up"),
+                        SettingsRow("App blocker", if (Blocker.ready(context)) "On" else "Off"),
+                        SettingsRow("My wardrobe", "${WardrobeStore.items.size} items"),
                     ),
                     onRowClick = { label ->
                         navController.navigate(
                             when (label) {
-                                "Glow-Up Check" -> if (com.glowup.app.ui.data.glow.GlowCheckStore.latest == null) "glow_check" else "glow_results"
-                                "Fitness plan" -> if (com.glowup.app.ui.data.fitness.FitnessStore.setUp) "fitness_setup" else "fitness"
+                                "Glow Check" -> if (GlowCheckStore.latest == null) "glow_check" else "glow_results"
+                                "Fitness plan" -> if (FitnessStore.setUp) "fitness_setup" else "fitness"
                                 "App blocker" -> "blocker"
                                 else -> "wardrobe"
                             },
@@ -216,13 +223,13 @@ fun SettingsScreen(navController: NavHostController) {
                     "Support",
                     listOf(
                         SettingsRow("Help & FAQ"),
-                        SettingsRow("Rate Glow-Up"),
+                        SettingsRow("Rate Re:MakeU"),
                         SettingsRow("Version", versionName(context)),
                     ),
                     onRowClick = { label ->
                         when (label) {
                             "Help & FAQ" -> dialog = label
-                            "Rate Glow-Up" -> openStoreListing(context)
+                            "Rate Re:MakeU" -> openStoreListing(context)
                         }
                     },
                     last = true,
@@ -231,7 +238,7 @@ fun SettingsScreen(navController: NavHostController) {
         }
 
         when (dialog) {
-            "Name" -> GlowUpDialog(
+            "Name" -> ReMakeUDialog(
                 onDismissRequest = { dialog = null },
                 title = "Your name",
                 secondaryText = "Cancel",
@@ -261,7 +268,7 @@ fun SettingsScreen(navController: NavHostController) {
                 onSelect = { ProfileStore.updateFaceShape(it.takeIf { shape -> shape != "Not set" }); dialog = null },
                 onDismiss = { dialog = null },
             )
-            "Focus areas" -> GlowUpDialog(
+            "Focus areas" -> ReMakeUDialog(
                 onDismissRequest = { dialog = null },
                 title = "Focus areas",
                 secondaryText = "Cancel",
@@ -275,7 +282,7 @@ fun SettingsScreen(navController: NavHostController) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(Shapes.Small)
                                     .clickable { focusDraft = if (checked) focusDraft - option else focusDraft + option }
                                     .padding(vertical = 10.dp, horizontal = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -286,13 +293,13 @@ fun SettingsScreen(navController: NavHostController) {
                                     colors = CheckboxDefaults.colors(checkedColor = Ink, uncheckedColor = TextMuted),
                                 )
                                 Spacer(Modifier.width(10.dp))
-                                Text(option, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                                Text(option, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
                 },
             )
-            "Help & FAQ" -> GlowUpDialog(
+            "Help & FAQ" -> ReMakeUDialog(
                 onDismissRequest = { dialog = null },
                 title = "Help & FAQ",
                 primaryText = "Close",
@@ -304,9 +311,9 @@ fun SettingsScreen(navController: NavHostController) {
                     ) {
                         faqs.forEach { (question, answer) ->
                             Column {
-                                Text(question, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text(question, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                                 Spacer(Modifier.height(4.dp))
-                                Text(answer, color = TextSecondary, fontSize = 13.5.sp, lineHeight = 19.sp)
+                                Text(answer, color = TextSecondary, fontSize = TextSize.Body, lineHeight = LineHeight.Body)
                             }
                         }
                     }
@@ -315,7 +322,7 @@ fun SettingsScreen(navController: NavHostController) {
         }
 
         restoreMessage?.let { text ->
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { restoreMessage = null },
                 title = "Restore purchases",
                 message = text,
@@ -340,7 +347,7 @@ private fun versionName(context: Context): String =
 
 @Composable
 private fun PickerDialog(title: String, options: List<String>, selected: String, onSelect: (String) -> Unit, onDismiss: () -> Unit) {
-    GlowUpDialog(
+    ReMakeUDialog(
         onDismissRequest = onDismiss,
         title = title,
         primaryText = "Close",
@@ -349,14 +356,14 @@ private fun PickerDialog(title: String, options: List<String>, selected: String,
         content = {
             Column {
                 options.forEach { option ->
-                    GlowUpOptionRow(option, selected = option == selected) { onSelect(option) }
+                    ReMakeUOptionRow(option, selected = option == selected) { onSelect(option) }
                 }
             }
         },
     )
 }
 
-private fun androidx.compose.foundation.lazy.LazyListScope.settingsSection(
+private fun LazyListScope.settingsSection(
     title: String,
     rows: List<SettingsRow>,
     onRowClick: (String) -> Unit,
@@ -366,7 +373,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.settingsSection(
         Text(
             title.uppercase(),
             color = TextSecondary,
-            fontSize = 12.5.sp,
+            fontSize = TextSize.BodySmall,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.4.sp,
             modifier = Modifier.padding(bottom = 10.dp),
@@ -377,7 +384,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.settingsSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
-                .clip(RoundedCornerShape(18.dp))
+                .clip(Shapes.Medium)
                 .background(if (row.danger) MaroonTint else CardNeutral)
                 .clickable { onRowClick(row.label) }
                 .padding(15.dp, 13.dp),
@@ -385,13 +392,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.settingsSection(
         ) {
             Text(
                 row.label,
-                fontSize = 14.5.sp,
+                fontSize = TextSize.BodyLarge,
                 fontWeight = if (row.danger) FontWeight.SemiBold else FontWeight.Medium,
                 color = if (row.danger) Maroon else Ink,
                 modifier = Modifier.weight(1f),
             )
             row.value?.let {
-                Text(it, fontSize = 13.sp, color = TextSecondary, modifier = Modifier.padding(end = 6.dp))
+                Text(it, fontSize = TextSize.BodySmall, color = TextSecondary, modifier = Modifier.padding(end = 6.dp))
             }
             Icon(
                 Icons.Filled.ChevronRight,

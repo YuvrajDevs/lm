@@ -17,7 +17,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -56,6 +55,10 @@ import com.glowup.app.ui.data.program.SessionState
 import com.glowup.app.ui.theme.*
 import java.time.LocalTime
 import kotlin.random.Random
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.components.ProLockedScreen
 
 private sealed interface Step {
     data object Intro : Step
@@ -70,7 +73,7 @@ fun SessionScreen(navController: NavHostController, index: Int) {
     val session = Program.sessions.getOrNull(index) ?: return
     val initialState = remember { ProgramStore.state(index) }
     if (ProGate.sessionLocked(index)) {
-        com.glowup.app.ui.components.ProLockedScreen(navController, "Day ${session.day}: ${session.title}", "Weeks 3–12 of the programme are part of Pro")
+        ProLockedScreen(navController, "Day ${session.day}: ${session.title}", "Weeks 3–12 of the programme are part of Pro")
         return
     }
     if (initialState == SessionState.LOCKED) {
@@ -117,7 +120,7 @@ fun SessionScreen(navController: NavHostController, index: Int) {
                             modifier = Modifier
                                 .weight(1f)
                                 .height(5.dp)
-                                .clip(RoundedCornerShape(999.dp))
+                                .clip(Shapes.Pill)
                                 .background(if (i <= position) accent else ChipNeutral),
                         )
                     }
@@ -161,7 +164,7 @@ private fun IntroStep(session: ProgramSession, reviewing: Boolean) {
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp, 40.dp, 28.dp, 16.dp),
     ) {
         Box(
-            modifier = Modifier.size(84.dp).clip(RoundedCornerShape(26.dp)).background(session.area.tint),
+            modifier = Modifier.size(84.dp).clip(Shapes.Large).background(session.area.tint),
             contentAlignment = Alignment.Center,
         ) {
             Image(painterResource(session.area.icon), contentDescription = null, modifier = Modifier.size(56.dp))
@@ -170,14 +173,14 @@ private fun IntroStep(session: ProgramSession, reviewing: Boolean) {
         Text(
             "DAY ${session.day} · WEEK ${session.week} · ${session.area.label.uppercase()}",
             color = session.area.accent,
-            fontSize = 11.5.sp,
+            fontSize = TextSize.Caption,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.4.sp,
         )
         Spacer(Modifier.height(8.dp))
-        Text(session.title, fontSize = 30.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp)
+        Text(session.title, fontSize = TextSize.DisplayLarge, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
         Spacer(Modifier.height(14.dp))
-        Text(session.hook, color = TextSecondary, fontSize = 16.sp, lineHeight = 24.sp)
+        Text(session.hook, color = TextSecondary, fontSize = TextSize.Title, lineHeight = LineHeight.Title)
         Spacer(Modifier.height(24.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Chip("${session.minutes} min")
@@ -186,7 +189,7 @@ private fun IntroStep(session: ProgramSession, reviewing: Boolean) {
         }
         if (reviewing) {
             Spacer(Modifier.height(16.dp))
-            Text("You finished this session — reviewing won't add points, but it locks the ideas in.", color = TextSecondary, fontSize = 13.sp, lineHeight = 19.sp)
+            Text("You finished this session — reviewing won't add points, but it locks the ideas in.", color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Body)
         }
     }
 }
@@ -200,21 +203,21 @@ private fun IdeaStep(session: ProgramSession, number: Int) {
         Text(
             "KEY IDEA ${number + 1} OF ${session.ideas.size}",
             color = session.area.accent,
-            fontSize = 11.5.sp,
+            fontSize = TextSize.Caption,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.4.sp,
         )
         Spacer(Modifier.height(10.dp))
-        Text(idea.heading, fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
+        Text(idea.heading, fontSize = TextSize.Display, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
         Spacer(Modifier.height(18.dp))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
+                .clip(Shapes.Large)
                 .background(session.area.tint)
                 .padding(22.dp),
         ) {
-            Text(idea.body, fontSize = 17.sp, lineHeight = 26.sp, fontWeight = FontWeight.Medium)
+            Text(idea.body, fontSize = TextSize.Title, lineHeight = LineHeight.Title, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -228,9 +231,9 @@ private fun QuizStep(session: ProgramSession, onAnswered: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp, 40.dp, 28.dp, 16.dp),
     ) {
-        Text("QUICK CHECK", color = session.area.accent, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+        Text("QUICK CHECK", color = session.area.accent, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
         Spacer(Modifier.height(10.dp))
-        Text(quiz.question, fontSize = 22.sp, fontWeight = FontWeight.Bold, lineHeight = 29.sp)
+        Text(quiz.question, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Display)
         Spacer(Modifier.height(20.dp))
         order.forEach { optionIndex ->
             val isCorrect = optionIndex == quiz.answer
@@ -250,9 +253,9 @@ private fun QuizStep(session: ProgramSession, onAnswered: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 10.dp)
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(Shapes.Medium)
                     .background(background)
-                    .border(2.dp, borderColor, RoundedCornerShape(18.dp))
+                    .border(2.dp, borderColor, Shapes.Medium)
                     .clickable(enabled = !revealed) {
                         picked = optionIndex
                         onAnswered()
@@ -260,7 +263,7 @@ private fun QuizStep(session: ProgramSession, onAnswered: () -> Unit) {
                     .padding(18.dp, 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(quiz.options[optionIndex], fontSize = 15.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+                Text(quiz.options[optionIndex], fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
                 if (revealed && isCorrect) Icon(Icons.Filled.Check, contentDescription = "Correct", tint = Green, modifier = Modifier.size(20.dp))
                 if (revealed && isPicked && !isCorrect) Icon(Icons.Filled.Close, contentDescription = "Incorrect", tint = Maroon, modifier = Modifier.size(20.dp))
             }
@@ -269,12 +272,12 @@ private fun QuizStep(session: ProgramSession, onAnswered: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Text(
                 if (choice == quiz.answer) "Spot on." else "Not quite.",
-                fontSize = 16.sp,
+                fontSize = TextSize.Title,
                 fontWeight = FontWeight.Bold,
                 color = if (choice == quiz.answer) Green else Maroon,
             )
             Spacer(Modifier.height(4.dp))
-            Text(quiz.why, color = TextSecondary, fontSize = 14.5.sp, lineHeight = 21.sp)
+            Text(quiz.why, color = TextSecondary, fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed)
         }
     }
 }
@@ -286,20 +289,20 @@ private fun DrillStep(session: ProgramSession) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp, 40.dp, 28.dp, 16.dp),
     ) {
-        Text("TODAY'S DRILL", color = session.area.accent, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+        Text("TODAY'S DRILL", color = session.area.accent, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
         Spacer(Modifier.height(10.dp))
-        Text("Put it into practice", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text("Put it into practice", fontSize = TextSize.Display, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(18.dp))
         Box(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(Ink).padding(22.dp),
+            modifier = Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(22.dp),
         ) {
-            Text(session.drill, color = Color.White, fontSize = 17.sp, lineHeight = 26.sp, fontWeight = FontWeight.Medium)
+            Text(session.drill, color = Color.White, fontSize = TextSize.Title, lineHeight = LineHeight.Title, fontWeight = FontWeight.Medium)
         }
         Spacer(Modifier.height(14.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
+                .clip(Shapes.Medium)
                 .background(if (added) GreenTint else CardNeutral)
                 .clickable(enabled = !added) { TodoStore.add(todoTitle, TodoBucket.TODAY, "Day ${session.day} · ${session.area.label}") }
                 .padding(16.dp, 14.dp),
@@ -307,7 +310,7 @@ private fun DrillStep(session: ProgramSession) {
         ) {
             Text(
                 if (added) "Added to today's plan" else "Add this drill to today's plan",
-                fontSize = 14.5.sp,
+                fontSize = TextSize.BodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = if (added) Green else Ink,
                 modifier = Modifier.weight(1f),
@@ -315,7 +318,7 @@ private fun DrillStep(session: ProgramSession) {
             Icon(if (added) Icons.Filled.Check else Icons.Filled.Add, contentDescription = null, tint = if (added) Green else Ink, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.height(10.dp))
-        Text("Knowing isn't the goal — doing it once today is what changes you.", color = TextSecondary, fontSize = 13.sp, lineHeight = 19.sp)
+        Text("Knowing isn't the goal — doing it once today is what changes you.", color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Body)
     }
 }
 
@@ -341,7 +344,7 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
         Spacer(Modifier.height(24.dp))
         Text(
             if (reviewing) "Review done" else "Day ${session.day} complete!",
-            fontSize = 30.sp,
+            fontSize = TextSize.DisplayLarge,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
         )
@@ -350,7 +353,7 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
             Text(
                 "${if (streak == 1) "1-day" else "$streak-day"} learning streak" + (earned?.let { " · +$it points" } ?: ""),
                 color = Coral,
-                fontSize = 16.sp,
+                fontSize = TextSize.Title,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
@@ -358,7 +361,7 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
             Text(
                 "${session.area.label}: ${ProgramStore.areaDone(session.area)}/12 done" + if (areaStreak > 0) " · $areaStreak-week streak" else "",
                 color = TextSecondary,
-                fontSize = 14.sp,
+                fontSize = TextSize.Body,
                 textAlign = TextAlign.Center,
             )
         }
@@ -366,22 +369,22 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
         if (!reviewing && next != null) {
             Spacer(Modifier.height(26.dp))
             Column(
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(next.area.tint).padding(18.dp),
+                modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(next.area.tint).padding(18.dp),
             ) {
-                Text("UP NEXT · DAY ${next.day} · ${next.area.label.uppercase()}", color = next.area.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                Text("UP NEXT · DAY ${next.day} · ${next.area.label.uppercase()}", color = next.area.accent, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                 Spacer(Modifier.height(4.dp))
-                Text(next.title, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                Text(next.hook, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
+                Text(next.title, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+                Text(next.hook, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
             }
         }
 
         if (!reviewing && !ProgramStore.reminderPrompted) {
             Spacer(Modifier.height(18.dp))
             Column(
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(CardNeutral).padding(18.dp),
+                modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(18.dp),
             ) {
-                Text("Want a nudge each day?", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Text("Only if you haven't done that day's session yet.", color = TextSecondary, fontSize = 12.5.sp)
+                Text("Want a nudge each day?", fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                Text("Only if you haven't done that day's session yet.", color = TextSecondary, fontSize = TextSize.BodySmall)
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(LocalTime.of(8, 0) to "8 AM", LocalTime.of(13, 0) to "1 PM", LocalTime.of(20, 0) to "8 PM").forEach { (time, label) ->
@@ -394,7 +397,7 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
                 Text(
                     "No thanks",
                     color = TextSecondary,
-                    fontSize = 13.sp,
+                    fontSize = TextSize.BodySmall,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 10.dp).clickable { ProgramStore.dismissReminderPrompt() },
                 )
@@ -404,7 +407,7 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
             Text(
                 "We'll nudge you at ${formatClock(ProgramStore.reminderTime!!)} if you haven't started.",
                 color = TextSecondary,
-                fontSize = 12.5.sp,
+                fontSize = TextSize.BodySmall,
                 textAlign = TextAlign.Center,
             )
         }
@@ -425,9 +428,9 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
             Text(
                 "Done for now",
                 color = TextSecondary,
-                fontSize = 14.sp,
+                fontSize = TextSize.Body,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(top = 14.dp).clip(RoundedCornerShape(999.dp)).clickable { navController.goBack() }.padding(12.dp, 6.dp),
+                modifier = Modifier.padding(top = 14.dp).clip(Shapes.Pill).clickable { navController.goBack() }.padding(12.dp, 6.dp),
             )
         } else {
             BottomButton("Done", Ink, padding = false) { navController.goBack() }
@@ -444,12 +447,12 @@ private fun LockedSession(navController: NavHostController, session: ProgramSess
     ) {
         Icon(Icons.Filled.Lock, contentDescription = null, tint = TextMuted, modifier = Modifier.size(40.dp))
         Spacer(Modifier.height(12.dp))
-        Text("Day ${session.day} isn't unlocked yet", fontSize = 22.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Text("Day ${session.day} isn't unlocked yet", fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
         Text(
             "Finish day ${session.day - 1} first — sessions build on each other.",
             color = TextSecondary,
-            fontSize = 14.sp,
+            fontSize = TextSize.Body,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(24.dp))
@@ -461,12 +464,12 @@ private fun LockedSession(navController: NavHostController, session: ProgramSess
 private fun Chip(label: String, background: Color = ChipNeutral, content: Color = Ink, onClick: (() -> Unit)? = null) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
+            .clip(Shapes.Pill)
             .background(background)
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
             .padding(12.dp, 8.dp),
     ) {
-        Text(label, color = content, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = content, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -477,11 +480,11 @@ private fun BottomButton(label: String, color: Color, enabled: Boolean = true, p
             .let { if (padding) it.padding(24.dp, 8.dp, 24.dp, 28.dp) else it }
             .fillMaxWidth()
             .height(58.dp)
-            .clip(RoundedCornerShape(999.dp))
-            .background(if (enabled) color else Color(0xFFD8D5CE))
+            .clip(Shapes.Pill)
+            .background(if (enabled) color else Disabled)
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = Color.White, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }

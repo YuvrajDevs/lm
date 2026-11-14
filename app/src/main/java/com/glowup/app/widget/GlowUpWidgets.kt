@@ -49,6 +49,8 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import androidx.compose.ui.graphics.Color
+import androidx.glance.unit.ColorProvider
 
 // ---------- Today's routines: tick off without opening the app ----------
 
@@ -181,7 +183,7 @@ private fun StreakContent(context: Context) {
                 modifier = GlanceModifier.fillMaxWidth().background(ImageProvider(R.drawable.widget_pill_white)).padding(10.dp, 8.dp).clickable(openApp(context, "mood_checkin")),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(if (activeToday) "Log your mood" else "Check in today", style = style(12.sp, androidx.glance.unit.ColorProvider(androidx.compose.ui.graphics.Color(0xFF121212)), FontWeight.Bold))
+                Text(if (activeToday) "Log your mood" else "Check in today", style = style(12.sp, ColorProvider(Color(0xFF121212)), FontWeight.Bold))
             }
         } else {
             Row(

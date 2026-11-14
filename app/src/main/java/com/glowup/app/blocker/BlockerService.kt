@@ -40,6 +40,9 @@ object Blocker {
 
     fun hasUsageAccess(context: Context): Boolean {
         val ops = context.getSystemService(AppOpsManager::class.java)
+        // unsafeCheckOpNoThrow is the documented call for API 29+; the "unsafe" deprecation only flags
+        // that it can't be used for another app's uid, which we never do.
+        @Suppress("DEPRECATION")
         val mode = if (Build.VERSION.SDK_INT >= 29) ops.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
         else @Suppress("DEPRECATION") ops.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
         return mode == AppOpsManager.MODE_ALLOWED
@@ -126,7 +129,7 @@ class BlockerService : Service() {
         homePackage = packageManager.resolveActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)?.activityInfo?.packageName
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(NotificationChannel(Blocker.CHANNEL, "App blocker", NotificationManager.IMPORTANCE_MIN).apply {
-            description = "Shown while Glow-Up is blocking or pausing apps"
+            description = "Shown while Re:MakeU is blocking or pausing apps"
             setShowBadge(false)
         })
         registerReceiver(screenReceiver, IntentFilter().apply { addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF) })
@@ -155,7 +158,7 @@ class BlockerService : Service() {
                 "Focusing until " + formatClock(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime())
             } ?: "Mindful mode is on",
         )
-        .setContentText("Glow-Up will step in when you open an app on your list.")
+        .setContentText("Re:MakeU will step in when you open an app on your list.")
         .setOngoing(true)
         .setSilent(true)
         .setContentIntent(Notifications.openAppIntent(this, "blocker", NOTIFICATION_ID))

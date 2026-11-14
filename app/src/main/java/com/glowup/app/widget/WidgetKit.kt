@@ -43,7 +43,7 @@ internal fun style(size: TextUnit, color: ColorProvider, weight: FontWeight = Fo
 /** Opens the app on [route]. Each route gets its own data URI so launchers keep the intents apart. */
 internal fun openApp(context: Context, route: String?): Action {
     val intent = Intent(context, MainActivity::class.java)
-        .setData(Uri.parse("glowup://widget/${route ?: "home"}"))
+        .setData(Uri.parse("remakeu://widget/${route ?: "home"}"))
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
     route?.let { intent.putExtra(Notifications.EXTRA_ROUTE, it) }
     return actionStartActivity(intent)

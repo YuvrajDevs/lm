@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.GlowUp" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.ReMakeU" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">#FFFFFF</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>

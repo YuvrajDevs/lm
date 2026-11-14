@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -38,6 +37,9 @@ import com.glowup.app.ui.data.RoutineSession
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.theme.Green
 import com.glowup.app.ui.theme.Ink
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import java.time.LocalDate
 
 /**
  * Floats over whichever page a routine was opened on, so the user can tick it off right where
@@ -47,7 +49,7 @@ import com.glowup.app.ui.theme.Ink
 fun RoutineDoneBar(currentRoute: String?) {
     val routine = RoutineSession.activeId?.let(RoutineStore::find)
     val visible = routine != null && currentRoute !in setOf("home", "routines", "onboarding", null) &&
-        !routine.isDoneOn(java.time.LocalDate.now())
+        !routine.isDoneOn(LocalDate.now())
     Box(Modifier.fillMaxSize().navigationBarsPadding(), contentAlignment = Alignment.BottomCenter) {
         AnimatedVisibility(
             visible = visible,
@@ -58,15 +60,15 @@ fun RoutineDoneBar(currentRoute: String?) {
                 modifier = Modifier
                     .padding(16.dp, 0.dp, 16.dp, 104.dp)
                     .fillMaxWidth()
-                    .shadow(12.dp, RoundedCornerShape(999.dp))
-                    .clip(RoundedCornerShape(999.dp))
+                    .shadow(12.dp, Shapes.Pill)
+                    .clip(Shapes.Pill)
                     .background(Ink)
                     .padding(start = 18.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("ROUTINE", color = Color.White.copy(alpha = 0.5f), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
-                    Text(routine?.title.orEmpty(), color = Color.White, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text("ROUTINE", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp)
+                    Text(routine?.title.orEmpty(), color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Box(
                     Modifier.size(34.dp).clip(CircleShape).clickable { RoutineSession.clear() },
@@ -77,7 +79,7 @@ fun RoutineDoneBar(currentRoute: String?) {
                 Spacer(Modifier.width(4.dp))
                 Row(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(Shapes.Pill)
                         .background(Green)
                         .clickable {
                             routine?.let { RoutineStore.toggleToday(it.id) }
@@ -88,7 +90,7 @@ fun RoutineDoneBar(currentRoute: String?) {
                 ) {
                     Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Mark done", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("Mark done", color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Bold)
                 }
             }
         }

@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import com.glowup.app.BuildConfig
 import com.glowup.app.ui.data.style.Outfit
 import org.json.JSONObject
+import com.glowup.app.ui.data.fitness.Programmes
+import com.glowup.app.ui.data.fitness.QuickSessions
 
 enum class PlanType { SUBSCRIPTION, ONE_TIME }
 
@@ -44,7 +46,7 @@ object ProStore {
     var paywallReason by mutableStateOf<String?>(null)
         private set
 
-    fun showPaywall(reason: String = "Unlock everything in Glow-Up") {
+    fun showPaywall(reason: String = "Unlock everything in Re:MakeU") {
         paywallReason = reason
     }
 
@@ -95,10 +97,9 @@ object ProGate {
     fun groomingLessonLocked(id: Int) = locked && id in proGroomingLessons
     fun soundLocked(name: String) = locked && name in proSleepSounds
     fun morningSessionLocked(index: Int) = locked && index in proMorningSessions
-    val stylistLocked: Boolean get() = locked
 
-    fun programmeLocked(id: String) = locked && com.glowup.app.ui.data.fitness.Programmes.get(id)?.free == false
-    fun quickLocked(minutes: Int) = locked && minutes > com.glowup.app.ui.data.fitness.QuickSessions.FREE_MAX_MINUTES
+    fun programmeLocked(id: String) = locked && Programmes.get(id)?.free == false
+    fun quickLocked(minutes: Int) = locked && minutes > QuickSessions.FREE_MAX_MINUTES
     /** Auto-progression and per-exercise charts. */
     val progressionLocked: Boolean get() = locked
 }

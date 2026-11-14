@@ -15,7 +15,6 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,11 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.glowup.app.ui.components.hasPermission
@@ -56,6 +54,10 @@ import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import java.util.concurrent.Executors
 import kotlin.math.abs
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.Mint
+import androidx.camera.core.ImageProxy
 
 enum class ScanMode { FACE, POSTURE }
 
@@ -89,7 +91,7 @@ fun CameraScanner(
     val faceCallback by rememberUpdatedState(onFace)
     val postureCallback by rememberUpdatedState(onPosture)
 
-    Box(modifier.clip(RoundedCornerShape(28.dp)).background(Color.Black)) {
+    Box(modifier.clip(Shapes.Hero).background(Color.Black)) {
         if (granted) {
             val previewView = remember { PreviewView(context).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
             AndroidView({ previewView }, Modifier.fillMaxSize())
@@ -109,7 +111,7 @@ fun CameraScanner(
                 var provider: ProcessCameraProvider? = null
 
                 @OptIn(ExperimentalGetImage::class)
-                fun analyze(proxy: androidx.camera.core.ImageProxy) {
+                fun analyze(proxy: ImageProxy) {
                     val media = proxy.image
                     if (media == null || done) { proxy.close(); return }
                     val rotation = proxy.imageInfo.rotationDegrees
@@ -203,24 +205,24 @@ fun CameraScanner(
             // Guides
             Canvas(Modifier.fillMaxSize()) {
                 val stroke = Stroke(3.dp.toPx(), pathEffect = if (progress == 0f) PathEffect.dashPathEffect(floatArrayOf(18f, 14f)) else null)
-                val color = if (progress > 0f) Color(0xFF7FD9A8) else Color.White.copy(alpha = 0.85f)
+                val color = if (progress > 0f) Mint else Color.White.copy(alpha = 0.85f)
                 if (mode == ScanMode.FACE) {
                     val w = size.width * 0.62f
                     val h = w * 1.32f
                     val topLeft = Offset((size.width - w) / 2, (size.height - h) / 2 - size.height * 0.04f)
                     drawOval(color, topLeft, Size(w, h), style = stroke)
-                    if (progress > 0f) drawArc(Color(0xFF7FD9A8), -90f, 360f * progress.coerceAtMost(1f), false, topLeft, Size(w, h), style = Stroke(7.dp.toPx()))
+                    if (progress > 0f) drawArc(Mint, -90f, 360f * progress.coerceAtMost(1f), false, topLeft, Size(w, h), style = Stroke(7.dp.toPx()))
                 } else {
                     val x = size.width / 2
                     drawLine(color, Offset(x, size.height * 0.12f), Offset(x, size.height * 0.88f), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(18f, 14f)))
-                    if (progress > 0f) drawArc(Color(0xFF7FD9A8), -90f, 360f * progress.coerceAtMost(1f), false, Offset(x - 40.dp.toPx(), 24.dp.toPx()), Size(80.dp.toPx(), 80.dp.toPx()), style = Stroke(6.dp.toPx()))
+                    if (progress > 0f) drawArc(Mint, -90f, 360f * progress.coerceAtMost(1f), false, Offset(x - 40.dp.toPx(), 24.dp.toPx()), Size(80.dp.toPx(), 80.dp.toPx()), style = Stroke(6.dp.toPx()))
                 }
             }
         }
         Text(
             if (!granted) "Camera permission is needed for the scan" else if (done) "Got it" else hint,
-            color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).clip(RoundedCornerShape(999.dp)).background(Color.Black.copy(alpha = 0.55f)).padding(16.dp, 10.dp),
+            color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).clip(Shapes.Pill).background(Color.Black.copy(alpha = 0.55f)).padding(16.dp, 10.dp),
         )
     }
 }

@@ -33,7 +33,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.glowup.app.R
@@ -43,8 +42,10 @@ import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.program.Program
 import com.glowup.app.ui.data.style.StyleLibrary
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
-private val Gold = Color(0xFFF5C542)
 
 private val benefits = listOf(
     "All ${Program.TOTAL} programme sessions — the full 12 weeks",
@@ -91,9 +92,9 @@ fun ProPaywall() {
                                 Image(painterResource(R.drawable.ic_crown), contentDescription = null, modifier = Modifier.size(28.dp))
                             }
                             Spacer(Modifier.height(14.dp))
-                            Text(if (ProStore.isPro) "You're on Glow-Up Pro" else "Glow-Up Pro", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                            Text(if (ProStore.isPro) "You're on Re:MakeU Pro" else "Re:MakeU Pro", color = Color.White, fontSize = TextSize.Display, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(4.dp))
-                            Text(if (ProStore.isPro) "Everything is unlocked. Thanks for supporting Glow-Up." else reason, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp, lineHeight = 20.sp)
+                            Text(if (ProStore.isPro) "Everything is unlocked. Thanks for supporting Re:MakeU." else reason, color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.Body, lineHeight = LineHeight.Body)
                         }
                     }
 
@@ -104,7 +105,7 @@ fun ProPaywall() {
                                     Icon(Icons.Filled.Check, contentDescription = null, tint = Green, modifier = Modifier.size(14.dp))
                                 }
                                 Spacer(Modifier.width(12.dp))
-                                Text(benefit, fontSize = 14.sp, fontWeight = FontWeight.Medium, lineHeight = 19.sp)
+                                Text(benefit, fontSize = TextSize.Body, fontWeight = FontWeight.Medium, lineHeight = LineHeight.Body)
                             }
                         }
 
@@ -117,9 +118,9 @@ fun ProPaywall() {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(bottom = 10.dp)
-                                        .clip(RoundedCornerShape(18.dp))
+                                        .clip(Shapes.Medium)
                                         .background(if (isSelected) YellowTint else CardNeutral)
-                                        .border(2.dp, if (isSelected) Ink else Color.Transparent, RoundedCornerShape(18.dp))
+                                        .border(2.dp, if (isSelected) Ink else Color.Transparent, Shapes.Medium)
                                         .clickable { selected = plan; message = null }
                                         .padding(16.dp, 14.dp),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -137,19 +138,19 @@ fun ProPaywall() {
                                     Spacer(Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(plan.title, fontSize = 15.5.sp, fontWeight = FontWeight.Bold)
+                                            Text(plan.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
                                             plan.badge?.let {
                                                 Spacer(Modifier.width(8.dp))
-                                                Box(modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Ink).padding(8.dp, 3.dp)) {
-                                                    Text(it, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                                Box(modifier = Modifier.clip(Shapes.Pill).background(Ink).padding(8.dp, 3.dp)) {
+                                                    Text(it, color = Color.White, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold)
                                                 }
                                             }
                                         }
-                                        Text(if (trial != null) "$trial-day free trial · ${plan.note}" else plan.note, color = TextSecondary, fontSize = 12.sp)
+                                        Text(if (trial != null) "$trial-day free trial · ${plan.note}" else plan.note, color = TextSecondary, fontSize = TextSize.Caption)
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
-                                        Text(Billing.price(plan) ?: plan.fallbackPrice, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                        Text(plan.period, color = TextSecondary, fontSize = 11.5.sp)
+                                        Text(Billing.price(plan) ?: plan.fallbackPrice, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+                                        Text(plan.period, color = TextSecondary, fontSize = TextSize.Caption)
                                     }
                                 }
                             }
@@ -159,7 +160,7 @@ fun ProPaywall() {
 
                 Column(modifier = Modifier.padding(24.dp, 8.dp, 24.dp, 18.dp)) {
                     (message ?: Billing.lastError)?.let {
-                        Text(it, color = Maroon, fontSize = 12.5.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                        Text(it, color = Maroon, fontSize = TextSize.BodySmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
                     }
                     if (ProStore.isPro) {
                         CtaButton("Manage subscription") {
@@ -188,9 +189,9 @@ fun ProPaywall() {
                         Text(
                             "Restore purchases",
                             color = TextSecondary,
-                            fontSize = 13.sp,
+                            fontSize = TextSize.BodySmall,
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.clip(RoundedCornerShape(999.dp)).clickable {
+                            modifier = Modifier.clip(Shapes.Pill).clickable {
                                 message = "Checking Google Play…"
                                 Billing.refreshPurchases { found ->
                                     message = if (found) null else "No Pro purchase found on this Google account."
@@ -202,7 +203,7 @@ fun ProPaywall() {
                         Text(
                             "Renews automatically until you cancel in Google Play. Cancel anytime.",
                             color = TextMuted,
-                            fontSize = 11.sp,
+                            fontSize = TextSize.Micro,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                         )
@@ -219,12 +220,12 @@ private fun CtaButton(label: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(58.dp)
-            .clip(RoundedCornerShape(999.dp))
+            .clip(Shapes.Pill)
             .background(Ink)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = Color.White, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -232,12 +233,12 @@ private fun CtaButton(label: String, onClick: () -> Unit) {
 @Composable
 fun ProBadge(modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.clip(RoundedCornerShape(999.dp)).background(Gold).padding(7.dp, 3.dp),
+        modifier = modifier.clip(Shapes.Pill).background(Gold).padding(7.dp, 3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(painterResource(R.drawable.ic_crown), contentDescription = null, modifier = Modifier.size(11.dp))
         Spacer(Modifier.width(3.dp))
-        Text("PRO", color = Ink, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+        Text("PRO", color = Ink, fontSize = TextSize.Micro, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -252,7 +253,7 @@ fun ProCrownButton(onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Image(painterResource(R.drawable.ic_crown), contentDescription = if (ProStore.isPro) "Glow-Up Pro" else "Upgrade to Pro", modifier = Modifier.size(24.dp))
+        Image(painterResource(R.drawable.ic_crown), contentDescription = if (ProStore.isPro) "Re:MakeU Pro" else "Upgrade to Pro", modifier = Modifier.size(24.dp))
     }
 }
 

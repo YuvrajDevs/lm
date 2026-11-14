@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Air
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.SportsGymnastics
@@ -21,8 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,10 +27,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 private data class MorningActivity(val session: MorningSession, val tint: Color, val iconTint: Color, val icon: ImageVector)
 
@@ -65,15 +63,15 @@ fun MorningScreen(navController: NavHostController) {
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))
                 }
-                Text("Good morning", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Good morning", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.size(48.dp))
             }
 
             Text(
                 "A few minutes to start the day right — pick what fits.",
                 color = TextSecondary,
-                fontSize = 13.5.sp,
-                lineHeight = 19.sp,
+                fontSize = TextSize.Body,
+                lineHeight = LineHeight.Body,
                 modifier = Modifier.padding(24.dp, 14.dp, 24.dp, 0.dp),
             )
 
@@ -87,7 +85,7 @@ fun MorningScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(22.dp))
+                            .clip(Shapes.Card)
                             .background(activity.tint)
                             .clickable {
                                 if (ProGate.morningSessionLocked(index)) ProStore.showPaywall("${activity.session.title} is a Pro session")
@@ -104,8 +102,8 @@ fun MorningScreen(navController: NavHostController) {
                             Icon(activity.icon, contentDescription = null, tint = activity.iconTint, modifier = Modifier.size(22.dp))
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(activity.session.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                            Text(activity.session.meta, color = TextSecondary, fontSize = 12.sp)
+                            Text(activity.session.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                            Text(activity.session.meta, color = TextSecondary, fontSize = TextSize.Caption)
                         }
                         if (ProGate.morningSessionLocked(index)) ProBadge()
                         Box(
@@ -127,16 +125,16 @@ fun MorningScreen(navController: NavHostController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 6.dp)
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(Shapes.Card)
                             .background(CardNeutral)
                             .padding(16.dp, 14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Attach any of these to a routine card", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                        Text("Attach any of these to a routine card", color = TextSecondary, fontSize = TextSize.BodySmall, modifier = Modifier.weight(1f))
                         Text(
                             "Add →",
-                            fontSize = 13.sp,
+                            fontSize = TextSize.BodySmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable { navController.navigate("add_routine") },
                         )

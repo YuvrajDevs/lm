@@ -33,3 +33,24 @@ val YellowTint = Color(0xFFFFF8DE)
 
 val Maroon = Color(0xFFA6334C)
 val MaroonTint = Color(0xFFFBEAED)
+
+// ---- Semantic colours (design system) ----
+
+/** Light accents for text and icons on dark (Ink) surfaces. */
+val Mint = Color(0xFF7FD9A8)
+val Sun = Color(0xFFFFD84D)
+val Peach = Color(0xFFFF9C79)
+val Sky = Color(0xFF8DB8F5)
+val Lilac = Color(0xFFC4B5FF)
+
+/** Deep text colours for use on the matching tint backgrounds. */
+val GreenDeep = Color(0xFF1E7A4F)
+val PurpleDeep = Color(0xFF5A4A8C)
+val PurpleText = Color(0xFF6B4FD1)
+val Amber = Color(0xFF8A6A00)
+val CoralDeep = Color(0xFFD9572B)
+
+/** Surfaces and states. */
+val DialogSurface = Color(0xFFFAF9F6)
+val Disabled = Color(0xFFD8D5CE)
+val Gold = Color(0xFFF5C542)

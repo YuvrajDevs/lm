@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,20 +22,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.glowup.app.ui.theme.ChipNeutral
 import com.glowup.app.ui.theme.Ink
 import com.glowup.app.ui.theme.Maroon
 import com.glowup.app.ui.theme.TextMuted
 import com.glowup.app.ui.theme.TextSecondary
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.DialogSurface
+import com.glowup.app.ui.theme.Disabled
 
 /**
  * The app's single dialog shape — replaces Material's default AlertDialog everywhere so every
  * popup shares the same rounded card, typography, and pill-button styling as the rest of the UI.
  */
 @Composable
-fun GlowUpDialog(
+fun ReMakeUDialog(
     onDismissRequest: () -> Unit,
     title: String,
     message: String? = null,
@@ -53,14 +56,14 @@ fun GlowUpDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
-                .background(Color(0xFFFAF9F6))
+                .clip(Shapes.Hero)
+                .background(DialogSurface)
                 .padding(24.dp, 24.dp, 24.dp, 20.dp),
         ) {
-            Text(title, fontSize = 19.sp, fontWeight = FontWeight.Bold, lineHeight = 24.sp)
+            Text(title, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Title)
             message?.let {
                 Spacer(Modifier.height(10.dp))
-                Text(it, color = TextSecondary, fontSize = 14.sp, lineHeight = 20.sp)
+                Text(it, color = TextSecondary, fontSize = TextSize.Body, lineHeight = LineHeight.Body)
             }
             content?.let {
                 Spacer(Modifier.height(14.dp))
@@ -73,12 +76,12 @@ fun GlowUpDialog(
                         modifier = Modifier
                             .weight(1f)
                             .height(50.dp)
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(Shapes.Pill)
                             .background(ChipNeutral)
                             .clickable { (onSecondary ?: onDismissRequest)() },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(it, color = if (secondaryDestructive) Maroon else Ink, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text(it, color = if (secondaryDestructive) Maroon else Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 primaryText?.let {
@@ -86,12 +89,12 @@ fun GlowUpDialog(
                         modifier = Modifier
                             .weight(1f)
                             .height(50.dp)
-                            .clip(RoundedCornerShape(999.dp))
-                            .background(if (!primaryEnabled) Color(0xFFD8D5CE) else if (primaryDestructive) Maroon else Ink)
+                            .clip(Shapes.Pill)
+                            .background(if (!primaryEnabled) Disabled else if (primaryDestructive) Maroon else Ink)
                             .clickable(enabled = primaryEnabled) { (onPrimary ?: onDismissRequest)() },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(it, color = Color.White, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text(it, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -99,13 +102,13 @@ fun GlowUpDialog(
     }
 }
 
-/** Styled replacement for a Material RadioButton row, used inside GlowUpDialog picker lists. */
+/** Styled replacement for a Material RadioButton row, used inside ReMakeUDialog picker lists. */
 @Composable
-fun GlowUpOptionRow(label: String, selected: Boolean, onClick: () -> Unit) {
+fun ReMakeUOptionRow(label: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(Shapes.Small)
             .clickable(onClick = onClick)
             .padding(vertical = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -122,6 +125,6 @@ fun GlowUpOptionRow(label: String, selected: Boolean, onClick: () -> Unit) {
                 Box(modifier = Modifier.size(11.dp).clip(CircleShape).background(Ink))
             }
         }
-        Text(label, fontSize = 14.5.sp, fontWeight = FontWeight.Medium)
+        Text(label, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Medium)
     }
 }

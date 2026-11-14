@@ -16,7 +16,7 @@ val Poppins = FontFamily(
     Font(R.font.poppins_extrabold, FontWeight.ExtraBold),
 )
 
-val GlowUpTypography = Typography(
+val ReMakeUTypography = Typography(
     headlineMedium = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Bold, fontSize = 26.sp, letterSpacing = (-0.3).sp),
     titleLarge = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.Bold, fontSize = 18.sp),
     titleMedium = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 15.sp),

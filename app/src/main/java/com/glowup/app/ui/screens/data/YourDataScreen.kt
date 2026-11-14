@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.CloudOff
@@ -36,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.DeleteEverythingDialog
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.exportMyData
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.ConsentStore
@@ -47,6 +46,9 @@ import com.glowup.app.ui.theme.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 @Composable
 fun YourDataScreen(navController: NavHostController) {
@@ -91,7 +93,7 @@ fun YourDataScreen(navController: NavHostController) {
                     item {
                         Text(
                             "None yet. We'll always explain what a feature needs before Android asks you for a permission.",
-                            color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp,
+                            color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact,
                             modifier = Modifier.padding(horizontal = 4.dp),
                         )
                     }
@@ -118,7 +120,7 @@ fun YourDataScreen(navController: NavHostController) {
                     InfoCard(
                         icon = Icons.Outlined.CloudOff,
                         title = "We never upload your data",
-                        body = "Glow-Up has no account and no servers. If you've turned on Android backup for your Google account, your phone may include Glow-Up's data (never photos) in its own encrypted backup, so you can restore it on a new phone. We can't see that backup.",
+                        body = "Re:MakeU has no account and no servers. If you've turned on Android backup for your Google account, your phone may include Re:MakeU's data (never photos) in its own encrypted backup, so you can restore it on a new phone. We can't see that backup.",
                     )
                 }
 
@@ -127,7 +129,7 @@ fun YourDataScreen(navController: NavHostController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(Shapes.Pill)
                             .background(Ink)
                             .clickable { exportMyData(context) }
                             .padding(vertical = 16.dp),
@@ -136,27 +138,27 @@ fun YourDataScreen(navController: NavHostController) {
                     ) {
                         Icon(Icons.Outlined.FileDownload, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Export a copy of my data", color = Color.White, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Export a copy of my data", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(Shapes.Pill)
                             .background(MaroonTint)
                             .clickable { deleteEverything = true }
                             .padding(vertical = 16.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("Delete everything", color = Maroon, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Delete everything", color = Maroon, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
         }
 
         pendingDelete?.let { category ->
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { pendingDelete = null },
                 title = "Delete ${category.title.lowercase().replaceFirstChar { it.uppercase() }}?",
                 message = "This removes ${category.summary()} from this phone. Points you've already earned stay. This can't be undone.",
@@ -172,7 +174,7 @@ fun YourDataScreen(navController: NavHostController) {
         }
 
         if (deletePhotos) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { deletePhotos = false },
                 title = "Delete all photos?",
                 message = "Every saved photo is removed from this phone. This can't be undone.",
@@ -194,7 +196,7 @@ fun YourDataScreen(navController: NavHostController) {
 @Composable
 private fun PrivacyHero(photoCount: Int) {
     Column(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Ink).padding(20.dp, 20.dp),
+        modifier = Modifier.fillMaxWidth().clip(Shapes.Large).background(Ink).padding(20.dp, 20.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(40.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
@@ -202,8 +204,8 @@ private fun PrivacyHero(photoCount: Int) {
             }
             Spacer(Modifier.width(12.dp))
             Column {
-                Text("Private by design", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text("Everything stays on this phone", color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp)
+                Text("Private by design", color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+                Text("Everything stays on this phone", color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.BodySmall)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -212,19 +214,19 @@ private fun PrivacyHero(photoCount: Int) {
                 Text(
                     it,
                     color = Color.White,
-                    fontSize = 11.sp,
+                    fontSize = TextSize.Micro,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.12f)).padding(9.dp, 5.dp),
+                    modifier = Modifier.clip(Shapes.Pill).background(Color.White.copy(alpha = 0.12f)).padding(9.dp, 5.dp),
                     maxLines = 1,
                 )
             }
         }
         Spacer(Modifier.height(14.dp))
         Text(
-            "You can see, export or delete any of it below. $photoCount photo${if (photoCount == 1) "" else "s"} stored · 0 bytes uploaded, ever.",
+            "You can see, export or delete any of it below.\n$photoCount photo${if (photoCount == 1) "" else "s"} stored · 0 bytes uploaded, ever.",
             color = Color.White.copy(alpha = 0.7f),
-            fontSize = 12.5.sp,
-            lineHeight = 18.sp,
+            fontSize = TextSize.BodySmall,
+            lineHeight = LineHeight.Compact,
         )
     }
 }
@@ -234,7 +236,7 @@ private fun SectionLabel(text: String) {
     Text(
         text.uppercase(),
         color = TextSecondary,
-        fontSize = 12.sp,
+        fontSize = TextSize.Caption,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.4.sp,
         modifier = Modifier.padding(top = 16.dp, bottom = 2.dp, start = 4.dp),
@@ -243,43 +245,43 @@ private fun SectionLabel(text: String) {
 
 @Composable
 private fun CategoryCard(category: DataCategory, onDelete: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(16.dp, 14.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(16.dp, 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(category.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(category.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             if (category.clear != null) {
                 Text(
                     "Delete",
                     color = Maroon,
-                    fontSize = 12.5.sp,
+                    fontSize = TextSize.BodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clip(RoundedCornerShape(999.dp)).clickable(onClick = onDelete).padding(8.dp, 4.dp),
+                    modifier = Modifier.clip(Shapes.Pill).clickable(onClick = onDelete).padding(8.dp, 4.dp),
                 )
             } else {
-                Text("Needed by the app", color = TextMuted, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                Text("Needed by the app", color = TextMuted, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
             }
         }
-        Text(category.summary(), color = Ink, fontSize = 12.5.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
+        Text(category.summary(), color = Ink, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
         Spacer(Modifier.height(6.dp))
-        Text(category.why, color = TextSecondary, fontSize = 12.5.sp, lineHeight = 17.sp)
+        Text(category.why, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
     }
 }
 
 @Composable
 private fun InfoCard(icon: ImageVector, title: String, body: String, action: String? = null, onAction: () -> Unit = {}) {
-    Row(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(CardNeutral).padding(16.dp, 14.dp)) {
+    Row(modifier = Modifier.fillMaxWidth().clip(Shapes.Card).background(CardNeutral).padding(16.dp, 14.dp)) {
         Icon(icon, contentDescription = null, tint = Ink, modifier = Modifier.padding(top = 1.dp).size(20.dp))
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+            Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(4.dp))
-            Text(body, color = TextSecondary, fontSize = 12.5.sp, lineHeight = 17.sp)
+            Text(body, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
             action?.let {
                 Text(
                     it,
                     color = Maroon,
-                    fontSize = 12.5.sp,
+                    fontSize = TextSize.BodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(999.dp)).clickable(onClick = onAction).padding(vertical = 4.dp),
+                    modifier = Modifier.padding(top = 8.dp).clip(Shapes.Pill).clickable(onClick = onAction).padding(vertical = 4.dp),
                 )
             }
         }

@@ -15,7 +15,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -64,6 +63,17 @@ import com.glowup.app.ui.theme.Ink
 import kotlinx.coroutines.delay
 import java.io.File
 import kotlin.random.Random
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Sizes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.theme.Lilac
+import com.glowup.app.ui.theme.Mint
+import com.glowup.app.ui.theme.Peach
+import com.glowup.app.ui.theme.Sun
+import android.app.Activity
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val randomTopics = listOf(
     "Weekend", "A food you love", "Your favourite season", "A skill you want to learn",
@@ -72,7 +82,6 @@ private val randomTopics = listOf(
 )
 
 private const val COMPLETION_POINTS = 5
-private val Mint = Color(0xFF7FD9A8)
 
 private enum class Phase { READY, THINK, RECORDING, REVIEW }
 private enum class Mode { ANALYSE, LISTEN }
@@ -211,10 +220,10 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
         if (phase == Phase.RECORDING) stop()
     }
 
-    val view = androidx.compose.ui.platform.LocalView.current
+    val view = LocalView.current
     DisposableEffect(Unit) {
-        val window = (view.context as? android.app.Activity)?.window
-        val bars = window?.let { androidx.core.view.WindowCompat.getInsetsController(it, view) }
+        val window = (view.context as? Activity)?.window
+        val bars = window?.let { WindowCompat.getInsetsController(it, view) }
         bars?.isAppearanceLightStatusBars = false
         bars?.isAppearanceLightNavigationBars = false
         view.keepScreenOn = true
@@ -263,7 +272,7 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                         Phase.RECORDING -> "%d:%02d left".format(remaining / 60, remaining % 60)
                         Phase.REVIEW -> "You spoke for ${recordedSeconds}s"
                     },
-                    color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                    color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
                 )
                 Spacer(Modifier.size(48.dp))
             }
@@ -278,17 +287,17 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                     Spacer(Modifier.height(24.dp))
                     Text(
                         (scenario?.category?.uppercase() ?: "TALK FOR 1 MINUTE ABOUT"),
-                        color = Color.White.copy(alpha = 0.45f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp, textAlign = TextAlign.Center,
+                        color = Color.White.copy(alpha = 0.45f), fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp, textAlign = TextAlign.Center,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         if (scenario != null) displayTopic else "\"$displayTopic\"",
                         color = Color.White, fontSize = if (displayTopic.length > 40) 21.sp else if (displayTopic.length > 16) 24.sp else 34.sp,
-                        fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, lineHeight = 29.sp,
+                        fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, lineHeight = LineHeight.Display,
                     )
                     scenario?.let {
                         Spacer(Modifier.height(10.dp))
-                        Text("Tip: ${it.tip}", color = Mint, fontSize = 13.sp, textAlign = TextAlign.Center, lineHeight = 18.sp)
+                        Text("Tip: ${it.tip}", color = Mint, fontSize = TextSize.BodySmall, textAlign = TextAlign.Center, lineHeight = LineHeight.Compact)
                     }
                     Spacer(Modifier.height(28.dp))
                     Box(Modifier.size(170.dp), contentAlignment = Alignment.Center) {
@@ -299,7 +308,7 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                                 .clickable(enabled = canPlay) { togglePlayback() },
                             contentAlignment = Alignment.Center,
                         ) {
-                            if (phase == Phase.THINK) Text("$thinkLeft", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+                            if (phase == Phase.THINK) Text("$thinkLeft", color = Color.White, fontSize = TextSize.Number, fontWeight = FontWeight.Bold)
                             else Icon(
                                 when { !canPlay -> Icons.Filled.Mic; isPlayingBack -> Icons.Filled.Pause; else -> Icons.Filled.PlayArrow },
                                 contentDescription = if (canPlay) "Play recording" else null,
@@ -312,7 +321,7 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                         Text(
                             transcript().ifBlank { "Start talking — your words will appear here" }.takeLast(220),
                             color = if (transcript().isBlank()) Color.White.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.85f),
-                            fontSize = 15.sp, lineHeight = 21.sp, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 320.dp),
+                            fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 320.dp),
                         )
                     } else {
                         Text(
@@ -320,26 +329,26 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                                 phase == Phase.THINK -> "Plan your first sentence and your last one. Recording starts automatically."
                                 phase == Phase.REVIEW && hasRecording -> "Tap play to listen back. Notice your pace, pauses and filler words."
                                 micDenied -> "No microphone access, so nothing is recorded — you can still practise against the timer."
-                                mode == Mode.ANALYSE -> "Glow-Up turns your words into text on your phone to measure pace, filler words and pauses. No audio is saved."
+                                mode == Mode.ANALYSE -> "Re:MakeU turns your words into text on your phone to measure pace, filler words and pauses. No audio is saved."
                                 else -> "The recording stays on this phone and is deleted the moment you leave this screen."
                             },
-                            color = Color.White.copy(alpha = 0.45f), fontSize = 13.sp, lineHeight = 19.sp, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 290.dp),
+                            color = Color.White.copy(alpha = 0.45f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Body, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 290.dp),
                         )
                     }
                     if (phase == Phase.READY && recognitionAvailable) {
                         Spacer(Modifier.height(18.dp))
-                        Row(Modifier.clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.08f)).padding(4.dp)) {
+                        Row(Modifier.clip(Shapes.Pill).background(Color.White.copy(alpha = 0.08f)).padding(4.dp)) {
                             listOf(Mode.ANALYSE to "Analyse", Mode.LISTEN to "Listen back").forEach { (m, label) ->
                                 Text(
-                                    label, color = if (mode == m) Ink else Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(if (mode == m) Color.White else Color.Transparent).clickable { mode = m }.padding(16.dp, 8.dp),
+                                    label, color = if (mode == m) Ink else Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.clip(Shapes.Pill).background(if (mode == m) Color.White else Color.Transparent).clickable { mode = m }.padding(16.dp, 8.dp),
                                 )
                             }
                         }
                     }
                     if (BuildConfig.DEBUG && phase == Phase.RECORDING && mode == Mode.ANALYSE) {
                         Text(
-                            "Developer: use sample speech", color = Color(0xFFC4B5FF), fontSize = 12.sp, modifier = Modifier.padding(top = 12.dp).clickable {
+                            "Developer: use sample speech", color = Lilac, fontSize = TextSize.Caption, modifier = Modifier.padding(top = 12.dp).clickable {
                                 finalText = "So um I think the best trip I took was to the mountains last year and like we basically hiked every single day you know and the views were amazing I mean honestly it was the the best week"
                                 (0 until 300).forEach { i -> levels += LevelSample(i * 100L, if (i in 120..150) -1f else 4f + (i % 9)) }
                                 remaining = totalSeconds - 32
@@ -358,7 +367,7 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                     Phase.REVIEW -> {
                         WhiteButton("Done") { finish() }
                         Text(
-                            "Try again", color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                            "Try again", color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
                                 player?.release(); player = null; isPlayingBack = false
                                 phase = Phase.READY
@@ -383,47 +392,47 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
 private fun ReportView(report: SpeechReport?, transcript: String, modifier: Modifier, onHistory: () -> Unit) {
     Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp, 20.dp, 24.dp, 16.dp)) {
         if (report == null || transcript.isBlank()) {
-            Text("We couldn't hear any words", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text("We couldn't hear any words", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
             Text(
                 "Check your microphone isn't muted and speak a little louder. Speech recognition needs your phone's speech services — or switch to Listen back.",
-                color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp, lineHeight = 20.sp, modifier = Modifier.padding(top = 6.dp),
+                color = Color.White.copy(alpha = 0.6f), fontSize = TextSize.Body, lineHeight = LineHeight.Body, modifier = Modifier.padding(top = 6.dp),
             )
             return@Column
         }
-        Text("YOUR REPORT", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp)
+        Text("YOUR REPORT", color = Color.White.copy(alpha = 0.5f), fontSize = TextSize.Caption, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp)
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Metric("${report.wpm}", "words / min", when { report.wpm in 125..165 -> Mint; report.wpm > 175 || report.wpm < 100 -> Color(0xFFFF9C79); else -> Color(0xFFFFD84D) }, Modifier.weight(1f))
-            Metric("${report.fillerTotal}", "fillers", if (report.fillersPerMinute < 2) Mint else if (report.fillersPerMinute < 4) Color(0xFFFFD84D) else Color(0xFFFF9C79), Modifier.weight(1f))
-            Metric("${report.longPauses}", "long pauses", if (report.longPauses <= 3) Mint else Color(0xFFFFD84D), Modifier.weight(1f))
+            Metric("${report.wpm}", "words / min", when { report.wpm in 125..165 -> Mint; report.wpm > 175 || report.wpm < 100 -> Peach; else -> Sun }, Modifier.weight(1f))
+            Metric("${report.fillerTotal}", "fillers", if (report.fillersPerMinute < 2) Mint else if (report.fillersPerMinute < 4) Sun else Peach, Modifier.weight(1f))
+            Metric("${report.longPauses}", "long pauses", if (report.longPauses <= 3) Mint else Sun, Modifier.weight(1f))
         }
         Spacer(Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Metric("${report.variety}", "voice variety", if (report.variety >= 55) Mint else if (report.variety >= 35) Color(0xFFFFD84D) else Color(0xFFFF9C79), Modifier.weight(1f))
+            Metric("${report.variety}", "voice variety", if (report.variety >= 55) Mint else if (report.variety >= 35) Sun else Peach, Modifier.weight(1f))
             Metric("${report.words}", "words", Color.White, Modifier.weight(1f))
             Metric("${report.longestPauseSeconds}s", "longest pause", Color.White, Modifier.weight(1f))
         }
-        Text("Target pace: 130–160 words a minute.", color = Color.White.copy(alpha = 0.45f), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+        Text("Target pace: 130–160 words a minute.", color = Color.White.copy(alpha = 0.45f), fontSize = TextSize.Caption, modifier = Modifier.padding(top = 8.dp))
 
         val good = report.wentWell()
         if (good.isNotEmpty()) {
             Spacer(Modifier.height(20.dp))
-            Text("What went well", color = Mint, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text("What went well", color = Mint, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
             good.forEach { Note(it.title, it.body) }
         }
         val work = report.workOn()
         if (work.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
-            Text("Work on next", color = Color(0xFFFFD84D), fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text("Work on next", color = Sun, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
             work.forEach { Note(it.title, it.body) }
         }
         if (report.fillers.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
-            Text("Filler words: " + report.fillers.joinToString(" · ") { "\"${it.word}\" ×${it.count}" }, color = Color.White.copy(alpha = 0.7f), fontSize = 13.sp, lineHeight = 18.sp)
+            Text("Filler words: " + report.fillers.joinToString(" · ") { "\"${it.word}\" ×${it.count}" }, color = Color.White.copy(alpha = 0.7f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
         }
 
         Spacer(Modifier.height(20.dp))
-        Text("Transcript", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Text("Transcript", color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(6.dp))
         val fillerWords = report.fillers.map { it.word }.toSet()
         Text(
@@ -434,15 +443,15 @@ private fun ReportView(report: SpeechReport?, transcript: String, modifier: Modi
                 val marked = BooleanArray(tokens.size) { clean[it] in fillerWords }
                 for (i in 0 until tokens.size - 1) if ("${clean[i]} ${clean[i + 1]}" in fillerWords) { marked[i] = true; marked[i + 1] = true }
                 tokens.forEachIndexed { i, w ->
-                    if (marked[i]) withStyle(SpanStyle(color = Color(0xFFFF9C79), fontWeight = FontWeight.Bold)) { append(w) } else append(w)
+                    if (marked[i]) withStyle(SpanStyle(color = Peach, fontWeight = FontWeight.Bold)) { append(w) } else append(w)
                     append(" ")
                 }
             },
-            color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp, lineHeight = 21.sp,
+            color = Color.White.copy(alpha = 0.8f), fontSize = TextSize.Body, lineHeight = LineHeight.Relaxed,
         )
-        Text("Speech recognition can miss \"um\" and \"uh\", so the real filler count may be a little higher.", color = Color.White.copy(alpha = 0.4f), fontSize = 11.5.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 10.dp))
+        Text("Speech recognition can miss \"um\" and \"uh\", so the real filler count may be a little higher.", color = Color.White.copy(alpha = 0.4f), fontSize = TextSize.Caption, lineHeight = LineHeight.Tight, modifier = Modifier.padding(top = 10.dp))
         Text(
-            "See your progress over time →", color = Color(0xFFC4B5FF), fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold,
+            "See your progress over time →", color = Lilac, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(top = 16.dp).clickable(onClick = onHistory),
         )
     }
@@ -450,23 +459,23 @@ private fun ReportView(report: SpeechReport?, transcript: String, modifier: Modi
 
 @Composable
 private fun Metric(value: String, label: String, color: Color, modifier: Modifier) {
-    Column(modifier.clip(RoundedCornerShape(18.dp)).background(Color.White.copy(alpha = 0.07f)).padding(12.dp)) {
-        Text(value, color = color, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = Color.White.copy(alpha = 0.55f), fontSize = 11.5.sp)
+    Column(modifier.clip(Shapes.Medium).background(Color.White.copy(alpha = 0.07f)).padding(12.dp)) {
+        Text(value, color = color, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold)
+        Text(label, color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Caption)
     }
 }
 
 @Composable
 private fun Note(title: String, body: String) {
-    Column(Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.07f)).padding(14.dp, 12.dp)) {
-        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-        Text(body, color = Color.White.copy(alpha = 0.65f), fontSize = 12.5.sp, lineHeight = 17.sp)
+    Column(Modifier.fillMaxWidth().padding(top = 8.dp).clip(Shapes.Medium).background(Color.White.copy(alpha = 0.07f)).padding(14.dp, 12.dp)) {
+        Text(title, color = Color.White, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+        Text(body, color = Color.White.copy(alpha = 0.65f), fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
     }
 }
 
 @Composable
 private fun WhiteButton(label: String, onClick: () -> Unit) {
-    Box(Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(999.dp)).background(Color.White).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-        Text(label, color = Ink, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
+    Box(Modifier.fillMaxWidth().height(Sizes.Button).clip(Shapes.Pill).background(Color.White).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Text(label, color = Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }

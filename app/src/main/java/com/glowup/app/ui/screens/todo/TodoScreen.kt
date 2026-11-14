@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -35,12 +34,14 @@ import androidx.navigation.NavHostController
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.R
 import com.glowup.app.ui.components.DetailHeader
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoEntry
 import com.glowup.app.ui.data.TodoStore
 import com.glowup.app.ui.theme.*
 import androidx.compose.material.icons.filled.Close
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 @Composable
 fun TodoScreen(navController: NavHostController) {
@@ -65,7 +66,7 @@ fun TodoScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(24.dp, 14.dp, 24.dp, 0.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(22.dp))
+                    .clip(Shapes.Card)
                     .background(ChipNeutral)
                     .clickable { openAddDialog(TodoBucket.TODAY) }
                     .padding(18.dp, 14.dp),
@@ -73,7 +74,7 @@ fun TodoScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Icon(Icons.Filled.Check, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
-                Text("Add a to-do...", color = TextSecondary, fontSize = 14.sp)
+                Text("Add a to-do...", color = TextSecondary, fontSize = TextSize.Body)
             }
 
             LazyColumn(
@@ -82,12 +83,12 @@ fun TodoScreen(navController: NavHostController) {
             ) {
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("TODAY", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                        Text("TODAY", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                         if (TodoStore.items.any { it.done }) {
                             Text(
                                 "Clear completed",
                                 color = TextSecondary,
-                                fontSize = 12.5.sp,
+                                fontSize = TextSize.BodySmall,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.clickable { TodoStore.clearDone() },
                             )
@@ -96,7 +97,7 @@ fun TodoScreen(navController: NavHostController) {
                     Spacer(Modifier.height(10.dp))
                 }
                 if (todayItems.isEmpty()) {
-                    item { Text("Nothing for today yet.", color = TextMuted, fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp)) }
+                    item { Text("Nothing for today yet.", color = TextMuted, fontSize = TextSize.BodySmall, modifier = Modifier.padding(bottom = 8.dp)) }
                 }
                 items(todayItems, key = { it.id }) { item ->
                     TodoRow(item, onDelete = { TodoStore.remove(item.id) }) { TodoStore.toggle(item.id) }
@@ -104,11 +105,11 @@ fun TodoScreen(navController: NavHostController) {
                 }
                 item { Spacer(Modifier.height(10.dp)) }
                 item {
-                    Text("THIS WEEK", color = TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                    Text("THIS WEEK", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                     Spacer(Modifier.height(10.dp))
                 }
                 if (weekItems.isEmpty()) {
-                    item { Text("Nothing for this week yet.", color = TextMuted, fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp)) }
+                    item { Text("Nothing for this week yet.", color = TextMuted, fontSize = TextSize.BodySmall, modifier = Modifier.padding(bottom = 8.dp)) }
                 }
                 items(weekItems, key = { it.id }) { item ->
                     TodoRow(item, onDelete = { TodoStore.remove(item.id) }) { TodoStore.toggle(item.id) }
@@ -132,7 +133,7 @@ fun TodoScreen(navController: NavHostController) {
         }
 
         if (showAddDialog) {
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { showAddDialog = false; newTodoText = ""; newTodoMeta = "" },
                 title = "Add a to-do",
                 secondaryText = "Cancel",
@@ -168,14 +169,14 @@ fun TodoScreen(navController: NavHostController) {
                             ),
                         )
                         Spacer(Modifier.height(14.dp))
-                        Text("When?", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("When?", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             TodoBucket.entries.forEach { bucket ->
                                 val selected = newTodoBucket == bucket
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(999.dp))
+                                        .clip(Shapes.Pill)
                                         .background(if (selected) Ink else ChipNeutral)
                                         .clickable { newTodoBucket = bucket }
                                         .padding(16.dp, 9.dp),
@@ -183,7 +184,7 @@ fun TodoScreen(navController: NavHostController) {
                                     Text(
                                         bucket.label,
                                         color = if (selected) Color.White else Ink,
-                                        fontSize = 13.sp,
+                                        fontSize = TextSize.BodySmall,
                                         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                                     )
                                 }
@@ -201,7 +202,7 @@ private fun TodoRow(item: TodoEntry, onDelete: () -> Unit, onToggle: () -> Unit)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(Shapes.Medium)
             .background(CardNeutral)
             .clickable { onToggle() }
             .padding(14.dp, 12.dp)
@@ -222,16 +223,16 @@ private fun TodoRow(item: TodoEntry, onDelete: () -> Unit, onToggle: () -> Unit)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 item.title,
-                fontSize = 14.5.sp,
+                fontSize = TextSize.BodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 textDecoration = if (item.done) TextDecoration.LineThrough else null,
             )
             item.meta?.let {
-                Text(it, color = TextSecondary, fontSize = 12.sp)
+                Text(it, color = TextSecondary, fontSize = TextSize.Caption)
             }
         }
-        androidx.compose.material3.Icon(
-            androidx.compose.material.icons.Icons.Filled.Close,
+        Icon(
+            Icons.Filled.Close,
             contentDescription = "Delete",
             tint = TextMuted,
             modifier = Modifier.size(28.dp).clip(CircleShape).clickable(onClick = onDelete).padding(6.dp),

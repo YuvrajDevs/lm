@@ -13,17 +13,17 @@ import com.glowup.app.ui.data.Stores
 import java.io.File
 import java.time.LocalDate
 
-/** Shares everything Glow-Up has saved as one readable JSON file. */
+/** Shares everything Re:MakeU has saved as one readable JSON file. */
 fun exportMyData(context: Context) {
     val dir = File(context.cacheDir, "exports").apply { mkdirs() }
     dir.listFiles()?.forEach { it.delete() } // never leave older exports lying around
-    val file = File(dir, "glowup-data-${LocalDate.now()}.json")
+    val file = File(dir, "remakeu-data-${LocalDate.now()}.json")
     file.writeText(Storage.exportJson())
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
     val share = Intent(Intent.ACTION_SEND)
         .setType("application/json")
         .putExtra(Intent.EXTRA_STREAM, uri)
-        .putExtra(Intent.EXTRA_SUBJECT, "My Glow-Up data")
+        .putExtra(Intent.EXTRA_SUBJECT, "My Re:MakeU data")
         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     context.startActivity(Intent.createChooser(share, "Export my data"))
 }
@@ -31,7 +31,7 @@ fun exportMyData(context: Context) {
 @Composable
 fun DeleteEverythingDialog(navController: NavHostController, onDismiss: () -> Unit) {
     val context = LocalContext.current
-    GlowUpDialog(
+    ReMakeUDialog(
         onDismissRequest = onDismiss,
         title = "Delete all your data?",
         message = "This permanently deletes your profile, routines, moods, sleep log, notes, wardrobe, photos, reminders and progress from this phone. This can't be undone.",

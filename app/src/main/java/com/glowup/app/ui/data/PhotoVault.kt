@@ -3,6 +3,7 @@ package com.glowup.app.ui.data
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.LocalDate
 
 /**
  * The only place photos are ever written. Files live in the app's no-backup directory, so they are
@@ -41,9 +42,9 @@ object PhotoVault {
     fun list(album: Album, tag: String): List<File> = list(album).filter { it.name.startsWith("$tag-") }
 
     /** The date a photo was taken, from its file name. */
-    fun dateOf(file: File): java.time.LocalDate? =
+    fun dateOf(file: File): LocalDate? =
         Regex("(\\d{8})-\\d{6}").find(file.name)?.groupValues?.get(1)?.let {
-            runCatching { java.time.LocalDate.parse(it, DateTimeFormatter.BASIC_ISO_DATE) }.getOrNull()
+            runCatching { LocalDate.parse(it, DateTimeFormatter.BASIC_ISO_DATE) }.getOrNull()
         }
 
     fun count(album: Album) = list(album).size

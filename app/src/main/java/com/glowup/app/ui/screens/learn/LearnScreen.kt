@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -38,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.glowup.app.R
-import com.glowup.app.ui.components.GlowUpBottomNav
-import com.glowup.app.ui.components.GlowUpDialog
+import com.glowup.app.ui.components.ReMakeUBottomNav
+import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.NavTab
 import com.glowup.app.ui.data.program.Program
 import com.glowup.app.ui.data.program.ProgramArea
@@ -47,6 +46,9 @@ import com.glowup.app.ui.data.program.ProgramSession
 import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.program.SessionState
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 @Composable
 fun LearnScreen(navController: NavHostController) {
@@ -82,7 +84,7 @@ fun LearnScreen(navController: NavHostController) {
                 Text(
                     "12 weeks · 84 sessions · 7 areas",
                     color = TextSecondary,
-                    fontSize = 13.sp,
+                    fontSize = TextSize.BodySmall,
                     modifier = Modifier.padding(horizontal = 24.dp),
                 )
                 Spacer(Modifier.height(16.dp))
@@ -93,7 +95,7 @@ fun LearnScreen(navController: NavHostController) {
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(26.dp))
+                        .clip(Shapes.Large)
                         .background(Ink)
                         .padding(20.dp, 18.dp),
                 ) {
@@ -102,19 +104,19 @@ fun LearnScreen(navController: NavHostController) {
                             Text(
                                 if (ProgramStore.isFinished) "PROGRAMME COMPLETE" else "WEEK $currentWeek · ${Program.phaseFor(currentWeek).uppercase()}",
                                 color = Color.White.copy(alpha = 0.55f),
-                                fontSize = 11.sp,
+                                fontSize = TextSize.Micro,
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 0.4.sp,
                             )
-                            Text("$done of ${Program.TOTAL} done", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Text("$done of ${Program.TOTAL} done", color = Color.White, fontSize = TextSize.Headline, fontWeight = FontWeight.Bold)
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(painterResource(R.drawable.ic_flame), contentDescription = null, modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("$streak", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                                Text("$streak", color = Color.White, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
                             }
-                            Text("day streak", color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp)
+                            Text("day streak", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro)
                         }
                     }
                     Spacer(Modifier.height(14.dp))
@@ -123,7 +125,7 @@ fun LearnScreen(navController: NavHostController) {
                     Text(
                         if (done == 0) "Do your first session to start your streak" else "Best streak ${ProgramStore.bestStreak().let { if (it == 1) "1 day" else "$it days" }} · ${Program.TOTAL - done} sessions to go",
                         color = Color.White.copy(alpha = 0.55f),
-                        fontSize = 11.5.sp,
+                        fontSize = TextSize.Caption,
                     )
                 }
                 Spacer(Modifier.height(14.dp))
@@ -135,7 +137,7 @@ fun LearnScreen(navController: NavHostController) {
             }
 
             item {
-                Text("Areas", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 24.dp))
+                Text("Areas", fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 24.dp))
                 Spacer(Modifier.height(10.dp))
                 LazyRow(contentPadding = PaddingValues(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(ProgramArea.entries) { area -> AreaCard(area) }
@@ -144,7 +146,7 @@ fun LearnScreen(navController: NavHostController) {
             }
 
             item {
-                Text("Milestones", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 24.dp))
+                Text("Milestones", fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 24.dp))
                 Spacer(Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth(),
@@ -171,11 +173,11 @@ fun LearnScreen(navController: NavHostController) {
         }
 
         Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-            GlowUpBottomNav(navController, NavTab.LEARN)
+            ReMakeUBottomNav(navController, NavTab.LEARN)
         }
 
         lockedMessage?.let { message ->
-            GlowUpDialog(
+            ReMakeUDialog(
                 onDismissRequest = { lockedMessage = null },
                 title = "Not unlocked yet",
                 message = message,
@@ -193,12 +195,12 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(26.dp))
+                .clip(Shapes.Large)
                 .background(GreenTint)
                 .padding(20.dp),
         ) {
-            Text("You finished all 84 sessions", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text("Revisit any session below — the drills work even better the second time.", color = TextSecondary, fontSize = 13.sp)
+            Text("You finished all 84 sessions", fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
+            Text("Revisit any session below — the drills work even better the second time.", color = TextSecondary, fontSize = TextSize.BodySmall)
         }
         return
     }
@@ -207,7 +209,7 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(26.dp))
+            .clip(Shapes.Large)
             .background(next.area.tint)
             .clickable { onOpen(next) }
             .padding(20.dp, 18.dp),
@@ -217,14 +219,14 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
                 Text(
                     (if (doneToday) "UP NEXT · DAY ${next.day}" else "TODAY · DAY ${next.day}") + " · ${next.area.label.uppercase()}",
                     color = next.area.accent,
-                    fontSize = 11.sp,
+                    fontSize = TextSize.Micro,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.4.sp,
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(next.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, lineHeight = 25.sp)
+                Text(next.title, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Title)
                 Spacer(Modifier.height(4.dp))
-                Text(next.hook, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
+                Text(next.hook, color = TextSecondary, fontSize = TextSize.BodySmall, lineHeight = LineHeight.Compact)
             }
             Image(painterResource(next.area.icon), contentDescription = null, modifier = Modifier.size(56.dp))
         }
@@ -232,7 +234,7 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(999.dp))
+                    .clip(Shapes.Pill)
                     .background(Ink)
                     .padding(18.dp, 10.dp),
             ) {
@@ -247,12 +249,12 @@ private fun TodayCard(next: ProgramSession?, onOpen: (ProgramSession) -> Unit) {
                     Text(
                         if (doneToday) "Keep going · ${next.minutes} min" else "Start · ${next.minutes} min",
                         color = Color.White,
-                        fontSize = 13.5.sp,
+                        fontSize = TextSize.Body,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
-            Text("+${next.points} points", color = next.area.accent, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+            Text("+${next.points} points", color = next.area.accent, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -264,21 +266,21 @@ private fun AreaCard(area: ProgramArea) {
     Column(
         modifier = Modifier
             .width(150.dp)
-            .clip(RoundedCornerShape(20.dp))
+            .clip(Shapes.Card)
             .background(area.tint)
             .padding(14.dp),
     ) {
         Image(painterResource(area.icon), contentDescription = null, modifier = Modifier.size(30.dp))
         Spacer(Modifier.height(8.dp))
-        Text(area.label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-        Text(area.tagline, color = TextSecondary, fontSize = 11.sp, lineHeight = 14.sp, minLines = 2, maxLines = 2)
+        Text(area.label, fontSize = TextSize.Body, fontWeight = FontWeight.SemiBold)
+        Text(area.tagline, color = TextSecondary, fontSize = TextSize.Micro, lineHeight = LineHeight.Tight, minLines = 2, maxLines = 2)
         Spacer(Modifier.height(10.dp))
         ProgressBar(done / 12f, area.accent, Color.White)
         Spacer(Modifier.height(6.dp))
         Text(
             "$done/12 · " + if (streak > 0) "$streak-week streak" else "no streak yet",
             color = area.accent,
-            fontSize = 11.sp,
+            fontSize = TextSize.Micro,
             fontWeight = FontWeight.SemiBold,
         )
     }
@@ -298,7 +300,7 @@ private fun WeekBadge(week: Int, done: Int) {
         if (complete) {
             Icon(Icons.Filled.Check, contentDescription = "Week $week complete", tint = Color.White, modifier = Modifier.size(13.dp))
         } else {
-            Text("$week", color = if (done > 0) Ink else TextMuted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+            Text("$week", color = if (done > 0) Ink else TextMuted, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
         }
     }
 }
@@ -314,10 +316,10 @@ private fun WeekHeader(week: Int, expanded: Boolean, onToggle: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text("Week $week", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            Text(Program.phaseFor(week), color = TextSecondary, fontSize = 12.sp)
+            Text("Week $week", fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold)
+            Text(Program.phaseFor(week), color = TextSecondary, fontSize = TextSize.Caption)
         }
-        Text("$done/${Program.DAYS_PER_WEEK}", color = if (done == Program.DAYS_PER_WEEK) Green else TextSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Text("$done/${Program.DAYS_PER_WEEK}", color = if (done == Program.DAYS_PER_WEEK) Green else TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.width(8.dp))
         Icon(if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = TextSecondary)
     }
@@ -330,9 +332,9 @@ private fun SessionRow(session: ProgramSession, state: SessionState, onClick: ()
         modifier = Modifier
             .padding(24.dp, 4.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(Shapes.Medium)
             .background(if (state == SessionState.AVAILABLE) session.area.tint else CardNeutral)
-            .let { if (state == SessionState.AVAILABLE) it.border(2.dp, session.area.accent, RoundedCornerShape(18.dp)) else it }
+            .let { if (state == SessionState.AVAILABLE) it.border(2.dp, session.area.accent, Shapes.Medium) else it }
             .clickable(onClick = onClick)
             .padding(14.dp, 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -361,13 +363,13 @@ private fun SessionRow(session: ProgramSession, state: SessionState, onClick: ()
             Text(
                 "DAY ${session.day} · ${session.area.label.uppercase()}",
                 color = if (locked) TextMuted else session.area.accent,
-                fontSize = 10.5.sp,
+                fontSize = TextSize.Micro,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 0.3.sp,
             )
-            Text(session.title, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = if (locked) TextSecondary else Ink)
+            Text(session.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold, color = if (locked) TextSecondary else Ink)
         }
-        if (ProGate.sessionLocked(session.index)) ProBadge() else Text("${session.minutes}m", color = TextMuted, fontSize = 12.sp)
+        if (ProGate.sessionLocked(session.index)) ProBadge() else Text("${session.minutes}m", color = TextMuted, fontSize = TextSize.Caption)
     }
 }
 
@@ -377,14 +379,14 @@ internal fun ProgressBar(fraction: Float, fill: Color, track: Color, height: Int
         modifier = Modifier
             .fillMaxWidth()
             .height(height.dp)
-            .clip(RoundedCornerShape(999.dp))
+            .clip(Shapes.Pill)
             .background(track),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(fraction.coerceIn(0f, 1f))
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(999.dp))
+                .clip(Shapes.Pill)
                 .background(fill),
         )
     }

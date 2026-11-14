@@ -24,6 +24,11 @@ import com.glowup.app.ui.data.style.Outfit
 import com.glowup.app.ui.data.style.SavedLooksStore
 import com.glowup.app.ui.data.style.StyleLibrary
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 /** The board an outfit is laid out on: a soft tint of its style's colour. */
 @Composable
@@ -33,15 +38,15 @@ fun OutfitBoard(outfit: Outfit, modifier: Modifier = Modifier, height: Dp = 210.
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .clip(RoundedCornerShape(22.dp))
+            .clip(Shapes.Card)
             .background(guide?.tint ?: CardNeutral),
     ) {
         val artwork = artworkOrNull(outfitArtworkName(outfit.id))
         if (artwork != null) {
-            androidx.compose.foundation.Image(
-                androidx.compose.ui.res.painterResource(artwork),
+            Image(
+                painterResource(artwork),
                 contentDescription = outfit.name,
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )
         } else {
@@ -72,14 +77,14 @@ fun OutfitCard(outfit: Outfit, modifier: Modifier = Modifier, showStyle: Boolean
         OutfitBoard(outfit, height = 200.dp)
         Spacer(Modifier.height(10.dp))
         if (showStyle && guide != null) {
-            Text(guide.title.uppercase(), color = guide.accent, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+            Text(guide.title.uppercase(), color = guide.accent, fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
         }
-        Text(outfit.name, fontSize = 15.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(outfit.name, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.height(6.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
             outfit.pieces.take(5).forEach { piece -> SwatchDot(piece.swatch.color, 14.dp) }
             Spacer(Modifier.width(4.dp))
-            Text("${outfit.pieces.size} pieces", color = TextSecondary, fontSize = 11.5.sp)
+            Text("${outfit.pieces.size} pieces", color = TextSecondary, fontSize = TextSize.Caption)
         }
     }
 }

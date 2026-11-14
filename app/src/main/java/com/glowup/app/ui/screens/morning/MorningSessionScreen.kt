@@ -9,7 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,14 +33,19 @@ import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.data.ProgressStore
 import com.glowup.app.ui.theme.*
 import kotlinx.coroutines.delay
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
+import com.glowup.app.ui.components.ProLockedScreen
+import com.glowup.app.ui.data.ProGate
 
 private const val COMPLETION_POINTS = 5
 
 @Composable
 fun MorningSessionScreen(navController: NavHostController, index: Int) {
     val session = morningSessions.getOrNull(index) ?: return
-    if (com.glowup.app.ui.data.ProGate.morningSessionLocked(index)) {
-        com.glowup.app.ui.components.ProLockedScreen(navController, session.title, "${session.title} is a Pro session")
+    if (ProGate.morningSessionLocked(index)) {
+        ProLockedScreen(navController, session.title, "${session.title} is a Pro session")
         return
     }
     var stepIndex by remember { mutableStateOf(0) }
@@ -99,14 +103,14 @@ fun MorningSessionScreen(navController: NavHostController, index: Int) {
                     .padding(24.dp, 12.dp, 24.dp, 0.dp)
                     .fillMaxWidth()
                     .height(6.dp)
-                    .clip(RoundedCornerShape(999.dp))
+                    .clip(Shapes.Pill)
                     .background(ChipNeutral),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(if (finished) 1f else progress.coerceIn(0f, 1f))
                         .fillMaxHeight()
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(Shapes.Pill)
                         .background(Ink),
                 )
             }
@@ -117,9 +121,9 @@ fun MorningSessionScreen(navController: NavHostController, index: Int) {
                 verticalArrangement = Arrangement.Center,
             ) {
                 if (finished) {
-                    Text("Session complete", fontSize = 28.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                    Text("Session complete", fontSize = TextSize.Display, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(10.dp))
-                    Text("+$COMPLETION_POINTS points. Nice way to start the day.", color = TextSecondary, fontSize = 15.sp, textAlign = TextAlign.Center)
+                    Text("+$COMPLETION_POINTS points. Nice way to start the day.", color = TextSecondary, fontSize = TextSize.BodyLarge, textAlign = TextAlign.Center)
                 } else {
                     if (step.breath != null) {
                         Box(modifier = Modifier.size(220.dp), contentAlignment = Alignment.Center) {
@@ -130,27 +134,27 @@ fun MorningSessionScreen(navController: NavHostController, index: Int) {
                                     .clip(CircleShape)
                                     .background(BlueTint),
                             )
-                            Text(remaining.toString(), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Navy)
+                            Text(remaining.toString(), fontSize = TextSize.Number, fontWeight = FontWeight.Bold, color = Navy)
                         }
                         Spacer(Modifier.height(28.dp))
                     } else {
                         Text(
                             "STEP ${stepIndex + 1} OF ${session.steps.size}",
                             color = TextSecondary,
-                            fontSize = 12.sp,
+                            fontSize = TextSize.Caption,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 0.5.sp,
                         )
                         Spacer(Modifier.height(10.dp))
                     }
-                    Text(step.title, fontSize = 28.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                    Text(step.title, fontSize = TextSize.Display, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(10.dp))
-                    Text(step.detail, color = TextSecondary, fontSize = 15.sp, lineHeight = 22.sp, textAlign = TextAlign.Center)
+                    Text(step.detail, color = TextSecondary, fontSize = TextSize.BodyLarge, lineHeight = LineHeight.Relaxed, textAlign = TextAlign.Center)
                     if (step.breath == null) {
                         Spacer(Modifier.height(28.dp))
                         Text(
                             "%d:%02d".format(remaining / 60, remaining % 60),
-                            fontSize = 44.sp,
+                            fontSize = TextSize.Number,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -177,11 +181,11 @@ private fun PillButton(label: String, background: Color, content: Color, modifie
     Box(
         modifier = modifier
             .height(58.dp)
-            .clip(RoundedCornerShape(999.dp))
+            .clip(Shapes.Pill)
             .background(background)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = content, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = content, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }

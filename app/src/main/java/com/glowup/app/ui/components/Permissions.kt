@@ -3,7 +3,6 @@ package com.glowup.app.ui.components
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -25,7 +24,7 @@ fun rememberNotificationPermission(onResult: (Boolean) -> Unit = {}): () -> Unit
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { callback(it) }
     return remember(launcher) {
         {
-            if (Notifications.canPost(context) || Build.VERSION.SDK_INT < 33) callback(true)
+            if (Notifications.canPost(context)) callback(true)
             else launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }

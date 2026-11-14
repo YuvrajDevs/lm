@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +26,9 @@ import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.DetailHeader
 import com.glowup.app.ui.data.LessonStore
 import com.glowup.app.ui.theme.*
+import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.TextSize
 
 @Composable
 fun CommunicationScreen(navController: NavHostController) {
@@ -46,19 +48,19 @@ fun CommunicationScreen(navController: NavHostController) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(28.dp))
+                            .clip(Shapes.Hero)
                             .background(Ink)
                             .padding(18.dp),
                     ) {
-                        Text("SPEAKING PRACTICE", color = Color.White.copy(alpha = 0.55f), fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text("SPEAKING PRACTICE", color = Color.White.copy(alpha = 0.55f), fontSize = TextSize.Micro, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(3.dp))
-                        Text("Talk for 1 minute — get your pace, fillers and pauses", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
+                        Text("Talk for 1 minute — get your pace, fillers and pauses", color = Color.White, fontSize = TextSize.Title, fontWeight = FontWeight.Bold, lineHeight = LineHeight.Relaxed)
                         Spacer(Modifier.height(14.dp))
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
-                                .clip(RoundedCornerShape(999.dp))
+                                .clip(Shapes.Pill)
                                 .background(Color.White)
                                 .clickable { navController.navigate("speaking_practice") },
                             horizontalArrangement = Arrangement.Center,
@@ -66,17 +68,17 @@ fun CommunicationScreen(navController: NavHostController) {
                         ) {
                             Box(modifier = Modifier.size(12.dp).clip(CircleShape).background(Coral))
                             Spacer(Modifier.width(10.dp))
-                            Text("Start practice", color = Ink, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Start practice", color = Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
                         }
                         Spacer(Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                "30 scenarios", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
-                                modifier = Modifier.weight(1f).clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.12f)).clickable { navController.navigate("scenarios") }.padding(vertical = 11.dp),
+                                "30 scenarios", color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
+                                modifier = Modifier.weight(1f).clip(Shapes.Pill).background(Color.White.copy(alpha = 0.12f)).clickable { navController.navigate("scenarios") }.padding(vertical = 11.dp),
                             )
                             Text(
-                                "Your progress", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
-                                modifier = Modifier.weight(1f).clip(RoundedCornerShape(999.dp)).background(Color.White.copy(alpha = 0.12f)).clickable { navController.navigate("speech_history") }.padding(vertical = 11.dp),
+                                "Your progress", color = Color.White, fontSize = TextSize.BodySmall, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
+                                modifier = Modifier.weight(1f).clip(Shapes.Pill).background(Color.White.copy(alpha = 0.12f)).clickable { navController.navigate("speech_history") }.padding(vertical = 11.dp),
                             )
                         }
                     }
@@ -85,15 +87,15 @@ fun CommunicationScreen(navController: NavHostController) {
 
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("Your lessons", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                        Text("$doneCount of ${lessons.size} done", color = TextSecondary, fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
+                        Text("Your lessons", fontSize = TextSize.Title, fontWeight = FontWeight.SemiBold)
+                        Text("$doneCount of ${lessons.size} done", color = TextSecondary, fontSize = TextSize.BodySmall, fontWeight = FontWeight.Medium)
                     }
                     Spacer(Modifier.height(14.dp))
                 }
 
                 byTrack.forEach { (track, trackLessons) ->
                     item {
-                        Text(track.uppercase(), color = TextSecondary, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
+                        Text(track.uppercase(), color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp)
                         Spacer(Modifier.height(10.dp))
                     }
                     items(trackLessons, key = { it.id }) { lesson ->
@@ -102,7 +104,7 @@ fun CommunicationScreen(navController: NavHostController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 10.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(Shapes.Card)
                                 .background(lesson.tint)
                                 .clickable {
                                     if (ProGate.talkLessonLocked(lesson.id)) ProStore.showPaywall("${lesson.title} is a Pro lesson")
@@ -117,20 +119,20 @@ fun CommunicationScreen(navController: NavHostController) {
                                 Text(
                                     if (done) "DONE" else "${lesson.minutes} MIN",
                                     color = if (done) TextSecondary else lesson.accent,
-                                    fontSize = 11.sp,
+                                    fontSize = TextSize.Micro,
                                     fontWeight = FontWeight.SemiBold,
                                 )
                                 Text(
                                     lesson.title,
                                     color = Ink,
-                                    fontSize = 15.5.sp,
+                                    fontSize = TextSize.BodyLarge,
                                     fontWeight = FontWeight.SemiBold,
                                 )
                             }
                             if (ProGate.talkLessonLocked(lesson.id)) {
                                 ProBadge()
                             } else if (done) {
-                                Text("✓", color = Green, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("✓", color = Green, fontSize = TextSize.Title, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

@@ -394,7 +394,7 @@ object FitnessStore {
 
     fun displayChange(kg: Double): String {
         val value = if (useLb) kg * 2.20462 else kg
-        return (if (value >= 0) "+" else "−") + "%.1f".format(kotlin.math.abs(value)) + if (useLb) " lb" else " kg"
+        return (if (value >= 0) "+" else "−") + "%.1f".format(abs(value)) + if (useLb) " lb" else " kg"
     }
 
     fun toKg(value: Double): Double = if (useLb) value / 2.20462 else value
