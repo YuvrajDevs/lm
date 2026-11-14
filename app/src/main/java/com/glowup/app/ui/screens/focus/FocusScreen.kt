@@ -11,8 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +44,9 @@ import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.BlockStore
 import com.glowup.app.ui.data.FocusStore
 import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.AppSwitch
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
@@ -157,26 +158,27 @@ fun FocusScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.spacedBy(Space.S)
             ) {
                 when {
-                    active == null -> ActionButton("Start $minutes-minute focus", Ink, Color.White, Modifier.weight(1f)) {
+                    active == null -> AppButton("Start $minutes-minute focus", ButtonVariant.Primary, Modifier.weight(1f)) {
                         val canBlock = blockApps && BlockStore.focusApps.isNotEmpty() && Blocker.ready(context)
                         FocusStore.start(minutes, label, blockApps = canBlock, strict = strict && canBlock)
                         now = System.currentTimeMillis()
                         askPermission()
                     }
                     active.isRunning && active.strict -> {
-                        ActionButton("Strict focus · stay with it", Ink, Color.White, Modifier.weight(1f)) { }
-                        ActionButton("Emergency", ChipNeutral, Maroon, Modifier.weight(0.6f)) { emergency = true }
+                        // Strict mode: a status, not an action.
+                        AppButton("Strict focus · stay with it", ButtonVariant.Primary, Modifier.weight(1f), enabled = false) {}
+                        AppButton("Emergency", ButtonVariant.DangerSubtle, Modifier.weight(0.6f)) { emergency = true }
                     }
                     active.isRunning -> {
-                        ActionButton("Pause", Ink, Color.White, Modifier.weight(1f)) { FocusStore.pause() }
-                        ActionButton("End", ChipNeutral, Ink, Modifier.weight(1f)) { confirmEnd = true }
+                        AppButton("Pause", ButtonVariant.Primary, Modifier.weight(1f)) { FocusStore.pause() }
+                        AppButton("End", ButtonVariant.Secondary, Modifier.weight(1f)) { confirmEnd = true }
                     }
                     else -> {
-                        ActionButton("Resume", Ink, Color.White, Modifier.weight(1f)) {
+                        AppButton("Resume", ButtonVariant.Primary, Modifier.weight(1f)) {
                             FocusStore.resume()
                             now = System.currentTimeMillis()
                         }
-                        ActionButton("End", ChipNeutral, Ink, Modifier.weight(1f)) { confirmEnd = true }
+                        AppButton("End", ButtonVariant.Secondary, Modifier.weight(1f)) { confirmEnd = true }
                     }
                 }
             }
@@ -329,20 +331,6 @@ private fun Pill(label: String, selected: Boolean, onClick: () -> Unit) {
     }
 }
 
-@Composable
-private fun ActionButton(label: String, background: Color, content: Color, modifier: Modifier, onClick: () -> Unit) {
-    Box(
-        modifier = modifier
-            .height(58.dp)
-            .clip(Shapes.Pill)
-            .background(background)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(label, color = content, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-    }
-}
-
 private fun formatRemaining(millis: Long): String {
     val totalSeconds = ((millis + 999) / 1000).toInt()
     val hours = totalSeconds / 3600
@@ -372,7 +360,7 @@ private fun BlockOptions(block: Boolean, strict: Boolean, onBlock: (Boolean) -> 
                 )
             }
             if (ready) {
-                Switch(block, onBlock, colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+                AppSwitch(block, stringResource(R.string.focus_block_distracting_apps), onCheckedChange = onBlock)
             } else {
                 Text(
                     stringResource(R.string.focus_set_up),
@@ -390,7 +378,7 @@ private fun BlockOptions(block: Boolean, strict: Boolean, onBlock: (Boolean) -> 
                     Text(stringResource(R.string.focus_no_pausing_or_ending_early), color = TextSecondary, fontSize = TextSize.Caption)
                 }
                 if (ProStore.isPro) {
-                    Switch(strict, onStrict, colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+                    AppSwitch(strict, stringResource(R.string.focus_strict_mode), onCheckedChange = onStrict)
                 } else {
                     ProBadge(Modifier.clickable { ProStore.showPaywall("Strict focus is part of Pro") })
                 }

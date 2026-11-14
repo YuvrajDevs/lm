@@ -39,6 +39,8 @@ import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoStore
 import com.glowup.app.ui.data.style.SavedLooksStore
 import com.glowup.app.ui.data.style.StyleLibrary
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -166,27 +168,13 @@ fun OutfitDetailScreen(navController: NavHostController, id: String) {
             Spacer(Modifier.height(Space.Xl))
         }
 
-        Box(
-            modifier = Modifier
-                .padding(Space.Gutter, Space.S, Space.Gutter, Space.Gutter)
-                .fillMaxWidth()
-                .height(58.dp)
-                .clip(Shapes.Pill)
-                .background(if (planned) GreenTint else Ink)
-                .clickable(enabled = !planned) { TodoStore.add(todoTitle, TodoBucket.TODAY, "${guide.title} · Outfit") },
-            contentAlignment = Alignment.Center
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (planned) Icon(Icons.Filled.Check, contentDescription = null, tint = Green, modifier = Modifier.size(18.dp))
-                if (planned) Spacer(Modifier.width(Space.S))
-                Text(
-                    if (planned) stringResource(R.string.outfit_detail_in_today_s_plan) else stringResource(R.string.outfit_detail_wear_it_today),
-                    color = if (planned) Green else Color.White,
-                    fontSize = TextSize.BodyLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
+        AppButton(
+            text = if (planned) stringResource(R.string.outfit_detail_in_today_s_plan) else stringResource(R.string.outfit_detail_wear_it_today),
+            variant = ButtonVariant.Primary,
+            modifier = Modifier.padding(Space.Gutter, Space.S, Space.Gutter, Space.Gutter).fillMaxWidth(),
+            enabled = !planned,
+            icon = if (planned) Icons.Filled.Check else null
+        ) { TodoStore.add(todoTitle, TodoBucket.TODAY, "${guide.title} · Outfit") }
     }
 }
 

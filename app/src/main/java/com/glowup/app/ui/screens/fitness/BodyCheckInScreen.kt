@@ -11,8 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MonitorWeight
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,6 +43,7 @@ import com.glowup.app.ui.data.fitness.BodyEntry
 import com.glowup.app.ui.data.fitness.FitnessStore
 import com.glowup.app.ui.data.fitness.TrendTone
 import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.AppSwitch
 import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
@@ -208,11 +207,9 @@ fun BodyCheckInScreen(navController: NavHostController) {
                             fontSize = TextSize.Caption
                         )
                     }
-                    Switch(
-                        checked = FitnessStore.weighReminder,
-                        onCheckedChange = { FitnessStore.updateWeighIn(FitnessStore.weighDay, it) },
-                        colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White)
-                    )
+                    AppSwitch(FitnessStore.weighReminder, stringResource(R.string.body_check_in_weekly_check_in_reminder)) {
+                        FitnessStore.updateWeighIn(FitnessStore.weighDay, it)
+                    }
                 }
                 Spacer(Modifier.height(Space.S))
                 Row(
@@ -225,9 +222,7 @@ fun BodyCheckInScreen(navController: NavHostController) {
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f)
                     )
-                    Switch(checked = lb, onCheckedChange = {
-                        FitnessStore.updateUnits(it)
-                    }, colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+                    AppSwitch(lb, stringResource(R.string.body_check_in_show_weight_in_pounds)) { FitnessStore.updateUnits(it) }
                 }
 
                 if (entries.isNotEmpty()) {

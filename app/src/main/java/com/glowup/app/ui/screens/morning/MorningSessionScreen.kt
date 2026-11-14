@@ -6,7 +6,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
@@ -21,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +33,8 @@ import com.glowup.app.ui.components.ProLockedScreen
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.ProgressStore
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -179,26 +179,12 @@ fun MorningSessionScreen(navController: NavHostController, index: Int) {
                 horizontalArrangement = Arrangement.spacedBy(Space.S)
             ) {
                 if (finished) {
-                    PillButton("Done", Ink, Color.White, Modifier.weight(1f)) { navController.goBack() }
+                    AppButton("Done", ButtonVariant.Primary, Modifier.weight(1f)) { navController.goBack() }
                 } else {
-                    PillButton(if (paused) "Resume" else "Pause", Ink, Color.White, Modifier.weight(1f)) { paused = !paused }
-                    PillButton("Skip", ChipNeutral, Ink, Modifier.weight(1f)) { advance() }
+                    AppButton(if (paused) "Resume" else "Pause", ButtonVariant.Primary, Modifier.weight(1f)) { paused = !paused }
+                    AppButton("Skip", ButtonVariant.Secondary, Modifier.weight(1f)) { advance() }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun PillButton(label: String, background: Color, content: Color, modifier: Modifier, onClick: () -> Unit) {
-    Box(
-        modifier = modifier
-            .height(58.dp)
-            .clip(Shapes.Pill)
-            .background(background)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(label, color = content, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }

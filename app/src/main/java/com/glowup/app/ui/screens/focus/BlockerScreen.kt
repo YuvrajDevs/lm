@@ -27,8 +27,6 @@ import androidx.compose.material.icons.outlined.SelfImprovement
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,6 +62,7 @@ import com.glowup.app.ui.data.DayStats
 import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.formatClock
 import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.AppSwitch
 import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
@@ -219,10 +218,10 @@ fun BlockerScreen(navController: NavHostController) {
                                 fontSize = TextSize.Caption
                             )
                         }
-                        Switch(s.enabled, {
+                        AppSwitch(s.enabled, s.label) {
                             BlockStore.setScheduleEnabled(s.id, it)
                             Blocker.sync(context)
-                        }, colors = SwitchDefaults.colors(checkedTrackColor = Ink, checkedThumbColor = Color.White))
+                        }
                         Box(
                             Modifier.size(36.dp).clip(CircleShape).clickable {
                                 BlockStore.removeSchedule(s.id)
@@ -309,6 +308,7 @@ private fun ListCard(icon: ImageVector, kind: ListKind, apps: List<String>, tint
                 Text(kind.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.Bold)
                 Text(kind.sub, color = TextSecondary, fontSize = TextSize.Caption)
             }
+            Spacer(Modifier.width(Space.M))
             Text(
                 if (apps.isEmpty()) stringResource(R.string.blocker_choose) else "${apps.size}",
                 color = accent,

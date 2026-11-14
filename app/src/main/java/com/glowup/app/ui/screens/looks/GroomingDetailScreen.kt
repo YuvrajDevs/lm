@@ -32,6 +32,8 @@ import com.glowup.app.ui.data.GroomingStore
 import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.ProfileStore
 import com.glowup.app.ui.data.RoutineStore
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -173,24 +175,13 @@ fun GroomingDetailScreen(navController: NavHostController, id: Int) {
                 }
                 Spacer(Modifier.height(Space.Xl))
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(58.dp)
-                        .clip(Shapes.Pill)
-                        .background(if (done) ChipNeutral else Ink)
-                        .clickable(enabled = !done) {
-                            GroomingStore.markDone(lesson.id)
-                            showDone = true
-                        },
-                    contentAlignment = Alignment.Center
+                AppButton(
+                    if (done) stringResource(R.string.grooming_detail_marked_as_read) else stringResource(R.string.grooming_detail_mark_as_read),
+                    variant = if (done) ButtonVariant.Secondary else ButtonVariant.Primary,
+                    enabled = !done
                 ) {
-                    Text(
-                        if (done) stringResource(R.string.grooming_detail_marked_as_read) else stringResource(R.string.grooming_detail_mark_as_read),
-                        color = if (done) Ink else Color.White,
-                        fontSize = TextSize.BodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    GroomingStore.markDone(lesson.id)
+                    showDone = true
                 }
             }
         }

@@ -9,7 +9,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ContentCut
@@ -43,7 +45,9 @@ import com.glowup.app.ui.data.glow.LooksRoutines
 import com.glowup.app.ui.data.glow.PostureAnalysis
 import com.glowup.app.ui.design.AppButton
 import com.glowup.app.ui.design.ButtonVariant
+import com.glowup.app.ui.design.EmptyState
 import com.glowup.app.ui.design.LineHeight
+import com.glowup.app.ui.design.Overline
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
@@ -72,12 +76,28 @@ fun GlowResultsScreen(navController: NavHostController) {
             DetailHeader(stringResource(R.string.glow_results_glow_map)) { navController.goBack() }
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(Space.Gutter, Space.L, Space.Gutter, Space.Section)) {
                 if (latest == null) {
-                    Text(stringResource(R.string.glow_results_no_check_yet), fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold)
-                    Text(
-                        stringResource(R.string.glow_results_take_the_glow_check_to),
-                        color = TextSecondary,
-                        fontSize = TextSize.Body,
-                        modifier = Modifier.padding(top = Space.S)
+                    EmptyState(
+                        icon = Icons.Filled.Face,
+                        title = stringResource(R.string.glow_results_no_check_yet),
+                        body = stringResource(R.string.glow_results_take_the_glow_check_to),
+                        tint = YellowTint
+                    )
+                    Overline(stringResource(R.string.glow_results_empty_preview))
+                    Spacer(Modifier.height(Space.S))
+                    PreviewRow(
+                        Icons.AutoMirrored.Filled.TrendingUp,
+                        stringResource(R.string.glow_results_preview_areas),
+                        stringResource(R.string.glow_results_preview_areas_sub)
+                    )
+                    PreviewRow(
+                        Icons.Filled.Star,
+                        stringResource(R.string.glow_results_preview_strengths),
+                        stringResource(R.string.glow_results_preview_strengths_sub)
+                    )
+                    PreviewRow(
+                        Icons.Filled.CheckCircle,
+                        stringResource(R.string.glow_results_preview_plan),
+                        stringResource(R.string.glow_results_preview_plan_sub)
                     )
                 } else {
                     ResultsContent(latest, GlowCheckStore.previous, navController)
@@ -395,4 +415,22 @@ fun naturalList(items: List<String>): String = when (items.size) {
     0 -> ""
     1 -> items[0]
     else -> items.dropLast(1).joinToString(", ") + " and " + items.last()
+}
+
+/** A non-interactive row describing what the user will get. */
+@Composable
+private fun PreviewRow(icon: ImageVector, title: String, sub: String) {
+    Row(
+        Modifier.fillMaxWidth().padding(bottom = Space.S).clip(Shapes.Card).background(CardNeutral).padding(Space.L, Space.M),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(Modifier.size(40.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = Ink, modifier = Modifier.size(20.dp))
+        }
+        Spacer(Modifier.width(Space.M))
+        Column(Modifier.weight(1f)) {
+            Text(title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(sub, color = TextSecondary, fontSize = TextSize.Caption)
+        }
+    }
 }

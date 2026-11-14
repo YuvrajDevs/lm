@@ -3,7 +3,7 @@ package com.glowup.app.ui.data.glow
 enum class Evidence(val label: String, val blurb: String) {
     STRONG("Strong evidence", "Well supported by research."),
     MODERATE("Some evidence", "Reasonable support; results vary."),
-    LOW("Evidence: low", "Popular online, but little proof it changes your face. Try it if you like — don't expect miracles."),
+    LOW("Little evidence", "Popular online, but little proof it changes your face. Try it if you like — don't expect miracles."),
     ADVICE("Style advice", "Not a health claim — just what tends to look good.")
 }
 

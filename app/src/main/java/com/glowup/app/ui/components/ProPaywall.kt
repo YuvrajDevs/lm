@@ -44,13 +44,15 @@ import com.glowup.app.ui.data.PlanType
 import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.program.Program
 import com.glowup.app.ui.data.style.StyleLibrary
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.*
 
-private val benefits = listOf(
+internal val proBenefits = listOf(
     "All ${Program.TOTAL} programme sessions — the full 12 weeks",
     "Every 30-day fitness programme, 15–30 min sessions and targets that rise as you get stronger",
     "Strict focus, unlimited app blocking and schedules",
@@ -118,7 +120,7 @@ fun ProPaywall() {
                     }
 
                     Column(modifier = Modifier.padding(Space.Gutter, Space.Xl, Space.Gutter, 0.dp)) {
-                        benefits.forEach { benefit ->
+                        proBenefits.forEach { benefit ->
                             Row(modifier = Modifier.padding(bottom = Space.S), verticalAlignment = Alignment.CenterVertically) {
                                 Box(modifier = Modifier.size(22.dp).clip(CircleShape).background(GreenTint), contentAlignment = Alignment.Center) {
                                     Icon(Icons.Filled.Check, contentDescription = null, tint = Green, modifier = Modifier.size(14.dp))
@@ -260,17 +262,7 @@ fun ProPaywall() {
 
 @Composable
 private fun CtaButton(label: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(58.dp)
-            .clip(Shapes.Pill)
-            .background(Ink)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(label, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-    }
+    AppButton(label, variant = ButtonVariant.Primary, onClick = onClick)
 }
 
 /** Small "PRO" pill with a crown, shown on locked items. */

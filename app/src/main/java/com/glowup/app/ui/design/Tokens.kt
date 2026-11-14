@@ -75,4 +75,7 @@ object Sizes {
 
     /** Minimum touch target, per Material accessibility guidance. */
     val Touch = 48.dp
+
+    /** Bottom padding for lists under a floating add button, so the last row can scroll clear of it. */
+    val FabClearance = 96.dp
 }

@@ -41,6 +41,8 @@ import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.RoutineStore
 import com.glowup.app.ui.data.parseClock
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
@@ -299,30 +301,15 @@ fun AddRoutineScreen(navController: NavHostController) {
 
             Box(modifier = Modifier.padding(Space.Gutter, Space.M, Space.Gutter, Space.Section)) {
                 val canSave = if (showTemplates) addedItems.isNotEmpty() else customText.isNotBlank()
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .clip(Shapes.Pill)
-                        .background(if (canSave) Ink else Disabled)
-                        .clickable(enabled = canSave) {
-                            if (showTemplates) {
-                                addedItems.forEach { item -> RoutineStore.add(groupFor(item), item) }
-                            } else {
-                                val reminder = selectedTime.takeIf { it != NO_REMINDER }?.let(::parseClock)
-                                RoutineStore.add(selectedArea, customText.trim(), reminderTime = reminder)
-                                if (reminder != null) askPermission()
-                            }
-                            showSaved = true
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        stringResource(R.string.add_routine_save_routine),
-                        color = Color.White,
-                        fontSize = TextSize.BodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                AppButton(stringResource(R.string.add_routine_save_routine), variant = ButtonVariant.Primary, enabled = canSave) {
+                    if (showTemplates) {
+                        addedItems.forEach { item -> RoutineStore.add(groupFor(item), item) }
+                    } else {
+                        val reminder = selectedTime.takeIf { it != NO_REMINDER }?.let(::parseClock)
+                        RoutineStore.add(selectedArea, customText.trim(), reminderTime = reminder)
+                        if (reminder != null) askPermission()
+                    }
+                    showSaved = true
                 }
             }
         }

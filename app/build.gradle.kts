@@ -6,12 +6,18 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jlleitschuh.gradle.ktlint")
     id("io.gitlab.arturbosch.detekt")
+    id("io.github.takahirom.roborazzi")
 }
 
 ktlint {
     android.set(true)
     baseline.set(file("ktlint-baseline.xml"))
     filter { exclude { it.file.path.contains("/build/") } }
+}
+
+roborazzi {
+    // Reference screenshots live with the tests so changes show up in review.
+    outputDir.set(file("src/test/screenshots"))
 }
 
 detekt {
@@ -55,6 +61,14 @@ android {
         }
     }
 
+    testOptions {
+        unitTests {
+            // Compose UI tests and screenshot tests run on the JVM through Robolectric.
+            isIncludeAndroidResources = true
+            all { it.systemProperty("robolectric.pixelCopyRenderMode", "hardware") }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -94,4 +108,12 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
+    testImplementation(platform("androidx.compose:compose-bom:2025.09.00"))
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.test.ext:junit:1.3.0")
+    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi:1.50.0")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.50.0")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi-junit-rule:1.50.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

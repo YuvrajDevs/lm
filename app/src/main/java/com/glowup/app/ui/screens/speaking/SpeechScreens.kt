@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import com.glowup.app.ui.data.ProStore
 import com.glowup.app.ui.data.Scenarios
 import com.glowup.app.ui.data.SpeechSession
 import com.glowup.app.ui.data.SpeechStore
+import com.glowup.app.ui.design.EmptyState
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -94,12 +96,13 @@ fun SpeechHistoryScreen(navController: NavHostController) {
         LazyColumn(contentPadding = PaddingValues(Space.Gutter, Space.M, Space.Gutter, Space.Section), verticalArrangement = Arrangement.spacedBy(Space.S)) {
             if (sessions.isEmpty()) {
                 item {
-                    Text(
-                        stringResource(R.string.speech_practise_in_analyse_mode_and),
-                        color = TextSecondary,
-                        fontSize = TextSize.Body,
-                        lineHeight = LineHeight.Body
-                    )
+                    EmptyState(
+                        icon = Icons.Filled.Mic,
+                        title = stringResource(R.string.speech_history_empty_title),
+                        body = stringResource(R.string.speech_practise_in_analyse_mode_and),
+                        tint = CoralTint,
+                        actionLabel = stringResource(R.string.speech_history_empty_action)
+                    ) { navController.navigate("speaking_practice") }
                 }
             } else {
                 item {

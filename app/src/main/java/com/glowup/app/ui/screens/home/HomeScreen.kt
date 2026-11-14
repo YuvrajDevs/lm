@@ -20,7 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -99,25 +101,15 @@ fun HomeScreen(navController: NavHostController) {
             val doneCount = planItems.count { it.done }
 
             LazyColumn(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).testTag("home_feed"),
                 contentPadding = PaddingValues(horizontal = Space.Gutter, vertical = 0.dp),
                 verticalArrangement = Arrangement.spacedBy(Space.S)
             ) {
                 ProgressStore.freezeNotice?.let { notice ->
                     item {
                         FreezeBanner(
-                            title = "Streak saved",
-                            text =
-                            (
-                                if (notice.daysCovered ==
-                                    1
-                                ) {
-                                    "A freeze covered the day you missed"
-                                } else {
-                                    "${notice.daysCovered} freezes covered the days you missed"
-                                }
-                                ) +
-                                " — your ${notice.streak}-day streak is safe.",
+                            title = stringResource(R.string.home_freeze_saved_title),
+                            text = pluralStringResource(R.plurals.home_freeze_saved_body, notice.daysCovered, notice.daysCovered, notice.streak),
                             onDismiss = { ProgressStore.dismissFreezeNotice() }
                         )
                     }
@@ -125,8 +117,8 @@ fun HomeScreen(navController: NavHostController) {
                 if (ProgressStore.freezeJustEarned && ProgressStore.freezeNotice == null) {
                     item {
                         FreezeBanner(
-                            title = "You earned a streak freeze",
-                            text = "7 days in a row! If you miss a day, it'll protect your streak automatically. ${ProgressStore.freezes} of ${ProgressStore.maxFreezes} banked.",
+                            title = stringResource(R.string.home_freeze_earned_title),
+                            text = stringResource(R.string.home_freeze_earned_body, ProgressStore.freezes, ProgressStore.maxFreezes),
                             onDismiss = { ProgressStore.acknowledgeFreezeEarned() }
                         )
                     }

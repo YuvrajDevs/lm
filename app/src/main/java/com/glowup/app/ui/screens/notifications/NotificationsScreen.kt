@@ -15,8 +15,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,7 +42,9 @@ import com.glowup.app.ui.components.rememberNotificationPermission
 import com.glowup.app.ui.data.Reminder
 import com.glowup.app.ui.data.ReminderStore
 import com.glowup.app.ui.data.Schedule
+import com.glowup.app.ui.design.AppSwitch
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Sizes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.*
@@ -77,7 +77,7 @@ fun NotificationsScreen(navController: NavHostController) {
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(Space.Gutter, Space.Xl, Space.Gutter, Space.Gutter)
+                contentPadding = PaddingValues(Space.Gutter, Space.Xl, Space.Gutter, Sizes.FabClearance)
             ) {
                 if (!canPost) {
                     item {
@@ -306,17 +306,6 @@ private fun ReminderRow(item: Reminder, onClick: () -> Unit, onToggle: (Boolean)
             Text(item.title, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
             Text(item.schedule.label, color = TextSecondary, fontSize = TextSize.Caption)
         }
-        Switch(
-            checked = item.enabled,
-            onCheckedChange = onToggle,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = Ink,
-                uncheckedThumbColor = Color.White,
-                uncheckedTrackColor = Color(0xFFE6E3DC),
-                uncheckedBorderColor = Color.Transparent,
-                checkedBorderColor = Color.Transparent
-            )
-        )
+        AppSwitch(checked = item.enabled, label = item.title, onCheckedChange = onToggle)
     }
 }

@@ -54,6 +54,8 @@ import com.glowup.app.ui.data.program.Program
 import com.glowup.app.ui.data.program.ProgramSession
 import com.glowup.app.ui.data.program.ProgramStore
 import com.glowup.app.ui.data.program.SessionState
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -153,7 +155,6 @@ fun SessionScreen(navController: NavHostController, index: Int) {
                     Step.Quiz -> "Continue"
                     else -> "Next"
                 },
-                color = Ink,
                 enabled = step != Step.Quiz || quizAnswered
             ) { advance() }
         }
@@ -460,11 +461,11 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
         Spacer(Modifier.height(Space.Gutter))
         if (!reviewing && next != null) {
             if (ProGate.sessionLocked(next.index)) {
-                BottomButton("Unlock weeks 3–12 with Pro", Ink, padding = false) {
+                BottomButton("Unlock weeks 3–12 with Pro", padding = false) {
                     ProStore.showPaywall("You've finished the free weeks — keep going with the full programme")
                 }
             } else {
-                BottomButton("Next session · Day ${next.day}", Ink, padding = false) {
+                BottomButton("Next session · Day ${next.day}", padding = false) {
                     navController.navigate("session/${next.index}") {
                         popUpTo("session/{index}") { inclusive = true }
                     }
@@ -478,7 +479,7 @@ private fun CompleteStep(navController: NavHostController, session: ProgramSessi
                 modifier = Modifier.padding(top = Space.M).clip(Shapes.Pill).clickable { navController.goBack() }.padding(Space.M, Space.S)
             )
         } else {
-            BottomButton("Done", Ink, padding = false) { navController.goBack() }
+            BottomButton("Done", padding = false) { navController.goBack() }
         }
     }
 }
@@ -506,7 +507,7 @@ private fun LockedSession(navController: NavHostController, session: ProgramSess
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(Space.Gutter))
-        BottomButton("Back", Ink, padding = false) { navController.goBack() }
+        BottomButton("Back", padding = false) { navController.goBack() }
     }
 }
 
@@ -524,17 +525,12 @@ private fun Chip(label: String, background: Color = ChipNeutral, content: Color 
 }
 
 @Composable
-private fun BottomButton(label: String, color: Color, enabled: Boolean = true, padding: Boolean = true, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .let { if (padding) it.padding(Space.Gutter, Space.S, Space.Gutter, Space.Section) else it }
-            .fillMaxWidth()
-            .height(58.dp)
-            .clip(Shapes.Pill)
-            .background(if (enabled) color else Disabled)
-            .clickable(enabled = enabled, onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(label, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-    }
+private fun BottomButton(label: String, enabled: Boolean = true, padding: Boolean = true, onClick: () -> Unit) {
+    AppButton(
+        label,
+        ButtonVariant.Primary,
+        Modifier.then(if (padding) Modifier.padding(Space.Gutter, Space.S, Space.Gutter, Space.Section) else Modifier).fillMaxWidth(),
+        enabled = enabled,
+        onClick = onClick
+    )
 }

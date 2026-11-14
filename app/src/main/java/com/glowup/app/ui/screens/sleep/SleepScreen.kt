@@ -58,6 +58,8 @@ import com.glowup.app.ui.data.SleepMath
 import com.glowup.app.ui.data.SleepStore
 import com.glowup.app.ui.data.formatClock
 import com.glowup.app.ui.data.formatDuration
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
@@ -218,7 +220,7 @@ fun SleepScreen(navController: NavHostController) {
                 }
 
                 items(sounds.chunked(2)) { pair ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S), modifier = Modifier.fillMaxWidth()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                         pair.forEach { sound ->
                             val isSelected = selectedSound == sound.label
                             Column(
@@ -290,42 +292,21 @@ fun SleepScreen(navController: NavHostController) {
             }
 
             Box(modifier = Modifier.padding(Space.Gutter, Space.S, Space.Gutter, Space.Section)) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .clip(Shapes.Pill)
-                        .background(Ink)
-                        .clickable {
-                            if (playingSound != null) {
-                                SleepSoundService.stop(context)
-                            } else {
-                                askNotifications()
-                                SleepSoundService.play(context, selectedSound, timerMinutes)
-                            }
-                        },
-                    contentAlignment = Alignment.Center
+                AppButton(
+                    if (playingSound !=
+                        null
+                    ) {
+                        stringResource(R.string.sleep_stop_1_s, playingSound.toString())
+                    } else {
+                        stringResource(R.string.sleep_play_1_s, selectedSound)
+                    },
+                    variant = ButtonVariant.Primary
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            if (playingSound !=
-                                null
-                            ) {
-                                stringResource(R.string.sleep_stop_1_s, playingSound.toString())
-                            } else {
-                                stringResource(R.string.sleep_play_1_s, selectedSound)
-                            },
-                            color = Color.White,
-                            fontSize = TextSize.BodyLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        if (playingSound != null) {
-                            Text(
-                                stringResource(R.string.sleep_fades_out_in_about_1, minutesLeft),
-                                color = Color.White.copy(alpha = 0.6f),
-                                fontSize = TextSize.Caption
-                            )
-                        }
+                    if (playingSound != null) {
+                        SleepSoundService.stop(context)
+                    } else {
+                        askNotifications()
+                        SleepSoundService.play(context, selectedSound, timerMinutes)
                     }
                 }
             }

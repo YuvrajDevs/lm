@@ -36,6 +36,8 @@ import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.MoodStore
 import com.glowup.app.ui.data.moodOptions
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -159,30 +161,19 @@ fun MoodCheckinScreen(navController: NavHostController) {
             }
 
             Box(modifier = Modifier.padding(Space.Gutter, Space.S, Space.Gutter, Space.Gutter)) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .clip(Shapes.Pill)
-                        .background(if (selected != null) Ink else Disabled)
-                        .clickable(enabled = selected != null) {
-                            selected?.let { mood -> MoodStore.logToday(mood, note, MoodStore.allTags.filter { it in chosenTags }) }
-                            navController.goBack()
-                        },
-                    contentAlignment = Alignment.Center
+                AppButton(
+                    if (selected ==
+                        null
+                    ) {
+                        stringResource(R.string.mood_checkin_pick_a_mood)
+                    } else {
+                        stringResource(R.string.common_save_check_in)
+                    },
+                    variant = ButtonVariant.Primary,
+                    enabled = selected != null
                 ) {
-                    Text(
-                        if (selected ==
-                            null
-                        ) {
-                            stringResource(R.string.mood_checkin_pick_a_mood)
-                        } else {
-                            stringResource(R.string.common_save_check_in)
-                        },
-                        color = Color.White,
-                        fontSize = TextSize.BodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    selected?.let { mood -> MoodStore.logToday(mood, note, MoodStore.allTags.filter { it in chosenTags }) }
+                    navController.goBack()
                 }
             }
         }

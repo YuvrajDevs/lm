@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
@@ -24,6 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,11 +35,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.glowup.app.ui.theme.CardNeutral
 import com.glowup.app.ui.theme.ChipNeutral
+import com.glowup.app.ui.theme.Disabled
 import com.glowup.app.ui.theme.Ink
+import com.glowup.app.ui.theme.Maroon
 import com.glowup.app.ui.theme.TextSecondary
 
-/** Visual weight of a pill button. The `OnDark` variants are for buttons placed on Ink surfaces. */
-enum class ButtonVariant { Primary, Secondary, OnDarkPrimary, OnDarkSecondary }
+/** Visual weight of a pill button. `OnDark` variants sit on Ink surfaces; `Danger` ones confirm or offer destructive actions. */
+enum class ButtonVariant { Primary, Secondary, OnDarkPrimary, OnDarkSecondary, Danger, DangerSubtle }
 
 /**
  * The app's one pill button. Every full-width action uses this so height, type and states stay
@@ -56,7 +62,9 @@ fun AppButton(
         variant == ButtonVariant.Primary -> Ink to Color.White
         variant == ButtonVariant.Secondary -> ChipNeutral to Ink
         variant == ButtonVariant.OnDarkPrimary -> Color.White to Ink
-        else -> Color.White.copy(alpha = 0.12f) to Color.White
+        variant == ButtonVariant.OnDarkSecondary -> Color.White.copy(alpha = 0.12f) to Color.White
+        variant == ButtonVariant.Danger -> Maroon to Color.White
+        else -> ChipNeutral to Maroon
     }
     Row(
         modifier.height(Sizes.Button).clip(Shapes.Pill).background(bg).clickable(enabled = enabled, role = Role.Button, onClick = onClick)
@@ -189,4 +197,57 @@ fun ScreenTitle(text: String, modifier: Modifier = Modifier, color: Color = Ink)
 fun ScreenSubtitle(text: String, modifier: Modifier = Modifier) {
     Spacer(Modifier.height(Space.S))
     Text(text, color = TextSecondary, fontSize = TextSize.Body, lineHeight = LineHeight.Body, modifier = modifier)
+}
+
+/**
+ * The app's one switch. [label] is read by screen readers, since the visible title usually sits
+ * in a separate Text beside it.
+ */
+@Composable
+fun AppSwitch(checked: Boolean, label: String, modifier: Modifier = Modifier, onCheckedChange: (Boolean) -> Unit) {
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier.semantics { contentDescription = label },
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = Color.White,
+            checkedTrackColor = Ink,
+            checkedBorderColor = Color.Transparent,
+            uncheckedThumbColor = Color.White,
+            uncheckedTrackColor = Disabled,
+            uncheckedBorderColor = Color.Transparent
+        )
+    )
+}
+
+/**
+ * Empty screen or section: an icon, what will appear here, and the one action that fills it.
+ * Keeps empty screens purposeful instead of a lone line of grey text.
+ */
+@Composable
+fun EmptyState(
+    icon: ImageVector,
+    title: String,
+    body: String,
+    modifier: Modifier = Modifier,
+    tint: Color = ChipNeutral,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null
+) {
+    Column(
+        modifier.fillMaxWidth().padding(vertical = Space.Huge),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(Modifier.size(72.dp).clip(CircleShape).background(tint), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = Ink, modifier = Modifier.size(32.dp))
+        }
+        Spacer(Modifier.height(Space.Xl))
+        Text(title, fontSize = TextSize.TitleLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(Space.S))
+        Text(body, color = TextSecondary, fontSize = TextSize.Body, lineHeight = LineHeight.Body, textAlign = TextAlign.Center)
+        if (actionLabel != null && onAction != null) {
+            Spacer(Modifier.height(Space.Gutter))
+            PrimaryButton(actionLabel, onClick = onAction)
+        }
+    }
 }

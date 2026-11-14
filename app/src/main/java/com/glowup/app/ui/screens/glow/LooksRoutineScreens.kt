@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Icon
@@ -184,7 +185,7 @@ fun LooksRoutineDetailScreen(navController: NavHostController, id: String) {
                 }
                 if (r.route != null && r.routeLabel != null) {
                     Spacer(Modifier.height(Space.M))
-                    LinkRow(Icons.Filled.ChevronRight, r.routeLabel, "Go deeper") { navController.navigate(r.route) }
+                    LinkRow(Icons.Outlined.CalendarMonth, r.routeLabel, "Go deeper") { navController.navigate(r.route) }
                 }
             }
             Box(Modifier.padding(Space.Gutter, Space.S, Space.Gutter, Space.Gutter)) {
@@ -194,7 +195,7 @@ fun LooksRoutineDetailScreen(navController: NavHostController, id: String) {
                             R.string.looks_routine_in_your_routines
                         )
                     } else {
-                        stringResource(R.string.looks_routine_add_1_s_to_my, r.routineTitle)
+                        stringResource(R.string.looks_routine_add_1_s_to_my)
                     },
                     variant = if (added) ButtonVariant.Secondary else ButtonVariant.Primary,
                     enabled = !added

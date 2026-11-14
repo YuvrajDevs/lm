@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +26,8 @@ import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.LessonStore
 import com.glowup.app.ui.data.ProGate
 import com.glowup.app.ui.data.ProStore
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -70,19 +71,8 @@ fun CommunicationScreen(navController: NavHostController) {
                             lineHeight = LineHeight.Relaxed
                         )
                         Spacer(Modifier.height(Space.M))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                                .clip(Shapes.Pill)
-                                .background(Color.White)
-                                .clickable { navController.navigate("speaking_practice") },
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(modifier = Modifier.size(12.dp).clip(CircleShape).background(Coral))
-                            Spacer(Modifier.width(Space.S))
-                            Text(stringResource(R.string.common_start_practice), color = Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                        AppButton(stringResource(R.string.common_start_practice), variant = ButtonVariant.OnDarkPrimary) {
+                            navController.navigate("speaking_practice")
                         }
                         Spacer(Modifier.height(Space.S))
                         Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {

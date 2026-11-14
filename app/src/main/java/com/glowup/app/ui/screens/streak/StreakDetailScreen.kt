@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -104,9 +105,10 @@ fun StreakDetailScreen(navController: NavHostController) {
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(monthLabel, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.Xs)) {
                         Box(Modifier.size(8.dp).clip(CircleShape).background(Green))
                         Text(stringResource(R.string.streak_detail_active), color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
+                        Spacer(Modifier.width(Space.S))
                         Box(Modifier.size(8.dp).clip(CircleShape).background(Blue))
                         Text(stringResource(R.string.streak_detail_frozen), color = TextSecondary, fontSize = TextSize.Caption, fontWeight = FontWeight.Medium)
                     }

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Checkroom
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +43,7 @@ import com.glowup.app.ui.data.WardrobeStore
 import com.glowup.app.ui.data.garmentLabel
 import com.glowup.app.ui.data.style.Outfit
 import com.glowup.app.ui.data.style.OutfitEngine
+import com.glowup.app.ui.design.EmptyState
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -75,7 +78,13 @@ fun CapsuleScreen(navController: NavHostController) {
             }
             if (items.size < 5) {
                 item {
-                    Text(stringResource(R.string.wardrobe_tools_add_at_least_5_pieces), fontSize = TextSize.Body, modifier = Modifier.padding(top = Space.S))
+                    EmptyState(
+                        icon = Icons.Outlined.Checkroom,
+                        title = pluralStringResource(R.plurals.capsule_empty_title, 5 - items.size, 5 - items.size),
+                        body = stringResource(R.string.wardrobe_tools_add_at_least_5_pieces),
+                        tint = PurpleTint,
+                        actionLabel = stringResource(R.string.common_add_clothes)
+                    ) { navController.goBack() }
                 }
             } else {
                 item {
@@ -133,7 +142,7 @@ fun CapsuleScreen(navController: NavHostController) {
 
 @Composable
 fun PackingScreen(navController: NavHostController) {
-    val days = remember { mutableStateListOf("Everyday", "Everyday", "Dinner") }
+    val days = remember { mutableStateListOf("Everyday", "Everyday", "Weekend") }
     val packed = remember { mutableStateMapOf<Int, Boolean>() }
     val items = WardrobeStore.items.toList()
     val plan = remember(days.toList(), items) { OutfitEngine.pack(items, days.toList()) }

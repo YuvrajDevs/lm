@@ -41,6 +41,7 @@ import com.glowup.app.ui.data.TodoBucket
 import com.glowup.app.ui.data.TodoEntry
 import com.glowup.app.ui.data.TodoStore
 import com.glowup.app.ui.design.Shapes
+import com.glowup.app.ui.design.Sizes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
 import com.glowup.app.ui.theme.*
@@ -81,7 +82,7 @@ fun TodoScreen(navController: NavHostController) {
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(Space.Gutter, Space.L, Space.Gutter, Space.Gutter)
+                contentPadding = PaddingValues(Space.Gutter, Space.L, Space.Gutter, Sizes.FabClearance)
             ) {
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

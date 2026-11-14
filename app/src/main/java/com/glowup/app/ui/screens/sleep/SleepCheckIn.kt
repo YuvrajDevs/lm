@@ -164,26 +164,25 @@ internal fun CheckInCard(
             onCancel?.let {
                 AppButton(stringResource(R.string.common_cancel), variant = ButtonVariant.OnDarkPrimary, modifier = Modifier.weight(1f), onClick = it)
             }
-            Box(
-                Modifier
-                    .weight(if (onCancel != null) 1.4f else 1f)
-                    .height(52.dp)
-                    .clip(Shapes.Pill)
-                    .background(if (quality != null) Ink else Disabled)
-                    .clickable(enabled = quality != null, onClick = onSave),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    when {
-                        quality == null -> stringResource(R.string.sleep_log_pick_how_rested_you_feel)
-                        SleepLogStore.on(date) == null -> stringResource(R.string.sleep_log_save_1_s_points, SleepLogStore.POINTS_PER_LOG)
-                        else -> stringResource(R.string.sleep_log_save_changes)
-                    },
-                    color = Color.White,
-                    fontSize = TextSize.BodyLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+            AppButton(
+                when {
+                    quality == null -> stringResource(R.string.sleep_log_pick_how_rested_you_feel)
+                    SleepLogStore.on(date) == null -> stringResource(R.string.sleep_log_save_1_s_points, SleepLogStore.POINTS_PER_LOG)
+                    else -> stringResource(R.string.sleep_log_save_changes)
+                },
+                variant = ButtonVariant.Primary,
+                modifier = Modifier.weight(
+                    if (onCancel !=
+                        null
+                    ) {
+                        1.4f
+                    } else {
+                        1f
+                    }
+                ),
+                enabled = quality != null,
+                onClick = onSave
+            )
         }
     }
 }

@@ -2,7 +2,6 @@ package com.glowup.app.ui.screens.lesson
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -29,6 +28,8 @@ import com.glowup.app.ui.components.ReMakeUDialog
 import com.glowup.app.ui.components.goBack
 import com.glowup.app.ui.data.LessonStore
 import com.glowup.app.ui.data.ProGate
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
@@ -123,42 +124,21 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                         lineHeight = LineHeight.Relaxed
                     )
                     Spacer(Modifier.height(Space.M))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .clip(Shapes.Pill)
-                            .background(Color.White)
-                            .clickable {
-                                val encoded = URLEncoder.encode(lesson.practiceWord, "UTF-8")
-                                navController.navigate("speaking_practice/$encoded")
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(stringResource(R.string.common_start_practice), color = Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
+                    AppButton(stringResource(R.string.common_start_practice), variant = ButtonVariant.OnDarkPrimary) {
+                        val encoded = URLEncoder.encode(lesson.practiceWord, "UTF-8")
+                        navController.navigate("speaking_practice/$encoded")
                     }
                 }
 
                 Spacer(Modifier.height(Space.Xl))
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(58.dp)
-                        .clip(Shapes.Pill)
-                        .background(if (done) ChipNeutral else Ink)
-                        .clickable(enabled = !done) {
-                            LessonStore.markDone(lesson.id)
-                            showDone = true
-                        },
-                    contentAlignment = Alignment.Center
+                AppButton(
+                    if (done) stringResource(R.string.lesson_detail_lesson_completed) else stringResource(R.string.lesson_detail_mark_as_done),
+                    variant = if (done) ButtonVariant.Secondary else ButtonVariant.Primary,
+                    enabled = !done
                 ) {
-                    Text(
-                        if (done) stringResource(R.string.lesson_detail_lesson_completed) else stringResource(R.string.lesson_detail_mark_as_done),
-                        color = if (done) Ink else Color.White,
-                        fontSize = TextSize.BodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    LessonStore.markDone(lesson.id)
+                    showDone = true
                 }
             }
         }

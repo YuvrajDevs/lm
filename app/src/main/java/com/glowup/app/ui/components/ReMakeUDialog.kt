@@ -19,19 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.glowup.app.ui.design.AppButton
+import com.glowup.app.ui.design.ButtonVariant
 import com.glowup.app.ui.design.LineHeight
 import com.glowup.app.ui.design.Shapes
 import com.glowup.app.ui.design.Space
 import com.glowup.app.ui.design.TextSize
-import com.glowup.app.ui.theme.ChipNeutral
 import com.glowup.app.ui.theme.DialogSurface
-import com.glowup.app.ui.theme.Disabled
 import com.glowup.app.ui.theme.Ink
-import com.glowup.app.ui.theme.Maroon
 import com.glowup.app.ui.theme.TextMuted
 import com.glowup.app.ui.theme.TextSecondary
 
@@ -73,38 +71,19 @@ fun ReMakeUDialog(
             Spacer(Modifier.height(Space.Xl))
             Row(horizontalArrangement = Arrangement.spacedBy(Space.S)) {
                 secondaryText?.let {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(50.dp)
-                            .clip(Shapes.Pill)
-                            .background(ChipNeutral)
-                            .clickable { (onSecondary ?: onDismissRequest)() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(it, color = if (secondaryDestructive) Maroon else Ink, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-                    }
+                    AppButton(
+                        it,
+                        if (secondaryDestructive) ButtonVariant.DangerSubtle else ButtonVariant.Secondary,
+                        Modifier.weight(1f)
+                    ) { (onSecondary ?: onDismissRequest)() }
                 }
                 primaryText?.let {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(50.dp)
-                            .clip(Shapes.Pill)
-                            .background(
-                                if (!primaryEnabled) {
-                                    Disabled
-                                } else if (primaryDestructive) {
-                                    Maroon
-                                } else {
-                                    Ink
-                                }
-                            )
-                            .clickable(enabled = primaryEnabled) { (onPrimary ?: onDismissRequest)() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(it, color = Color.White, fontSize = TextSize.BodyLarge, fontWeight = FontWeight.SemiBold)
-                    }
+                    AppButton(
+                        it,
+                        if (primaryDestructive) ButtonVariant.Danger else ButtonVariant.Primary,
+                        Modifier.weight(1f),
+                        enabled = primaryEnabled
+                    ) { (onPrimary ?: onDismissRequest)() }
                 }
             }
         }

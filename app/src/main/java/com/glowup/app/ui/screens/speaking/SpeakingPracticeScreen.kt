@@ -378,18 +378,18 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                         if (phase == Phase.RECORDING) Box(Modifier.size(130.dp).scale(pulse).alpha(0.3f).clip(CircleShape).background(Coral))
                         val canPlay = phase == Phase.REVIEW && hasRecording
                         Box(
-                            Modifier.size(110.dp).clip(CircleShape).background(
-                                if (canPlay) {
-                                    Color.White
-                                } else if (phase ==
-                                    Phase.THINK
-                                ) {
-                                    Color(0xFF2A2A2E)
-                                } else {
-                                    Coral
-                                }
-                            )
-                                .clickable(enabled = canPlay) { togglePlayback() },
+                            Modifier
+                                .size(110.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    when {
+                                        canPlay -> Color.White
+                                        phase == Phase.THINK -> Color.White.copy(alpha = 0.12f)
+                                        else -> Coral
+                                    }
+                                )
+                                // Only a button once there is a recording to play; otherwise it's a status light.
+                                .then(if (canPlay) Modifier.clickable { togglePlayback() } else Modifier),
                             contentAlignment = Alignment.Center
                         ) {
                             if (phase == Phase.THINK) {
@@ -401,7 +401,11 @@ fun SpeakingPracticeScreen(navController: NavHostController, topic: String? = nu
                                         isPlayingBack -> Icons.Filled.Pause
                                         else -> Icons.Filled.PlayArrow
                                     },
-                                    contentDescription = if (canPlay) "Play recording" else null,
+                                    contentDescription = when {
+                                        !canPlay -> null
+                                        isPlayingBack -> "Pause recording"
+                                        else -> "Play recording"
+                                    },
                                     tint = if (canPlay) Ink else Color.White,
                                     modifier = Modifier.size(36.dp)
                                 )
